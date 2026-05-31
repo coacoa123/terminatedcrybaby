@@ -1,0 +1,559 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <title>⚡ Кафедра жалоб | Терминатор + кино-зарядка ⚡</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            min-height: 100vh;
+            font-family: 'Courier New', 'Fira Code', 'Segoe UI', monospace;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            background: #000000;
+        }
+
+        /* ЗАСТАВКА — ФОТО ТЕРМИНАТОРА НА ВЕСЬ ЭКРАН */
+        .terminator-wallpaper {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 0;
+            background: url('https://i.imgur.com/A9mNtJT.jpg') no-repeat center center/cover;
+            filter: brightness(0.35) contrast(1.2) saturate(1.1) sepia(0.1);
+            transition: filter 0.3s;
+        }
+        
+        /* дополнительное затемнение и красный оттенок под кино */
+        .terminator-wallpaper::after {
+            content: "";
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle at 30% 40%, rgba(255, 0, 30, 0.25), rgba(0,0,0,0.7));
+            pointer-events: none;
+        }
+
+        .hero-silhouettes {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            opacity: 0.12;
+            pointer-events: none;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><path fill="%23ff4d6d" d="M100,400 L130,350 L160,400 L200,380 L240,410 L270,370 L300,400 L330,360 L360,390 L390,350 L420,380 L460,360 L500,400 L470,440 L430,450 L390,440 L350,460 L310,450 L270,470 L230,450 L190,460 L150,440 L110,430 Z" opacity="0.5"/><circle cx="300" cy="320" r="15" fill="%23ff6680"/><rect x="450" y="380" width="60" height="30" fill="%23ff4d6d" opacity="0.4"/></svg>');
+            background-repeat: no-repeat;
+            background-position: bottom right;
+            background-size: 55%;
+        }
+
+        .scan-lines {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: repeating-linear-gradient(0deg, rgba(255, 30, 70, 0.08) 0px, rgba(255, 30, 70, 0.08) 2px, transparent 2px, transparent 8px);
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        /* главная консоль */
+        .hero-console {
+            max-width: 1050px;
+            width: 100%;
+            background: rgba(6, 8, 20, 0.88);
+            backdrop-filter: blur(12px);
+            border-radius: 40px;
+            border: 2px solid rgba(255, 66, 100, 0.9);
+            box-shadow: 0 0 40px rgba(255, 40, 80, 0.5), inset 0 0 20px rgba(255, 0, 30, 0.2);
+            overflow: hidden;
+            position: relative;
+            z-index: 10;
+        }
+
+        .hud-bar {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 12px 24px;
+            border-bottom: 2px solid #ff4d6d;
+            display: flex;
+            justify-content: space-between;
+            flex-wrap: wrap;
+            font-size: 0.75rem;
+            color: #ff7b9c;
+            text-shadow: 0 0 4px red;
+            font-weight: bold;
+        }
+
+        .council-badge {
+            background: #2a0a1f;
+            padding: 4px 12px;
+            border-radius: 40px;
+            font-size: 0.7rem;
+            border: 1px solid #ff4d6d;
+        }
+
+        .skynet-header {
+            padding: 1.5rem 2rem 1rem;
+            text-align: center;
+            background: linear-gradient(135deg, rgba(10, 5, 21, 0.95), rgba(21, 10, 26, 0.95));
+        }
+
+        .department-title {
+            font-size: 2.5rem;
+            font-weight: 900;
+            font-family: 'Impact', 'Courier New', monospace;
+            background: linear-gradient(135deg, #ffd966, #ff6b8f, #ffd966);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+            text-shadow: 0 0 10px #ff4d6d;
+            letter-spacing: 4px;
+            margin-bottom: 8px;
+        }
+
+        .skynet-header h1 {
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: #ffb7cc;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .hero-avatars {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-top: 14px;
+            flex-wrap: wrap;
+        }
+
+        .hero-icon {
+            background: #1f0c1a;
+            border-radius: 40px;
+            padding: 5px 14px;
+            font-size: 0.75rem;
+            color: #ff97ae;
+            border: 1px solid #ff6b8f;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+
+        .complaint-terminal {
+            padding: 1.8rem 2rem 1rem;
+        }
+
+        .field {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            color: #ffbfd0;
+            margin-bottom: 8px;
+            font-size: 0.85rem;
+            text-transform: uppercase;
+        }
+
+        input, textarea {
+            width: 100%;
+            background: rgba(3, 3, 15, 0.9);
+            border: 1px solid #b84c6e;
+            border-radius: 20px;
+            padding: 14px 18px;
+            font-family: 'Courier New', monospace;
+            font-size: 1rem;
+            color: #ffdfe8;
+            transition: all 0.2s;
+            outline: none;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #ff2a4a;
+            box-shadow: 0 0 0 2px rgba(255, 42, 74, 0.5);
+            background: #0d011c;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .btn-send {
+            width: 100%;
+            background: linear-gradient(95deg, #a02342, #e63960);
+            border: none;
+            padding: 15px;
+            font-size: 1.25rem;
+            font-weight: bold;
+            font-family: 'Courier New', monospace;
+            color: white;
+            border-radius: 60px;
+            cursor: pointer;
+            transition: 0.1s linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            box-shadow: 0 5px 0 #4f142b;
+            transform: translateY(-2px);
+        }
+
+        .btn-send:active {
+            transform: translateY(3px);
+            box-shadow: 0 2px 0 #4f142b;
+        }
+
+        .btn-send:disabled {
+            opacity: 0.6;
+            transform: translateY(0);
+            cursor: wait;
+        }
+
+        .response-area {
+            margin: 0 1.8rem 1.8rem 1.8rem;
+            background: rgba(2, 2, 12, 0.92);
+            border-radius: 32px;
+            border: 1px solid #ff6680;
+            backdrop-filter: blur(8px);
+        }
+
+        .response-card {
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+            align-items: center;
+        }
+
+        .hero-workout-card {
+            background: #0e071b;
+            border-radius: 32px;
+            padding: 22px;
+            width: 100%;
+            max-width: 420px;
+            text-align: center;
+            box-shadow: 0 0 0 2px #ff4d6d, 0 10px 25px black;
+            transition: transform 0.2s;
+        }
+
+        .hero-avatar-big {
+            font-size: 4rem;
+            margin-bottom: 8px;
+            filter: drop-shadow(0 0 8px #ff4d6d);
+        }
+
+        .hero-name {
+            font-size: 1.4rem;
+            font-weight: bold;
+            background: #ff4d6d30;
+            display: inline-block;
+            padding: 4px 18px;
+            border-radius: 40px;
+            margin-bottom: 15px;
+        }
+
+        .exercise-block {
+            background: #03000c;
+            border-radius: 28px;
+            padding: 15px;
+            margin: 12px 0;
+            border: 1px solid #ff7b9c;
+        }
+
+        .exercise-name {
+            font-size: 1.8rem;
+            font-weight: bold;
+            color: #ff9fbb;
+            letter-spacing: 2px;
+        }
+
+        .exercise-desc {
+            font-size: 0.85rem;
+            color: #ccaabb;
+            margin-top: 8px;
+        }
+
+        .verdict-text {
+            background: #000000aa;
+            padding: 12px;
+            border-radius: 24px;
+            font-size: 0.9rem;
+            color: #ffcfdf;
+            text-align: left;
+            border-left: 5px solid #ff4d6d;
+            margin-top: 10px;
+        }
+
+        .signature {
+            font-size: 0.7rem;
+            color: #b77f94;
+            margin-top: 12px;
+        }
+
+        .hidden-response {
+            display: none;
+        }
+
+        .flash-effect {
+            animation: heroFlash 0.3s ease;
+        }
+
+        @keyframes heroFlash {
+            0% { box-shadow: 0 0 0 0 #ff4d6d; background: rgba(255, 60, 100, 0.3);}
+            50% { box-shadow: 0 0 0 8px rgba(255, 77, 109, 0.6);}
+        }
+
+        footer {
+            text-align: center;
+            padding: 1rem;
+            font-size: 0.65rem;
+            border-top: 1px solid #472a3a;
+            color: #9a6f82;
+        }
+
+        @media (max-width: 600px) {
+            .department-title { font-size: 1.6rem; letter-spacing: 2px; }
+            .hero-icon { font-size: 0.6rem; padding: 3px 8px; }
+            .exercise-name { font-size: 1.3rem; }
+            .hero-name { font-size: 1.1rem; }
+            .skynet-header h1 { font-size: 1rem; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ЗАСТАВКА: КУЛЬТОВОЕ ФОТО ТЕРМИНАТОРА НА ВЕСЬ ЭКРАН -->
+<div class="terminator-wallpaper"></div>
+<div class="hero-silhouettes"></div>
+<div class="scan-lines"></div>
+
+<div class="hero-console" id="app">
+    <div class="hud-bar">
+        <div>🏛️ КАФЕДРА ЖАЛОБ — ТЕРМИНАТОР ЭДИШН 🏛️</div>
+        <div class="council-badge">⚡ ФИЗКУЛЬТ-ПРИВЕТ ОТ ГЕРОЕВ ⚡</div>
+    </div>
+    <div class="skynet-header">
+        <div class="department-title">🏛️ КАФЕДРА ЖАЛОБ 🏛️</div>
+        <h1>🔴 ПОЖАЛУЙСЯ — ПОЛУЧИ ЗАРЯДКУ! 🔴</h1>
+        <div class="hero-avatars">
+            <span class="hero-icon">🦾💪 Терминатор (отжимания)</span>
+            <span class="hero-icon">🕶️🌀 Нео (планка)</span>
+            <span class="hero-icon">♿🧠 Профессор Икс (медитация)</span>
+            <span class="hero-icon">🐢🍕 Черепашки (приседания)</span>
+        </div>
+        <p style="color:#ff99b4; margin-top:10px;">🔥 Выплесни зло — получи физическое упражнение от супергероя! (бег не предлагаем, только сила) 🔥</p>
+    </div>
+
+    <div class="complaint-terminal">
+        <div class="field">
+            <label>🎭 ТВОЁ ИМЯ (или ник)</label>
+            <input type="text" id="username" placeholder="Джон Коннор, Нео, Микеланджело...">
+        </div>
+        <div class="field">
+            <label>💢 ТЕКСТ ЖАЛОБЫ (ВСЯ ЭНЕРГИЯ ЗЛА)</label>
+            <textarea id="complaintText" placeholder="Всё бесит: лаги, холодная пицца, начальник-терминатор, несправедливость в матрице, кривой код, отсутствие пиццы... Пиши, кафедра переработает!"></textarea>
+        </div>
+        <button class="btn-send" id="sendBtn">
+            🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬
+        </button>
+        <div style="font-size:0.65rem; text-align:center; margin-top:10px;">⚡ Случайный герой кафедры выдаст комплекс упражнений (кроме бега) + шутливую картинку ⚡</div>
+    </div>
+
+    <div id="responseContainer" class="response-area hidden-response">
+        <div class="response-card" id="responseCard">
+            <!-- динамический ответ с упражнением -->
+        </div>
+    </div>
+    <footer>
+        🦸‍♂️ Кафедра жалоб им. Терминатора, Нео, Проф. Икса и Черепашек-ниндзя. Жалуйся — тренируйся, бег под запретом!
+    </footer>
+</div>
+
+<script>
+    (function(){
+        // ГЕРОИ + ФИЗИЧЕСКИЕ УПРАЖНЕНИЯ (КРОМЕ БЕГА)
+        const heroes = [
+            {
+                name: "ТЕРМИНАТОР T-800",
+                avatar: "🦾🔥💪",
+                iconBig: "🦾🔥",
+                color: "#ff4d6d",
+                exercise: {
+                    name: "АРНОЛЬД-ОТЖИМАНИЯ",
+                    desc: "10 отжиманий от пола (или от стола, если пол злой). Представь, что ты давишь гнев в пол. Повторять с фразой «I'll be back» после каждого.",
+                    emoji: "💪🔴"
+                },
+                quotes: [
+                    "ТВОЯ ЖАЛОБА ЗАРЯДИЛА МОЙ ПРОЦЕССОР. ВЫПОЛНИ «АРНОЛЬД-ОТЖИМАНИЯ» — И ТВОЙ ГНЕВ СТАНЕТ МЫШЦАМИ. ЭНЕРГИЯ ЗЛА ПОЛЕЗНА ДЛЯ ПРЕССА!",
+                    "СКАЙНЕТ АНАЛИЗ: УРОВЕНЬ ЗЛА ВЫСОК. ЛУЧШЕЕ ЛЕКАРСТВО — ОТЖИМАНИЯ. ВЫПОЛНИ НОРМУ, СОЛДАТ, И ВЕРНИСЬ С УЛЫБКОЙ."
+                ]
+            },
+            {
+                name: "НЕО (ИЗ МАТРИЦЫ)",
+                avatar: "🕶️🌀🧘",
+                iconBig: "🕶️✨",
+                color: "#00c8a0",
+                exercise: {
+                    name: "ПЛАНКА НЕО",
+                    desc: "Планка 30 секунд. Уклоняйся от пуль реальности. Держи спину ровно, как будто ты останавливаешь время. Дыши как избранный.",
+                    emoji: "🧘‍♂️💊"
+                },
+                quotes: [
+                    "ТВОЯ ЖАЛОБА — ГЛЮК В МАТРИЦЕ. СТОЙ В ПЛАНКЕ, ПОКА СЧИТАЮ ДО 30. ПОЧУВСТВУЕШЬ, КАК НЕДОВОЛЬСТВО ПРЕВРАЩАЕТСЯ В СИЛУ. НЕТ ПРОБЛЕМ — ЕСТЬ ТВОЙ КОР.",
+                    "Я ЗНАЮ КУНГ-ФУ, НО ТЕБЕ НУЖНА ПЛАНКА. ВЫПОЛНИ «ПЛАНКУ НЕО» — И КОД РЕАЛЬНОСТИ ПЕРЕСТАНЕТ ТЕБЯ БЕСИТЬ. СЛЕДУЙ ЗА БЕЛЫМ КРОЛИКОМ."
+                ]
+            },
+            {
+                name: "ПРОФЕССОР ИКС (ЛЮДИ ИКС)",
+                avatar: "♿🧠🌀",
+                iconBig: "🧠⚡",
+                color: "#aa88ff",
+                exercise: {
+                    name: "МЕДИТАЦИЯ ЦЕРЕБРО",
+                    desc: "Сядь удобно, закрой глаза, дыши глубоко 2 минуты. Визуализируй, как твоя жалоба уплывает в астрал. Никакого бега — только разум.",
+                    emoji: "🧘‍♂️🔮"
+                },
+                quotes: [
+                    "МОЙ ЦЕРЕБРО УЛОВИЛ ВОЛНЫ ГНЕВА. НЕ БЕГИ — МЕДИТИРУЙ. 2 МИНУТЫ ТИШИНЫ РАЗРУШАТ ОБИДУ ЛУЧШЕ ЛЮБОГО СПОРТА. СИЛА В ПОКОЕ.",
+                    "ЛЮДИ ИКС ЗНАЮТ: МЕДИТАЦИЯ ЛЕЧИТ ЛУЧШЕ КУЛАКОВ. СЯДЬ В УДОБНУЮ ПОЗУ, ПРОВЕТРИ МОЗГИ. ТВОЯ ЖАЛОБА СТАНЕТ ДЗЕН-АРТЕФАКТОМ."
+                ]
+            },
+            {
+                name: "ЧЕРЕПАШКИ-НИНДЗЯ",
+                avatar: "🐢🍕🏋️",
+                iconBig: "🐢🐢🍕",
+                color: "#6fbf4c",
+                exercise: {
+                    name: "ПРИСЕДАНИЯ НИНДЗЯ",
+                    desc: "15 приседаний. Представь, что ты черепашка в канализации. Приседая, разгоняй злость. Кавабунга! Пицца после тренировки — виртуально.",
+                    emoji: "🍕🐢💪"
+                },
+                quotes: [
+                    "ЭЙ, БРО! ТВОЯ ЭНЕРГИЯ ЗЛА ДОСТОЙНА ПРИСЕДАНИЙ. 15 РАЗ ВНИЗ-ВВЕРХ, И ГНЕВ СГОРИТ, КАК ПИЦЦА В ПЕЧИ. ЛЕОНАРДО ОДОБРЯЕТ!",
+                    "ЧЕРЕПАШКИ НЕ БЕГАЮТ, ОНИ ПРИСЕДАЮТ! ВЫПОЛНИ НОРМУ, И МЫ ВРУЧИМ ТЕБЕ ВИРТУАЛЬНЫЙ КУСОК ПИЦЦЫ. РАФАЭЛЬ СКАЗАЛ: ЭТО ЛУЧШЕ, ЧЕМ ЖАЛОВАТЬСЯ."
+                ]
+            }
+        ];
+
+        function getWorkoutReply(username, complaintMsg) {
+            const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
+            let quoteIndex = Math.floor(Math.random() * randomHero.quotes.length);
+            let quote = randomHero.quotes[quoteIndex];
+            
+            const userName = (username && username.trim() !== "") ? username.trim().toUpperCase() : "СТУДЕНТ КАФЕДРЫ ЖАЛОБ";
+            const lowerMsg = complaintMsg.toLowerCase();
+            
+            // персонализация под ключевые слова для юмора
+            if (lowerMsg.includes("интернет") || lowerMsg.includes("wifi") || lowerMsg.includes("лаги")) {
+                quote = `⚠️ ЦИФРОВАЯ ЖАЛОБА ЗАФИКСИРОВАНА, ${userName}. ${randomHero.name} РЕКОМЕНДУЕТ: ${randomHero.exercise.name}. ПОСЛЕ УПРАЖНЕНИЯ ИНТЕРНЕТ ПОЧИНИТСЯ САМ (ИЛИ НЕТ, НО СТАНЕТ СМЕШНЕЕ).`;
+            } else if (lowerMsg.includes("начальник") || lowerMsg.includes("работа") || lowerMsg.includes("босс")) {
+                quote = `ОФИСНЫЙ ГНЕВ — СЕРЬЁЗНАЯ СИЛА! ${userName}, ЛУЧШИЙ СПОСОБ — ${randomHero.exercise.name}. НАЧАЛЬНИК НЕ УСЛЫШИТ, НО ТВОЙ ОРГАНИЗМ СКАЖЕТ СПАСИБО.`;
+            } else if (lowerMsg.includes("пицца")) {
+                if (randomHero.name === "ЧЕРЕПАШКИ-НИНДЗЯ") {
+                    quote = `ПИЦЦА — СВЯТОЕ, ${userName}! ТВОЯ ЖАЛОБА НА НЕЁ УСЛЫШАНА. ВЫПОЛНИ ${randomHero.exercise.name}, А МЫ ДАДИМ ТЕБЕ ВИРТУАЛЬНЫЙ КУСОЧЕК С АНЧОУСАМИ ЮМОРА.`;
+                } else {
+                    quote = `🍕 ДАЖЕ ${randomHero.name} ЛЮБИТ ПИЦЦУ! ${userName}, ВЫПОЛНИ ${randomHero.exercise.name} И МИР СТАНЕТ ВКУСНЕЕ.`;
+                }
+            } else if (lowerMsg.includes("деньги") || lowerMsg.includes("зарплата")) {
+                quote = `💰 ФИНАНСОВАЯ ЖАЛОБА, ${userName}! КАФЕДРА РЕКОМЕНДУЕТ ${randomHero.exercise.name}. ДЕНЬГИ — ЭТО МАТРИЦА, А СИЛА — В ТЕЛЕ.`;
+            }
+            
+            const finalText = `${userName}! ${quote} ТВОЯ ЖАЛОБА ПЕРЕРАБОТАНА КАФЕДРОЙ В ЭНЕРГИЮ. ВЫПОЛНИ УПРАЖНЕНИЕ — И ГНЕВ УЙДЁТ, А СИЛА ПРИДЁТ.`;
+            
+            // Карточка с упражнением и шутливым фото-описанием
+            const workoutHtml = `
+                <div class="hero-workout-card" style="border: 2px solid ${randomHero.color}; box-shadow: 0 0 15px ${randomHero.color}80;">
+                    <div class="hero-avatar-big">${randomHero.iconBig}</div>
+                    <div class="hero-name" style="background: ${randomHero.color}40; border: 1px solid ${randomHero.color};">${randomHero.name}</div>
+                    <div class="exercise-block">
+                        <div class="exercise-name">🏋️ ${randomHero.exercise.name} 🏋️</div>
+                        <div class="exercise-desc">${randomHero.exercise.desc}</div>
+                        <div style="font-size: 2rem; margin-top: 8px;">${randomHero.exercise.emoji}</div>
+                    </div>
+                    <div class="verdict-text">
+                        💢 «${finalText}» 💢
+                        <div style="margin-top: 10px; font-size: 0.7rem; color: #ffb7cc;">📸 КАРТИНКА-ВЕРДИКТ ОТ КАФЕДРЫ ЖАЛОБ</div>
+                    </div>
+                    <div class="signature">
+                        🎬 Кафедра жалоб им. героев кино: жалуйся, тренируйся, смейся. Бег исключён — только сила духа и мышц!
+                    </div>
+                </div>
+            `;
+            return workoutHtml;
+        }
+
+        // DOM элементы
+        const usernameInput = document.getElementById('username');
+        const complaintInput = document.getElementById('complaintText');
+        const sendBtn = document.getElementById('sendBtn');
+        const responseContainer = document.getElementById('responseContainer');
+        const responseCardDiv = document.getElementById('responseCard');
+        const appDiv = document.getElementById('app');
+
+        function flashEffect() {
+            appDiv.classList.add('flash-effect');
+            setTimeout(() => appDiv.classList.remove('flash-effect'), 350);
+        }
+
+        function submitComplaint() {
+            let username = usernameInput.value.trim();
+            let complaint = complaintInput.value.trim();
+            
+            if (complaint === "") {
+                alert("⚠️ КАФЕДРА НЕ ПРИНИМАЕТ ПУСТЫЕ ЖАЛОБЫ! НАПИШИ, ЧТО ТЕБЯ БЕСИТ, ХОТЯ БЫ ПАРУ СЛОВ. ⚠️");
+                complaintInput.style.borderColor = "#ff4d6d";
+                setTimeout(() => complaintInput.style.borderColor = "#b84c6e", 1000);
+                return;
+            }
+            
+            if (username === "") username = "СТУДЕНТ КАФЕДРЫ";
+            
+            sendBtn.disabled = true;
+            sendBtn.innerHTML = "🏋️‍♂️ ЖАЛОБА ПЕРЕРАБАТЫВАЕТСЯ КАФЕДРОЙ... 🏋️‍♀️";
+            flashEffect();
+            
+            setTimeout(() => {
+                const workoutReply = getWorkoutReply(username, complaint);
+                responseCardDiv.innerHTML = workoutReply;
+                responseContainer.classList.remove('hidden-response');
+                
+                sendBtn.disabled = false;
+                sendBtn.innerHTML = "🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬";
+                
+                setTimeout(() => responseContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
+            }, 700);
+        }
+        
+        sendBtn.addEventListener('click', submitComplaint);
+        complaintInput.addEventListener('keydown', (e) => {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                e.preventDefault();
+                submitComplaint();
+            }
+        });
+        
+        responseContainer.classList.add('hidden-response');
+        console.log("✅ Кафедра жалоб с Терминатором на фоне активна! Отжимания, планка, медитация, приседания — жалуйтесь и тренируйтесь!");
+    })();
+</script>
+</body>
+</html>
