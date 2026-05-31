@@ -2,13 +2,14 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
     <title>⚡ Кафедра жалоб | Терминатор + кино-зарядка ⚡</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
         }
 
         body {
@@ -17,7 +18,7 @@
             display: flex;
             justify-content: center;
             align-items: center;
-            padding: 20px;
+            padding: 12px;
             position: relative;
             background: #000000;
         }
@@ -35,7 +36,6 @@
             transition: filter 0.3s;
         }
         
-        /* дополнительное затемнение и красный оттенок под кино */
         .terminator-wallpaper::after {
             content: "";
             position: absolute;
@@ -43,22 +43,8 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: radial-gradient(circle at 30% 40%, rgba(255, 0, 30, 0.25), rgba(0,0,0,0.7));
+            background: radial-gradient(circle at 30% 40%, rgba(255, 0, 30, 0.25), rgba(0,0,0,0.75));
             pointer-events: none;
-        }
-
-        .hero-silhouettes {
-            position: absolute;
-            bottom: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            opacity: 0.12;
-            pointer-events: none;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 600"><path fill="%23ff4d6d" d="M100,400 L130,350 L160,400 L200,380 L240,410 L270,370 L300,400 L330,360 L360,390 L390,350 L420,380 L460,360 L500,400 L470,440 L430,450 L390,440 L350,460 L310,450 L270,470 L230,450 L190,460 L150,440 L110,430 Z" opacity="0.5"/><circle cx="300" cy="320" r="15" fill="%23ff6680"/><rect x="450" y="380" width="60" height="30" fill="%23ff4d6d" opacity="0.4"/></svg>');
-            background-repeat: no-repeat;
-            background-position: bottom right;
-            background-size: 55%;
         }
 
         .scan-lines {
@@ -67,67 +53,69 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(255, 30, 70, 0.08) 0px, rgba(255, 30, 70, 0.08) 2px, transparent 2px, transparent 8px);
+            background: repeating-linear-gradient(0deg, rgba(255, 30, 70, 0.06) 0px, rgba(255, 30, 70, 0.06) 2px, transparent 2px, transparent 8px);
             pointer-events: none;
             z-index: 1;
         }
 
-        /* главная консоль */
+        /* главная консоль — адаптивная */
         .hero-console {
-            max-width: 1050px;
+            max-width: 550px;
             width: 100%;
-            background: rgba(6, 8, 20, 0.88);
-            backdrop-filter: blur(12px);
-            border-radius: 40px;
+            background: rgba(6, 8, 20, 0.92);
+            backdrop-filter: blur(16px);
+            border-radius: 32px;
             border: 2px solid rgba(255, 66, 100, 0.9);
-            box-shadow: 0 0 40px rgba(255, 40, 80, 0.5), inset 0 0 20px rgba(255, 0, 30, 0.2);
+            box-shadow: 0 0 30px rgba(255, 40, 80, 0.4), inset 0 0 15px rgba(255, 0, 30, 0.15);
             overflow: hidden;
             position: relative;
             z-index: 10;
         }
 
         .hud-bar {
-            background: rgba(0, 0, 0, 0.8);
-            padding: 12px 24px;
+            background: rgba(0, 0, 0, 0.85);
+            padding: 10px 16px;
             border-bottom: 2px solid #ff4d6d;
             display: flex;
             justify-content: space-between;
             flex-wrap: wrap;
-            font-size: 0.75rem;
+            gap: 8px;
+            font-size: 0.65rem;
             color: #ff7b9c;
-            text-shadow: 0 0 4px red;
+            text-shadow: 0 0 3px red;
             font-weight: bold;
         }
 
         .council-badge {
             background: #2a0a1f;
-            padding: 4px 12px;
+            padding: 3px 10px;
             border-radius: 40px;
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             border: 1px solid #ff4d6d;
+            white-space: nowrap;
         }
 
         .skynet-header {
-            padding: 1.5rem 2rem 1rem;
+            padding: 1.2rem 1rem 0.8rem;
             text-align: center;
-            background: linear-gradient(135deg, rgba(10, 5, 21, 0.95), rgba(21, 10, 26, 0.95));
+            background: linear-gradient(135deg, rgba(10, 5, 21, 0.96), rgba(21, 10, 26, 0.96));
         }
 
         .department-title {
-            font-size: 2.5rem;
+            font-size: 1.6rem;
             font-weight: 900;
             font-family: 'Impact', 'Courier New', monospace;
             background: linear-gradient(135deg, #ffd966, #ff6b8f, #ffd966);
             -webkit-background-clip: text;
             background-clip: text;
             color: transparent;
-            text-shadow: 0 0 10px #ff4d6d;
-            letter-spacing: 4px;
-            margin-bottom: 8px;
+            text-shadow: 0 0 6px #ff4d6d;
+            letter-spacing: 2px;
+            margin-bottom: 6px;
         }
 
         .skynet-header h1 {
-            font-size: 1.5rem;
+            font-size: 1rem;
             font-weight: bold;
             color: #ffb7cc;
             margin-top: 5px;
@@ -137,63 +125,65 @@
         .hero-avatars {
             display: flex;
             justify-content: center;
-            gap: 15px;
-            margin-top: 14px;
+            gap: 8px;
+            margin-top: 12px;
             flex-wrap: wrap;
         }
 
         .hero-icon {
             background: #1f0c1a;
-            border-radius: 40px;
-            padding: 5px 14px;
-            font-size: 0.75rem;
+            border-radius: 30px;
+            padding: 4px 10px;
+            font-size: 0.65rem;
             color: #ff97ae;
             border: 1px solid #ff6b8f;
             display: inline-flex;
             align-items: center;
-            gap: 6px;
+            gap: 5px;
+            white-space: nowrap;
         }
 
         .complaint-terminal {
-            padding: 1.8rem 2rem 1rem;
+            padding: 1.2rem 1rem 1rem;
         }
 
         .field {
-            margin-bottom: 1.5rem;
+            margin-bottom: 1.2rem;
         }
 
         label {
             display: flex;
             align-items: center;
-            gap: 8px;
+            gap: 6px;
             font-weight: bold;
             color: #ffbfd0;
-            margin-bottom: 8px;
-            font-size: 0.85rem;
+            margin-bottom: 6px;
+            font-size: 0.75rem;
             text-transform: uppercase;
         }
 
         input, textarea {
             width: 100%;
-            background: rgba(3, 3, 15, 0.9);
+            background: rgba(3, 3, 15, 0.95);
             border: 1px solid #b84c6e;
             border-radius: 20px;
-            padding: 14px 18px;
+            padding: 12px 16px;
             font-family: 'Courier New', monospace;
-            font-size: 1rem;
+            font-size: 0.9rem;
             color: #ffdfe8;
             transition: all 0.2s;
             outline: none;
+            -webkit-appearance: none;
         }
 
         input:focus, textarea:focus {
             border-color: #ff2a4a;
-            box-shadow: 0 0 0 2px rgba(255, 42, 74, 0.5);
+            box-shadow: 0 0 0 2px rgba(255, 42, 74, 0.4);
             background: #0d011c;
         }
 
         textarea {
-            min-height: 120px;
+            min-height: 100px;
             resize: vertical;
         }
 
@@ -201,25 +191,26 @@
             width: 100%;
             background: linear-gradient(95deg, #a02342, #e63960);
             border: none;
-            padding: 15px;
-            font-size: 1.25rem;
+            padding: 14px;
+            font-size: 1.1rem;
             font-weight: bold;
             font-family: 'Courier New', monospace;
             color: white;
-            border-radius: 60px;
+            border-radius: 50px;
             cursor: pointer;
             transition: 0.1s linear;
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
-            box-shadow: 0 5px 0 #4f142b;
+            gap: 10px;
+            box-shadow: 0 4px 0 #4f142b;
             transform: translateY(-2px);
+            -webkit-tap-highlight-color: transparent;
         }
 
         .btn-send:active {
-            transform: translateY(3px);
-            box-shadow: 0 2px 0 #4f142b;
+            transform: translateY(2px);
+            box-shadow: 0 1px 0 #4f142b;
         }
 
         .btn-send:disabled {
@@ -229,84 +220,84 @@
         }
 
         .response-area {
-            margin: 0 1.8rem 1.8rem 1.8rem;
-            background: rgba(2, 2, 12, 0.92);
-            border-radius: 32px;
+            margin: 0 1rem 1.2rem 1rem;
+            background: rgba(2, 2, 12, 0.94);
+            border-radius: 28px;
             border: 1px solid #ff6680;
             backdrop-filter: blur(8px);
         }
 
         .response-card {
-            padding: 1.5rem;
+            padding: 1.2rem;
             display: flex;
             flex-direction: column;
-            gap: 20px;
+            gap: 16px;
             align-items: center;
         }
 
         .hero-workout-card {
             background: #0e071b;
-            border-radius: 32px;
-            padding: 22px;
+            border-radius: 28px;
+            padding: 18px;
             width: 100%;
-            max-width: 420px;
+            max-width: 100%;
             text-align: center;
-            box-shadow: 0 0 0 2px #ff4d6d, 0 10px 25px black;
-            transition: transform 0.2s;
+            box-shadow: 0 0 0 2px #ff4d6d, 0 8px 20px black;
         }
 
         .hero-avatar-big {
-            font-size: 4rem;
-            margin-bottom: 8px;
-            filter: drop-shadow(0 0 8px #ff4d6d);
+            font-size: 3rem;
+            margin-bottom: 6px;
+            filter: drop-shadow(0 0 6px #ff4d6d);
         }
 
         .hero-name {
-            font-size: 1.4rem;
+            font-size: 1.2rem;
             font-weight: bold;
             background: #ff4d6d30;
             display: inline-block;
-            padding: 4px 18px;
-            border-radius: 40px;
-            margin-bottom: 15px;
+            padding: 4px 14px;
+            border-radius: 30px;
+            margin-bottom: 12px;
         }
 
         .exercise-block {
             background: #03000c;
-            border-radius: 28px;
-            padding: 15px;
-            margin: 12px 0;
+            border-radius: 24px;
+            padding: 12px;
+            margin: 10px 0;
             border: 1px solid #ff7b9c;
         }
 
         .exercise-name {
-            font-size: 1.8rem;
+            font-size: 1.3rem;
             font-weight: bold;
             color: #ff9fbb;
-            letter-spacing: 2px;
+            letter-spacing: 1px;
         }
 
         .exercise-desc {
-            font-size: 0.85rem;
+            font-size: 0.75rem;
             color: #ccaabb;
-            margin-top: 8px;
+            margin-top: 6px;
         }
 
         .verdict-text {
             background: #000000aa;
-            padding: 12px;
-            border-radius: 24px;
-            font-size: 0.9rem;
+            padding: 10px;
+            border-radius: 20px;
+            font-size: 0.8rem;
             color: #ffcfdf;
             text-align: left;
-            border-left: 5px solid #ff4d6d;
-            margin-top: 10px;
+            border-left: 4px solid #ff4d6d;
+            margin-top: 8px;
+            line-height: 1.4;
         }
 
         .signature {
-            font-size: 0.7rem;
+            font-size: 0.6rem;
             color: #b77f94;
-            margin-top: 12px;
+            margin-top: 10px;
         }
 
         .hidden-response {
@@ -318,70 +309,88 @@
         }
 
         @keyframes heroFlash {
-            0% { box-shadow: 0 0 0 0 #ff4d6d; background: rgba(255, 60, 100, 0.3);}
-            50% { box-shadow: 0 0 0 8px rgba(255, 77, 109, 0.6);}
+            0% { box-shadow: 0 0 0 0 #ff4d6d; background: rgba(255, 60, 100, 0.2);}
+            50% { box-shadow: 0 0 0 6px rgba(255, 77, 109, 0.5);}
         }
 
         footer {
             text-align: center;
-            padding: 1rem;
-            font-size: 0.65rem;
+            padding: 0.8rem;
+            font-size: 0.55rem;
             border-top: 1px solid #472a3a;
             color: #9a6f82;
         }
 
+        /* Адаптация для очень маленьких экранов */
+        @media (max-width: 480px) {
+            body { padding: 8px; }
+            .hero-console { border-radius: 28px; }
+            .department-title { font-size: 1.4rem; letter-spacing: 1px; }
+            .hero-icon { font-size: 0.55rem; padding: 3px 8px; gap: 3px; }
+            .skynet-header h1 { font-size: 0.85rem; }
+            .complaint-terminal { padding: 1rem 0.9rem 0.8rem; }
+            input, textarea { padding: 10px 14px; font-size: 0.85rem; }
+            .btn-send { padding: 12px; font-size: 1rem; }
+            .hero-workout-card { padding: 14px; }
+            .hero-name { font-size: 1rem; }
+            .exercise-name { font-size: 1.1rem; }
+            .verdict-text { font-size: 0.75rem; }
+            .hud-bar { font-size: 0.55rem; padding: 8px 12px; }
+            .council-badge { font-size: 0.55rem; }
+        }
+
+        /* Улучшение скролла на телефонах */
         @media (max-width: 600px) {
-            .department-title { font-size: 1.6rem; letter-spacing: 2px; }
-            .hero-icon { font-size: 0.6rem; padding: 3px 8px; }
-            .exercise-name { font-size: 1.3rem; }
-            .hero-name { font-size: 1.1rem; }
-            .skynet-header h1 { font-size: 1rem; }
+            .response-card { padding: 1rem; }
+            .response-area { margin: 0 0.8rem 1rem 0.8rem; }
+        }
+        
+        /* Плавный скролл */
+        html {
+            scroll-behavior: smooth;
         }
     </style>
 </head>
 <body>
 
-<!-- ЗАСТАВКА: КУЛЬТОВОЕ ФОТО ТЕРМИНАТОРА НА ВЕСЬ ЭКРАН -->
+<!-- ЗАСТАВКА: ТЕРМИНАТОР НА ВЕСЬ ЭКРАН -->
 <div class="terminator-wallpaper"></div>
-<div class="hero-silhouettes"></div>
 <div class="scan-lines"></div>
 
 <div class="hero-console" id="app">
     <div class="hud-bar">
-        <div>🏛️ КАФЕДРА ЖАЛОБ — ТЕРМИНАТОР ЭДИШН 🏛️</div>
-        <div class="council-badge">⚡ ФИЗКУЛЬТ-ПРИВЕТ ОТ ГЕРОЕВ ⚡</div>
+        <div>🏛️ КАФЕДРА ЖАЛОБ</div>
+        <div class="council-badge">⚡ ТЕРМИНАТОР ЭДИШН ⚡</div>
     </div>
     <div class="skynet-header">
         <div class="department-title">🏛️ КАФЕДРА ЖАЛОБ 🏛️</div>
         <h1>🔴 ПОЖАЛУЙСЯ — ПОЛУЧИ ЗАРЯДКУ! 🔴</h1>
         <div class="hero-avatars">
-            <span class="hero-icon">🦾💪 Терминатор (отжимания)</span>
-            <span class="hero-icon">🕶️🌀 Нео (планка)</span>
-            <span class="hero-icon">♿🧠 Профессор Икс (медитация)</span>
-            <span class="hero-icon">🐢🍕 Черепашки (приседания)</span>
+            <span class="hero-icon">🦾💪 Терминатор</span>
+            <span class="hero-icon">🕶️🌀 Нео</span>
+            <span class="hero-icon">♿🧠 Проф. Икс</span>
+            <span class="hero-icon">🐢🍕 Черепашки</span>
         </div>
-        <p style="color:#ff99b4; margin-top:10px;">🔥 Выплесни зло — получи физическое упражнение от супергероя! (бег не предлагаем, только сила) 🔥</p>
+        <p style="color:#ff99b4; margin-top:8px; font-size:0.7rem;">🔥 Выплесни зло — получи упражнение от героя! (бег не предлагаем) 🔥</p>
     </div>
 
     <div class="complaint-terminal">
         <div class="field">
-            <label>🎭 ТВОЁ ИМЯ (или ник)</label>
+            <label>🎭 ТВОЁ ИМЯ (ник)</label>
             <input type="text" id="username" placeholder="Джон Коннор, Нео, Микеланджело...">
         </div>
         <div class="field">
             <label>💢 ТЕКСТ ЖАЛОБЫ (ВСЯ ЭНЕРГИЯ ЗЛА)</label>
-            <textarea id="complaintText" placeholder="Всё бесит: лаги, холодная пицца, начальник-терминатор, несправедливость в матрице, кривой код, отсутствие пиццы... Пиши, кафедра переработает!"></textarea>
+            <textarea id="complaintText" placeholder="Всё бесит: лаги, холодная пицца, начальник-терминатор, несправедливость в матрице, кривой код... Пиши, кафедра переработает!"></textarea>
         </div>
         <button class="btn-send" id="sendBtn">
             🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬
         </button>
-        <div style="font-size:0.65rem; text-align:center; margin-top:10px;">⚡ Случайный герой кафедры выдаст комплекс упражнений (кроме бега) + шутливую картинку ⚡</div>
+        <div style="font-size:0.6rem; text-align:center; margin-top:8px;">⚡ Герой выдаст упражнение + шутливую картинку ⚡</div>
     </div>
 
     <div id="responseContainer" class="response-area hidden-response">
-        <div class="response-card" id="responseCard">
-            <!-- динамический ответ с упражнением -->
-        </div>
+        <div class="response-card" id="responseCard"></div>
     </div>
     <footer>
         🦸‍♂️ Кафедра жалоб им. Терминатора, Нео, Проф. Икса и Черепашек-ниндзя. Жалуйся — тренируйся, бег под запретом!
@@ -399,12 +408,12 @@
                 color: "#ff4d6d",
                 exercise: {
                     name: "АРНОЛЬД-ОТЖИМАНИЯ",
-                    desc: "10 отжиманий от пола (или от стола, если пол злой). Представь, что ты давишь гнев в пол. Повторять с фразой «I'll be back» после каждого.",
+                    desc: "10 отжиманий от пола (или от стола). Дави гнев в пол. Фраза «I'll be back» после каждого.",
                     emoji: "💪🔴"
                 },
                 quotes: [
-                    "ТВОЯ ЖАЛОБА ЗАРЯДИЛА МОЙ ПРОЦЕССОР. ВЫПОЛНИ «АРНОЛЬД-ОТЖИМАНИЯ» — И ТВОЙ ГНЕВ СТАНЕТ МЫШЦАМИ. ЭНЕРГИЯ ЗЛА ПОЛЕЗНА ДЛЯ ПРЕССА!",
-                    "СКАЙНЕТ АНАЛИЗ: УРОВЕНЬ ЗЛА ВЫСОК. ЛУЧШЕЕ ЛЕКАРСТВО — ОТЖИМАНИЯ. ВЫПОЛНИ НОРМУ, СОЛДАТ, И ВЕРНИСЬ С УЛЫБКОЙ."
+                    "ТВОЯ ЖАЛОБА ЗАРЯДИЛА ПРОЦЕССОР. ВЫПОЛНИ «АРНОЛЬД-ОТЖИМАНИЯ» — ГНЕВ СТАНЕТ МЫШЦАМИ!",
+                    "СКАЙНЕТ АНАЛИЗ: УРОВЕНЬ ЗЛА ВЫСОК. ЛУЧШЕЕ ЛЕКАРСТВО — ОТЖИМАНИЯ. ВЫПОЛНИ НОРМУ, СОЛДАТ!"
                 ]
             },
             {
@@ -414,27 +423,27 @@
                 color: "#00c8a0",
                 exercise: {
                     name: "ПЛАНКА НЕО",
-                    desc: "Планка 30 секунд. Уклоняйся от пуль реальности. Держи спину ровно, как будто ты останавливаешь время. Дыши как избранный.",
+                    desc: "Планка 30 секунд. Уклоняйся от пуль реальности. Держи спину ровно, дыши как избранный.",
                     emoji: "🧘‍♂️💊"
                 },
                 quotes: [
-                    "ТВОЯ ЖАЛОБА — ГЛЮК В МАТРИЦЕ. СТОЙ В ПЛАНКЕ, ПОКА СЧИТАЮ ДО 30. ПОЧУВСТВУЕШЬ, КАК НЕДОВОЛЬСТВО ПРЕВРАЩАЕТСЯ В СИЛУ. НЕТ ПРОБЛЕМ — ЕСТЬ ТВОЙ КОР.",
-                    "Я ЗНАЮ КУНГ-ФУ, НО ТЕБЕ НУЖНА ПЛАНКА. ВЫПОЛНИ «ПЛАНКУ НЕО» — И КОД РЕАЛЬНОСТИ ПЕРЕСТАНЕТ ТЕБЯ БЕСИТЬ. СЛЕДУЙ ЗА БЕЛЫМ КРОЛИКОМ."
+                    "ТВОЯ ЖАЛОБА — ГЛЮК В МАТРИЦЕ. СТОЙ В ПЛАНКЕ 30 СЕКУНД. НЕТ ПРОБЛЕМ — ЕСТЬ ТВОЙ КОР.",
+                    "Я ЗНАЮ КУНГ-ФУ, НО ТЕБЕ НУЖНА ПЛАНКА. ВЫПОЛНИ — И КОД РЕАЛЬНОСТИ ПЕРЕСТАНЕТ БЕСИТЬ."
                 ]
             },
             {
-                name: "ПРОФЕССОР ИКС (ЛЮДИ ИКС)",
+                name: "ПРОФЕССОР ИКС",
                 avatar: "♿🧠🌀",
                 iconBig: "🧠⚡",
                 color: "#aa88ff",
                 exercise: {
                     name: "МЕДИТАЦИЯ ЦЕРЕБРО",
-                    desc: "Сядь удобно, закрой глаза, дыши глубоко 2 минуты. Визуализируй, как твоя жалоба уплывает в астрал. Никакого бега — только разум.",
+                    desc: "Сядь удобно, закрой глаза, дыши 2 минуты. Жалоба уплывёт в астрал. Бега нет — только разум.",
                     emoji: "🧘‍♂️🔮"
                 },
                 quotes: [
-                    "МОЙ ЦЕРЕБРО УЛОВИЛ ВОЛНЫ ГНЕВА. НЕ БЕГИ — МЕДИТИРУЙ. 2 МИНУТЫ ТИШИНЫ РАЗРУШАТ ОБИДУ ЛУЧШЕ ЛЮБОГО СПОРТА. СИЛА В ПОКОЕ.",
-                    "ЛЮДИ ИКС ЗНАЮТ: МЕДИТАЦИЯ ЛЕЧИТ ЛУЧШЕ КУЛАКОВ. СЯДЬ В УДОБНУЮ ПОЗУ, ПРОВЕТРИ МОЗГИ. ТВОЯ ЖАЛОБА СТАНЕТ ДЗЕН-АРТЕФАКТОМ."
+                    "ЦЕРЕБРО УЛОВИЛ ВОЛНЫ ГНЕВА. НЕ БЕГИ — МЕДИТИРУЙ 2 МИНУТЫ. СИЛА В ПОКОЕ.",
+                    "МЕДИТАЦИЯ ЛЕЧИТ ЛУЧШЕ КУЛАКОВ. СЯДЬ УДОБНО, ПРОВЕТРИ МОЗГИ. ЖАЛОБА СТАНЕТ ДЗЕН-АРТЕФАКТОМ."
                 ]
             },
             {
@@ -444,12 +453,12 @@
                 color: "#6fbf4c",
                 exercise: {
                     name: "ПРИСЕДАНИЯ НИНДЗЯ",
-                    desc: "15 приседаний. Представь, что ты черепашка в канализации. Приседая, разгоняй злость. Кавабунга! Пицца после тренировки — виртуально.",
+                    desc: "15 приседаний. Приседая, разгоняй злость. Кавабунга! Пицца после тренировки — виртуально.",
                     emoji: "🍕🐢💪"
                 },
                 quotes: [
-                    "ЭЙ, БРО! ТВОЯ ЭНЕРГИЯ ЗЛА ДОСТОЙНА ПРИСЕДАНИЙ. 15 РАЗ ВНИЗ-ВВЕРХ, И ГНЕВ СГОРИТ, КАК ПИЦЦА В ПЕЧИ. ЛЕОНАРДО ОДОБРЯЕТ!",
-                    "ЧЕРЕПАШКИ НЕ БЕГАЮТ, ОНИ ПРИСЕДАЮТ! ВЫПОЛНИ НОРМУ, И МЫ ВРУЧИМ ТЕБЕ ВИРТУАЛЬНЫЙ КУСОК ПИЦЦЫ. РАФАЭЛЬ СКАЗАЛ: ЭТО ЛУЧШЕ, ЧЕМ ЖАЛОВАТЬСЯ."
+                    "ЭЙ, БРО! ТВОЯ ЭНЕРГИЯ ЗЛА ДОСТОЙНА ПРИСЕДАНИЙ. 15 РАЗ — И ГНЕВ СГОРИТ, КАК ПИЦЦА В ПЕЧИ!",
+                    "ЧЕРЕПАШКИ НЕ БЕГАЮТ, ОНИ ПРИСЕДАЮТ! ВЫПОЛНИ НОРМУ, ПОЛУЧИ ВИРТУАЛЬНЫЙ КУСОК ПИЦЦЫ."
                 ]
             }
         ];
@@ -459,42 +468,41 @@
             let quoteIndex = Math.floor(Math.random() * randomHero.quotes.length);
             let quote = randomHero.quotes[quoteIndex];
             
-            const userName = (username && username.trim() !== "") ? username.trim().toUpperCase() : "СТУДЕНТ КАФЕДРЫ ЖАЛОБ";
+            const userName = (username && username.trim() !== "") ? username.trim().toUpperCase() : "СТУДЕНТ КАФЕДРЫ";
             const lowerMsg = complaintMsg.toLowerCase();
             
-            // персонализация под ключевые слова для юмора
+            // персонализация под ключевые слова
             if (lowerMsg.includes("интернет") || lowerMsg.includes("wifi") || lowerMsg.includes("лаги")) {
-                quote = `⚠️ ЦИФРОВАЯ ЖАЛОБА ЗАФИКСИРОВАНА, ${userName}. ${randomHero.name} РЕКОМЕНДУЕТ: ${randomHero.exercise.name}. ПОСЛЕ УПРАЖНЕНИЯ ИНТЕРНЕТ ПОЧИНИТСЯ САМ (ИЛИ НЕТ, НО СТАНЕТ СМЕШНЕЕ).`;
+                quote = `⚠️ ЦИФРОВАЯ ЖАЛОБА, ${userName}! ${randomHero.name} РЕКОМЕНДУЕТ: ${randomHero.exercise.name}. ПОСЛЕ УПРАЖНЕНИЯ ИНТЕРНЕТ ПОЧИНИТСЯ (ИЛИ НЕТ, НО СТАНЕТ СМЕШНЕЕ).`;
             } else if (lowerMsg.includes("начальник") || lowerMsg.includes("работа") || lowerMsg.includes("босс")) {
-                quote = `ОФИСНЫЙ ГНЕВ — СЕРЬЁЗНАЯ СИЛА! ${userName}, ЛУЧШИЙ СПОСОБ — ${randomHero.exercise.name}. НАЧАЛЬНИК НЕ УСЛЫШИТ, НО ТВОЙ ОРГАНИЗМ СКАЖЕТ СПАСИБО.`;
+                quote = `ОФИСНЫЙ ГНЕВ, ${userName}! ЛУЧШИЙ СПОСОБ — ${randomHero.exercise.name}. НАЧАЛЬНИК НЕ УСЛЫШИТ, НО ОРГАНИЗМ СКАЖЕТ СПАСИБО.`;
             } else if (lowerMsg.includes("пицца")) {
                 if (randomHero.name === "ЧЕРЕПАШКИ-НИНДЗЯ") {
-                    quote = `ПИЦЦА — СВЯТОЕ, ${userName}! ТВОЯ ЖАЛОБА НА НЕЁ УСЛЫШАНА. ВЫПОЛНИ ${randomHero.exercise.name}, А МЫ ДАДИМ ТЕБЕ ВИРТУАЛЬНЫЙ КУСОЧЕК С АНЧОУСАМИ ЮМОРА.`;
+                    quote = `ПИЦЦА — СВЯТОЕ, ${userName}! ВЫПОЛНИ ${randomHero.exercise.name}, МЫ ДАДИМ ВИРТУАЛЬНЫЙ КУСОЧЕК ЮМОРА.`;
                 } else {
                     quote = `🍕 ДАЖЕ ${randomHero.name} ЛЮБИТ ПИЦЦУ! ${userName}, ВЫПОЛНИ ${randomHero.exercise.name} И МИР СТАНЕТ ВКУСНЕЕ.`;
                 }
             } else if (lowerMsg.includes("деньги") || lowerMsg.includes("зарплата")) {
-                quote = `💰 ФИНАНСОВАЯ ЖАЛОБА, ${userName}! КАФЕДРА РЕКОМЕНДУЕТ ${randomHero.exercise.name}. ДЕНЬГИ — ЭТО МАТРИЦА, А СИЛА — В ТЕЛЕ.`;
+                quote = `💰 ФИНАНСОВАЯ ЖАЛОБА, ${userName}! КАФЕДРА РЕКОМЕНДУЕТ ${randomHero.exercise.name}. ДЕНЬГИ — МАТРИЦА, А СИЛА — В ТЕЛЕ.`;
             }
             
-            const finalText = `${userName}! ${quote} ТВОЯ ЖАЛОБА ПЕРЕРАБОТАНА КАФЕДРОЙ В ЭНЕРГИЮ. ВЫПОЛНИ УПРАЖНЕНИЕ — И ГНЕВ УЙДЁТ, А СИЛА ПРИДЁТ.`;
+            const finalText = `${userName}! ${quote} ТВОЯ ЖАЛОБА ПЕРЕРАБОТАНА В ЭНЕРГИЮ. ВЫПОЛНИ УПРАЖНЕНИЕ — ГНЕВ УЙДЁТ, СИЛА ПРИДЁТ.`;
             
-            // Карточка с упражнением и шутливым фото-описанием
             const workoutHtml = `
-                <div class="hero-workout-card" style="border: 2px solid ${randomHero.color}; box-shadow: 0 0 15px ${randomHero.color}80;">
+                <div class="hero-workout-card" style="border: 2px solid ${randomHero.color}; box-shadow: 0 0 12px ${randomHero.color}80;">
                     <div class="hero-avatar-big">${randomHero.iconBig}</div>
                     <div class="hero-name" style="background: ${randomHero.color}40; border: 1px solid ${randomHero.color};">${randomHero.name}</div>
                     <div class="exercise-block">
                         <div class="exercise-name">🏋️ ${randomHero.exercise.name} 🏋️</div>
                         <div class="exercise-desc">${randomHero.exercise.desc}</div>
-                        <div style="font-size: 2rem; margin-top: 8px;">${randomHero.exercise.emoji}</div>
+                        <div style="font-size: 1.8rem; margin-top: 6px;">${randomHero.exercise.emoji}</div>
                     </div>
                     <div class="verdict-text">
                         💢 «${finalText}» 💢
-                        <div style="margin-top: 10px; font-size: 0.7rem; color: #ffb7cc;">📸 КАРТИНКА-ВЕРДИКТ ОТ КАФЕДРЫ ЖАЛОБ</div>
+                        <div style="margin-top: 8px; font-size: 0.65rem; color: #ffb7cc;">📸 ВЕРДИКТ ОТ КАФЕДРЫ ЖАЛОБ</div>
                     </div>
                     <div class="signature">
-                        🎬 Кафедра жалоб им. героев кино: жалуйся, тренируйся, смейся. Бег исключён — только сила духа и мышц!
+                        🎬 Бег исключён — только сила духа и мышц!
                     </div>
                 </div>
             `;
@@ -519,7 +527,7 @@
             let complaint = complaintInput.value.trim();
             
             if (complaint === "") {
-                alert("⚠️ КАФЕДРА НЕ ПРИНИМАЕТ ПУСТЫЕ ЖАЛОБЫ! НАПИШИ, ЧТО ТЕБЯ БЕСИТ, ХОТЯ БЫ ПАРУ СЛОВ. ⚠️");
+                alert("⚠️ КАФЕДРА НЕ ПРИНИМАЕТ ПУСТЫЕ ЖАЛОБЫ! НАПИШИ, ЧТО БЕСИТ. ⚠️");
                 complaintInput.style.borderColor = "#ff4d6d";
                 setTimeout(() => complaintInput.style.borderColor = "#b84c6e", 1000);
                 return;
@@ -528,7 +536,7 @@
             if (username === "") username = "СТУДЕНТ КАФЕДРЫ";
             
             sendBtn.disabled = true;
-            sendBtn.innerHTML = "🏋️‍♂️ ЖАЛОБА ПЕРЕРАБАТЫВАЕТСЯ КАФЕДРОЙ... 🏋️‍♀️";
+            sendBtn.innerHTML = "🏋️‍♂️ ЖАЛОБА ПЕРЕРАБАТЫВАЕТСЯ... 🏋️‍♀️";
             flashEffect();
             
             setTimeout(() => {
@@ -539,11 +547,15 @@
                 sendBtn.disabled = false;
                 sendBtn.innerHTML = "🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬";
                 
-                setTimeout(() => responseContainer.scrollIntoView({ behavior: 'smooth', block: 'start' }), 80);
-            }, 700);
+                setTimeout(() => {
+                    responseContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+                }, 80);
+            }, 600);
         }
         
         sendBtn.addEventListener('click', submitComplaint);
+        
+        // Enter на мобильных (через Ctrl+Enter) и просто для удобства
         complaintInput.addEventListener('keydown', (e) => {
             if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
                 e.preventDefault();
@@ -552,7 +564,7 @@
         });
         
         responseContainer.classList.add('hidden-response');
-        console.log("✅ Кафедра жалоб с Терминатором на фоне активна! Отжимания, планка, медитация, приседания — жалуйтесь и тренируйтесь!");
+        console.log("✅ Кафедра жалоб адаптирована под телефон! Терминатор на фоне, упражнения, всё читабельно.");
     })();
 </script>
 </body>
