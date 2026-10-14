@@ -2,570 +2,421 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
-    <title>⚡ Кафедра жалоб | Терминатор + кино-зарядка ⚡</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Веб-конфигуратор iNav - Тест подключения</title>
     <style>
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        body {
-            min-height: 100vh;
-            font-family: 'Courier New', 'Fira Code', 'Segoe UI', monospace;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 12px;
-            position: relative;
-            background: #000000;
-        }
-
-        /* ЗАСТАВКА — ФОТО ТЕРМИНАТОРА НА ВЕСЬ ЭКРАН */
-        .terminator-wallpaper {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: 0;
-            background: url('https://i.imgur.com/A9mNtJT.jpg') no-repeat center center/cover;
-            filter: brightness(0.35) contrast(1.2) saturate(1.1) sepia(0.1);
-            transition: filter 0.3s;
         }
         
-        .terminator-wallpaper::after {
-            content: "";
-            position: absolute;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle at 30% 40%, rgba(255, 0, 30, 0.25), rgba(0,0,0,0.75));
-            pointer-events: none;
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
         }
-
-        .scan-lines {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: repeating-linear-gradient(0deg, rgba(255, 30, 70, 0.06) 0px, rgba(255, 30, 70, 0.06) 2px, transparent 2px, transparent 8px);
-            pointer-events: none;
-            z-index: 1;
-        }
-
-        /* главная консоль — адаптивная */
-        .hero-console {
-            max-width: 550px;
-            width: 100%;
-            background: rgba(6, 8, 20, 0.92);
-            backdrop-filter: blur(16px);
-            border-radius: 32px;
-            border: 2px solid rgba(255, 66, 100, 0.9);
-            box-shadow: 0 0 30px rgba(255, 40, 80, 0.4), inset 0 0 15px rgba(255, 0, 30, 0.15);
+        
+        .container {
+            max-width: 900px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
             overflow: hidden;
-            position: relative;
-            z-index: 10;
         }
-
-        .hud-bar {
-            background: rgba(0, 0, 0, 0.85);
-            padding: 10px 16px;
-            border-bottom: 2px solid #ff4d6d;
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+        
+        .header p {
+            opacity: 0.9;
+            font-size: 14px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .status-card {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-left: 4px solid #667eea;
+        }
+        
+        .status-card h2 {
+            font-size: 18px;
+            margin-bottom: 15px;
+            color: #333;
+        }
+        
+        .btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            padding: 15px 30px;
+            font-size: 16px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: transform 0.2s, box-shadow 0.2s;
+            width: 100%;
+            margin-bottom: 15px;
+        }
+        
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
+        }
+        
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+        
+        .info-row {
             display: flex;
             justify-content: space-between;
-            flex-wrap: wrap;
-            gap: 8px;
-            font-size: 0.65rem;
-            color: #ff7b9c;
-            text-shadow: 0 0 3px red;
-            font-weight: bold;
-        }
-
-        .council-badge {
-            background: #2a0a1f;
-            padding: 3px 10px;
-            border-radius: 40px;
-            font-size: 0.6rem;
-            border: 1px solid #ff4d6d;
-            white-space: nowrap;
-        }
-
-        .skynet-header {
-            padding: 1.2rem 1rem 0.8rem;
-            text-align: center;
-            background: linear-gradient(135deg, rgba(10, 5, 21, 0.96), rgba(21, 10, 26, 0.96));
-        }
-
-        .department-title {
-            font-size: 1.6rem;
-            font-weight: 900;
-            font-family: 'Impact', 'Courier New', monospace;
-            background: linear-gradient(135deg, #ffd966, #ff6b8f, #ffd966);
-            -webkit-background-clip: text;
-            background-clip: text;
-            color: transparent;
-            text-shadow: 0 0 6px #ff4d6d;
-            letter-spacing: 2px;
-            margin-bottom: 6px;
-        }
-
-        .skynet-header h1 {
-            font-size: 1rem;
-            font-weight: bold;
-            color: #ffb7cc;
-            margin-top: 5px;
-            text-transform: uppercase;
-        }
-
-        .hero-avatars {
-            display: flex;
-            justify-content: center;
-            gap: 8px;
-            margin-top: 12px;
-            flex-wrap: wrap;
-        }
-
-        .hero-icon {
-            background: #1f0c1a;
-            border-radius: 30px;
-            padding: 4px 10px;
-            font-size: 0.65rem;
-            color: #ff97ae;
-            border: 1px solid #ff6b8f;
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            white-space: nowrap;
-        }
-
-        .complaint-terminal {
-            padding: 1.2rem 1rem 1rem;
-        }
-
-        .field {
-            margin-bottom: 1.2rem;
-        }
-
-        label {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            font-weight: bold;
-            color: #ffbfd0;
-            margin-bottom: 6px;
-            font-size: 0.75rem;
-            text-transform: uppercase;
-        }
-
-        input, textarea {
-            width: 100%;
-            background: rgba(3, 3, 15, 0.95);
-            border: 1px solid #b84c6e;
-            border-radius: 20px;
-            padding: 12px 16px;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
-            color: #ffdfe8;
-            transition: all 0.2s;
-            outline: none;
-            -webkit-appearance: none;
-        }
-
-        input:focus, textarea:focus {
-            border-color: #ff2a4a;
-            box-shadow: 0 0 0 2px rgba(255, 42, 74, 0.4);
-            background: #0d011c;
-        }
-
-        textarea {
-            min-height: 100px;
-            resize: vertical;
-        }
-
-        .btn-send {
-            width: 100%;
-            background: linear-gradient(95deg, #a02342, #e63960);
-            border: none;
-            padding: 14px;
-            font-size: 1.1rem;
-            font-weight: bold;
-            font-family: 'Courier New', monospace;
-            color: white;
-            border-radius: 50px;
-            cursor: pointer;
-            transition: 0.1s linear;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            box-shadow: 0 4px 0 #4f142b;
-            transform: translateY(-2px);
-            -webkit-tap-highlight-color: transparent;
-        }
-
-        .btn-send:active {
-            transform: translateY(2px);
-            box-shadow: 0 1px 0 #4f142b;
-        }
-
-        .btn-send:disabled {
-            opacity: 0.6;
-            transform: translateY(0);
-            cursor: wait;
-        }
-
-        .response-area {
-            margin: 0 1rem 1.2rem 1rem;
-            background: rgba(2, 2, 12, 0.94);
-            border-radius: 28px;
-            border: 1px solid #ff6680;
-            backdrop-filter: blur(8px);
-        }
-
-        .response-card {
-            padding: 1.2rem;
-            display: flex;
-            flex-direction: column;
-            gap: 16px;
-            align-items: center;
-        }
-
-        .hero-workout-card {
-            background: #0e071b;
-            border-radius: 28px;
-            padding: 18px;
-            width: 100%;
-            max-width: 100%;
-            text-align: center;
-            box-shadow: 0 0 0 2px #ff4d6d, 0 8px 20px black;
-        }
-
-        .hero-avatar-big {
-            font-size: 3rem;
-            margin-bottom: 6px;
-            filter: drop-shadow(0 0 6px #ff4d6d);
-        }
-
-        .hero-name {
-            font-size: 1.2rem;
-            font-weight: bold;
-            background: #ff4d6d30;
-            display: inline-block;
-            padding: 4px 14px;
-            border-radius: 30px;
-            margin-bottom: 12px;
-        }
-
-        .exercise-block {
-            background: #03000c;
-            border-radius: 24px;
-            padding: 12px;
-            margin: 10px 0;
-            border: 1px solid #ff7b9c;
-        }
-
-        .exercise-name {
-            font-size: 1.3rem;
-            font-weight: bold;
-            color: #ff9fbb;
-            letter-spacing: 1px;
-        }
-
-        .exercise-desc {
-            font-size: 0.75rem;
-            color: #ccaabb;
-            margin-top: 6px;
-        }
-
-        .verdict-text {
-            background: #000000aa;
-            padding: 10px;
-            border-radius: 20px;
-            font-size: 0.8rem;
-            color: #ffcfdf;
-            text-align: left;
-            border-left: 4px solid #ff4d6d;
-            margin-top: 8px;
-            line-height: 1.4;
-        }
-
-        .signature {
-            font-size: 0.6rem;
-            color: #b77f94;
-            margin-top: 10px;
-        }
-
-        .hidden-response {
-            display: none;
-        }
-
-        .flash-effect {
-            animation: heroFlash 0.3s ease;
-        }
-
-        @keyframes heroFlash {
-            0% { box-shadow: 0 0 0 0 #ff4d6d; background: rgba(255, 60, 100, 0.2);}
-            50% { box-shadow: 0 0 0 6px rgba(255, 77, 109, 0.5);}
-        }
-
-        footer {
-            text-align: center;
-            padding: 0.8rem;
-            font-size: 0.55rem;
-            border-top: 1px solid #472a3a;
-            color: #9a6f82;
-        }
-
-        /* Адаптация для очень маленьких экранов */
-        @media (max-width: 480px) {
-            body { padding: 8px; }
-            .hero-console { border-radius: 28px; }
-            .department-title { font-size: 1.4rem; letter-spacing: 1px; }
-            .hero-icon { font-size: 0.55rem; padding: 3px 8px; gap: 3px; }
-            .skynet-header h1 { font-size: 0.85rem; }
-            .complaint-terminal { padding: 1rem 0.9rem 0.8rem; }
-            input, textarea { padding: 10px 14px; font-size: 0.85rem; }
-            .btn-send { padding: 12px; font-size: 1rem; }
-            .hero-workout-card { padding: 14px; }
-            .hero-name { font-size: 1rem; }
-            .exercise-name { font-size: 1.1rem; }
-            .verdict-text { font-size: 0.75rem; }
-            .hud-bar { font-size: 0.55rem; padding: 8px 12px; }
-            .council-badge { font-size: 0.55rem; }
-        }
-
-        /* Улучшение скролла на телефонах */
-        @media (max-width: 600px) {
-            .response-card { padding: 1rem; }
-            .response-area { margin: 0 0.8rem 1rem 0.8rem; }
+            padding: 10px 0;
+            border-bottom: 1px solid #e0e0e0;
         }
         
-        /* Плавный скролл */
-        html {
-            scroll-behavior: smooth;
+        .info-row:last-child {
+            border-bottom: none;
+        }
+        
+        .info-label {
+            font-weight: 600;
+            color: #666;
+        }
+        
+        .info-value {
+            color: #333;
+            font-family: 'Courier New', monospace;
+        }
+        
+        .status-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+        
+        .status-connected {
+            background: #4caf50;
+            box-shadow: 0 0 10px #4caf50;
+        }
+        
+        .status-disconnected {
+            background: #f44336;
+        }
+        
+        .log {
+            background: #1e1e1e;
+            color: #d4d4d4;
+            padding: 15px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            max-height: 300px;
+            overflow-y: auto;
+            margin-top: 20px;
+        }
+        
+        .log-entry {
+            margin: 5px 0;
+            padding: 5px;
+            border-left: 3px solid #667eea;
+            padding-left: 10px;
+        }
+        
+        .log-error {
+            border-left-color: #f44336;
+            color: #ff6b6b;
+        }
+        
+        .log-success {
+            border-left-color: #4caf50;
+            color: #81c784;
+        }
+        
+        .warning {
+            background: #fff3cd;
+            border: 1px solid #ffc107;
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 20px;
+            color: #856404;
+        }
+        
+        .warning strong {
+            color: #856404;
         }
     </style>
 </head>
 <body>
-
-<!-- ЗАСТАВКА: ТЕРМИНАТОР НА ВЕСЬ ЭКРАН -->
-<div class="terminator-wallpaper"></div>
-<div class="scan-lines"></div>
-
-<div class="hero-console" id="app">
-    <div class="hud-bar">
-        <div>🏛️ КАФЕДРА ЖАЛОБ</div>
-        <div class="council-badge">⚡ ТЕРМИНАТОР ЭДИШН ⚡</div>
-    </div>
-    <div class="skynet-header">
-        <div class="department-title">🏛️ КАФЕДРА ЖАЛОБ 🏛️</div>
-        <h1>🔴 ПОЖАЛУЙСЯ — ПОЛУЧИ ЗАРЯДКУ! 🔴</h1>
-        <div class="hero-avatars">
-            <span class="hero-icon">🦾💪 Терминатор</span>
-            <span class="hero-icon">🕶️🌀 Нео</span>
-            <span class="hero-icon">♿🧠 Проф. Икс</span>
-            <span class="hero-icon">🐢🍕 Черепашки</span>
+    <div class="container">
+        <div class="header">
+            <h1>🛩️ Веб-конфигуратор iNav</h1>
+            <p>Тест подключения к полетнику через Web Serial API</p>
         </div>
-        <p style="color:#ff99b4; margin-top:8px; font-size:0.7rem;">🔥 Выплесни зло — получи упражнение от героя! (бег не предлагаем) 🔥</p>
-    </div>
-
-    <div class="complaint-terminal">
-        <div class="field">
-            <label>🎭 ТВОЁ ИМЯ (ник)</label>
-            <input type="text" id="username" placeholder="Джон Коннор, Нео, Микеланджело...">
-        </div>
-        <div class="field">
-            <label>💢 ТЕКСТ ЖАЛОБЫ (ВСЯ ЭНЕРГИЯ ЗЛА)</label>
-            <textarea id="complaintText" placeholder="Всё бесит: лаги, холодная пицца, начальник-терминатор, несправедливость в матрице, кривой код... Пиши, кафедра переработает!"></textarea>
-        </div>
-        <button class="btn-send" id="sendBtn">
-            🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬
-        </button>
-        <div style="font-size:0.6rem; text-align:center; margin-top:8px;">⚡ Герой выдаст упражнение + шутливую картинку ⚡</div>
-    </div>
-
-    <div id="responseContainer" class="response-area hidden-response">
-        <div class="response-card" id="responseCard"></div>
-    </div>
-    <footer>
-        🦸‍♂️ Кафедра жалоб им. Терминатора, Нео, Проф. Икса и Черепашек-ниндзя. Жалуйся — тренируйся, бег под запретом!
-    </footer>
-</div>
-
-<script>
-    (function(){
-        // ГЕРОИ + ФИЗИЧЕСКИЕ УПРАЖНЕНИЯ (КРОМЕ БЕГА)
-        const heroes = [
-            {
-                name: "ТЕРМИНАТОР T-800",
-                avatar: "🦾🔥💪",
-                iconBig: "🦾🔥",
-                color: "#ff4d6d",
-                exercise: {
-                    name: "АРНОЛЬД-ОТЖИМАНИЯ",
-                    desc: "10 отжиманий от пола (или от стола). Дави гнев в пол. Фраза «I'll be back» после каждого.",
-                    emoji: "💪🔴"
-                },
-                quotes: [
-                    "ТВОЯ ЖАЛОБА ЗАРЯДИЛА ПРОЦЕССОР. ВЫПОЛНИ «АРНОЛЬД-ОТЖИМАНИЯ» — ГНЕВ СТАНЕТ МЫШЦАМИ!",
-                    "СКАЙНЕТ АНАЛИЗ: УРОВЕНЬ ЗЛА ВЫСОК. ЛУЧШЕЕ ЛЕКАРСТВО — ОТЖИМАНИЯ. ВЫПОЛНИ НОРМУ, СОЛДАТ!"
-                ]
-            },
-            {
-                name: "НЕО (ИЗ МАТРИЦЫ)",
-                avatar: "🕶️🌀🧘",
-                iconBig: "🕶️✨",
-                color: "#00c8a0",
-                exercise: {
-                    name: "ПЛАНКА НЕО",
-                    desc: "Планка 30 секунд. Уклоняйся от пуль реальности. Держи спину ровно, дыши как избранный.",
-                    emoji: "🧘‍♂️💊"
-                },
-                quotes: [
-                    "ТВОЯ ЖАЛОБА — ГЛЮК В МАТРИЦЕ. СТОЙ В ПЛАНКЕ 30 СЕКУНД. НЕТ ПРОБЛЕМ — ЕСТЬ ТВОЙ КОР.",
-                    "Я ЗНАЮ КУНГ-ФУ, НО ТЕБЕ НУЖНА ПЛАНКА. ВЫПОЛНИ — И КОД РЕАЛЬНОСТИ ПЕРЕСТАНЕТ БЕСИТЬ."
-                ]
-            },
-            {
-                name: "ПРОФЕССОР ИКС",
-                avatar: "♿🧠🌀",
-                iconBig: "🧠⚡",
-                color: "#aa88ff",
-                exercise: {
-                    name: "МЕДИТАЦИЯ ЦЕРЕБРО",
-                    desc: "Сядь удобно, закрой глаза, дыши 2 минуты. Жалоба уплывёт в астрал. Бега нет — только разум.",
-                    emoji: "🧘‍♂️🔮"
-                },
-                quotes: [
-                    "ЦЕРЕБРО УЛОВИЛ ВОЛНЫ ГНЕВА. НЕ БЕГИ — МЕДИТИРУЙ 2 МИНУТЫ. СИЛА В ПОКОЕ.",
-                    "МЕДИТАЦИЯ ЛЕЧИТ ЛУЧШЕ КУЛАКОВ. СЯДЬ УДОБНО, ПРОВЕТРИ МОЗГИ. ЖАЛОБА СТАНЕТ ДЗЕН-АРТЕФАКТОМ."
-                ]
-            },
-            {
-                name: "ЧЕРЕПАШКИ-НИНДЗЯ",
-                avatar: "🐢🍕🏋️",
-                iconBig: "🐢🐢🍕",
-                color: "#6fbf4c",
-                exercise: {
-                    name: "ПРИСЕДАНИЯ НИНДЗЯ",
-                    desc: "15 приседаний. Приседая, разгоняй злость. Кавабунга! Пицца после тренировки — виртуально.",
-                    emoji: "🍕🐢💪"
-                },
-                quotes: [
-                    "ЭЙ, БРО! ТВОЯ ЭНЕРГИЯ ЗЛА ДОСТОЙНА ПРИСЕДАНИЙ. 15 РАЗ — И ГНЕВ СГОРИТ, КАК ПИЦЦА В ПЕЧИ!",
-                    "ЧЕРЕПАШКИ НЕ БЕГАЮТ, ОНИ ПРИСЕДАЮТ! ВЫПОЛНИ НОРМУ, ПОЛУЧИ ВИРТУАЛЬНЫЙ КУСОК ПИЦЦЫ."
-                ]
-            }
-        ];
-
-        function getWorkoutReply(username, complaintMsg) {
-            const randomHero = heroes[Math.floor(Math.random() * heroes.length)];
-            let quoteIndex = Math.floor(Math.random() * randomHero.quotes.length);
-            let quote = randomHero.quotes[quoteIndex];
+        
+        <div class="content">
+            <div class="warning" id="browserWarning" style="display: none;">
+                <strong>⚠️ Внимание:</strong> Ваш браузер не поддерживает Web Serial API. 
+                Пожалуйста, используйте Chrome, Edge или Opera.
+            </div>
             
-            const userName = (username && username.trim() !== "") ? username.trim().toUpperCase() : "СТУДЕНТ КАФЕДРЫ";
-            const lowerMsg = complaintMsg.toLowerCase();
-            
-            // персонализация под ключевые слова
-            if (lowerMsg.includes("интернет") || lowerMsg.includes("wifi") || lowerMsg.includes("лаги")) {
-                quote = `⚠️ ЦИФРОВАЯ ЖАЛОБА, ${userName}! ${randomHero.name} РЕКОМЕНДУЕТ: ${randomHero.exercise.name}. ПОСЛЕ УПРАЖНЕНИЯ ИНТЕРНЕТ ПОЧИНИТСЯ (ИЛИ НЕТ, НО СТАНЕТ СМЕШНЕЕ).`;
-            } else if (lowerMsg.includes("начальник") || lowerMsg.includes("работа") || lowerMsg.includes("босс")) {
-                quote = `ОФИСНЫЙ ГНЕВ, ${userName}! ЛУЧШИЙ СПОСОБ — ${randomHero.exercise.name}. НАЧАЛЬНИК НЕ УСЛЫШИТ, НО ОРГАНИЗМ СКАЖЕТ СПАСИБО.`;
-            } else if (lowerMsg.includes("пицца")) {
-                if (randomHero.name === "ЧЕРЕПАШКИ-НИНДЗЯ") {
-                    quote = `ПИЦЦА — СВЯТОЕ, ${userName}! ВЫПОЛНИ ${randomHero.exercise.name}, МЫ ДАДИМ ВИРТУАЛЬНЫЙ КУСОЧЕК ЮМОРА.`;
-                } else {
-                    quote = `🍕 ДАЖЕ ${randomHero.name} ЛЮБИТ ПИЦЦУ! ${userName}, ВЫПОЛНИ ${randomHero.exercise.name} И МИР СТАНЕТ ВКУСНЕЕ.`;
-                }
-            } else if (lowerMsg.includes("деньги") || lowerMsg.includes("зарплата")) {
-                quote = `💰 ФИНАНСОВАЯ ЖАЛОБА, ${userName}! КАФЕДРА РЕКОМЕНДУЕТ ${randomHero.exercise.name}. ДЕНЬГИ — МАТРИЦА, А СИЛА — В ТЕЛЕ.`;
-            }
-            
-            const finalText = `${userName}! ${quote} ТВОЯ ЖАЛОБА ПЕРЕРАБОТАНА В ЭНЕРГИЮ. ВЫПОЛНИ УПРАЖНЕНИЕ — ГНЕВ УЙДЁТ, СИЛА ПРИДЁТ.`;
-            
-            const workoutHtml = `
-                <div class="hero-workout-card" style="border: 2px solid ${randomHero.color}; box-shadow: 0 0 12px ${randomHero.color}80;">
-                    <div class="hero-avatar-big">${randomHero.iconBig}</div>
-                    <div class="hero-name" style="background: ${randomHero.color}40; border: 1px solid ${randomHero.color};">${randomHero.name}</div>
-                    <div class="exercise-block">
-                        <div class="exercise-name">🏋️ ${randomHero.exercise.name} 🏋️</div>
-                        <div class="exercise-desc">${randomHero.exercise.desc}</div>
-                        <div style="font-size: 1.8rem; margin-top: 6px;">${randomHero.exercise.emoji}</div>
-                    </div>
-                    <div class="verdict-text">
-                        💢 «${finalText}» 💢
-                        <div style="margin-top: 8px; font-size: 0.65rem; color: #ffb7cc;">📸 ВЕРДИКТ ОТ КАФЕДРЫ ЖАЛОБ</div>
-                    </div>
-                    <div class="signature">
-                        🎬 Бег исключён — только сила духа и мышц!
-                    </div>
+            <div class="status-card">
+                <h2>
+                    <span class="status-indicator status-disconnected" id="statusIndicator"></span>
+                    Статус подключения
+                </h2>
+                <div class="info-row">
+                    <span class="info-label">Состояние:</span>
+                    <span class="info-value" id="connectionStatus">Не подключено</span>
                 </div>
-            `;
-            return workoutHtml;
-        }
-
-        // DOM элементы
-        const usernameInput = document.getElementById('username');
-        const complaintInput = document.getElementById('complaintText');
-        const sendBtn = document.getElementById('sendBtn');
-        const responseContainer = document.getElementById('responseContainer');
-        const responseCardDiv = document.getElementById('responseCard');
-        const appDiv = document.getElementById('app');
-
-        function flashEffect() {
-            appDiv.classList.add('flash-effect');
-            setTimeout(() => appDiv.classList.remove('flash-effect'), 350);
-        }
-
-        function submitComplaint() {
-            let username = usernameInput.value.trim();
-            let complaint = complaintInput.value.trim();
+                <div class="info-row">
+                    <span class="info-label">Порт:</span>
+                    <span class="info-value" id="portInfo">-</span>
+                </div>
+            </div>
             
-            if (complaint === "") {
-                alert("⚠️ КАФЕДРА НЕ ПРИНИМАЕТ ПУСТЫЕ ЖАЛОБЫ! НАПИШИ, ЧТО БЕСИТ. ⚠️");
-                complaintInput.style.borderColor = "#ff4d6d";
-                setTimeout(() => complaintInput.style.borderColor = "#b84c6e", 1000);
-                return;
+            <button class="btn" id="connectBtn">🔌 Подключиться к полетнику</button>
+            <button class="btn" id="disconnectBtn" style="display: none;">❌ Отключиться</button>
+            
+            <div class="status-card" id="flightControllerInfo" style="display: none;">
+                <h2>ℹ️ Информация о полетнике</h2>
+                <div class="info-row">
+                    <span class="info-label">MSP API Version:</span>
+                    <span class="info-value" id="apiVersion">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Flight Controller Version:</span>
+                    <span class="info-value" id="fcVersion">-</span>
+                </div>
+                <div class="info-row">
+                    <span class="info-label">Protocol Version:</span>
+                    <span class="info-value" id="protocolVersion">-</span>
+                </div>
+            </div>
+            
+            <div class="log" id="log">
+                <div class="log-entry">Готов к работе. Нажмите "Подключиться к полетнику".</div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let port = null;
+        let reader = null;
+        let writer = null;
+        let isConnected = false;
+
+        // Проверка поддержки Web Serial API
+        if (!('serial' in navigator)) {
+            document.getElementById('browserWarning').style.display = 'block';
+            document.getElementById('connectBtn').disabled = true;
+            addLog('Web Serial API не поддерживается в этом браузере', 'error');
+        }
+
+        // Функция добавления записи в лог
+        function addLog(message, type = 'info') {
+            const logDiv = document.getElementById('log');
+            const entry = document.createElement('div');
+            entry.className = `log-entry ${type === 'error' ? 'log-error' : type === 'success' ? 'log-success' : ''}`;
+            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            logDiv.appendChild(entry);
+            logDiv.scrollTop = logDiv.scrollHeight;
+        }
+
+        // Функция расчета CRC для MSP
+        function calculateCRC(data) {
+            let crc = 0;
+            for (let i = 0; i < data.length; i++) {
+                crc ^= data[i];
             }
-            
-            if (username === "") username = "СТУДЕНТ КАФЕДРЫ";
-            
-            sendBtn.disabled = true;
-            sendBtn.innerHTML = "🏋️‍♂️ ЖАЛОБА ПЕРЕРАБАТЫВАЕТСЯ... 🏋️‍♀️";
-            flashEffect();
-            
-            setTimeout(() => {
-                const workoutReply = getWorkoutReply(username, complaint);
-                responseCardDiv.innerHTML = workoutReply;
-                responseContainer.classList.remove('hidden-response');
-                
-                sendBtn.disabled = false;
-                sendBtn.innerHTML = "🎬 ВЫПЛЕСНУТЬ ЖАЛОБУ 🎬";
-                
-                setTimeout(() => {
-                    responseContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
-                }, 80);
-            }, 600);
+            return crc;
         }
-        
-        sendBtn.addEventListener('click', submitComplaint);
-        
-        // Enter на мобильных (через Ctrl+Enter) и просто для удобства
-        complaintInput.addEventListener('keydown', (e) => {
-            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
-                e.preventDefault();
-                submitComplaint();
+
+        // Создание MSP-запроса
+        function createMSPRequest(code) {
+            const header = [36, 77, 60]; // $M<
+            const size = 0;
+            const data = [header[0], header[1], header[2], size, code];
+            const crc = calculateCRC([size, code]);
+            data.push(crc);
+            return new Uint8Array(data);
+        }
+
+        // Подключение к полетнику
+        document.getElementById('connectBtn').addEventListener('click', async () => {
+            try {
+                addLog('Запрос выбора порта...');
+                
+                // Запрашиваем у пользователя выбор COM-порта
+                port = await navigator.serial.requestPort();
+                
+                addLog('Открытие порта со скоростью 115200...', 'info');
+                
+                // Открываем порт
+                await port.open({ baudRate: 115200 });
+                
+                isConnected = true;
+                updateConnectionStatus(true);
+                addLog('✓ Порт успешно открыт', 'success');
+                
+                // Получаем информацию о порте
+                const portInfo = port.getInfo();
+                document.getElementById('portInfo').textContent = 
+                    `USB ID: ${portInfo.usbVendorId || 'N/A'}:${portInfo.usbProductId || 'N/A'}`;
+                
+                // Создаем reader и writer
+                reader = port.readable.getReader();
+                writer = port.writable.getWriter();
+                
+                addLog('Отправка MSP-запроса версии API (код 1)...');
+                
+                // Отправляем MSP_API_VERSION (код 1)
+                const mspRequest = createMSPRequest(1);
+                await writer.write(mspRequest);
+                
+                addLog('Ожидание ответа от полетника...');
+                
+                // Читаем ответ
+                setTimeout(async () => {
+                    try {
+                        const { value, done } = await reader.read();
+                        
+                        if (done) {
+                            addLog('Поток данных закрыт', 'error');
+                            return;
+                        }
+                        
+                        addLog(`Получено ${value.length} байт данных`, 'success');
+                        
+                        // Парсим MSP-ответ
+                        if (value.length >= 6 && value[0] === 36 && value[1] === 77 && value[2] === 62) {
+                            const size = value[3];
+                            const code = value[4];
+                            
+                            if (code === 1 && size >= 3) {
+                                const protocolVersion = value[5];
+                                const apiVersionMajor = value[6];
+                                const apiVersionMinor = value[7];
+                                
+                                document.getElementById('apiVersion').textContent = 
+                                    `${apiVersionMajor}.${apiVersionMinor}`;
+                                document.getElementById('protocolVersion').textContent = 
+                                    `MSPv${protocolVersion}`;
+                                
+                                document.getElementById('flightControllerInfo').style.display = 'block';
+                                
+                                addLog(`MSP API Version: ${apiVersionMajor}.${apiVersionMinor}`, 'success');
+                                addLog(`Protocol: MSPv${protocolVersion}`, 'success');
+                                
+                                // Запрашиваем версию полетника (код 3)
+                                addLog('Запрос версии полетника (код 3)...');
+                                const fcRequest = createMSPRequest(3);
+                                await writer.write(fcRequest);
+                                
+                                setTimeout(async () => {
+                                    try {
+                                        const { value: fcValue } = await reader.read();
+                                        
+                                        if (fcValue.length >= 6 && fcValue[0] === 36 && fcValue[1] === 77 && fcValue[2] === 62) {
+                                            const fcSize = fcValue[3];
+                                            const fcCode = fcValue[4];
+                                            
+                                            if (fcCode === 3) {
+                                                // Парсим строку версии (формат зависит от прошивки)
+                                                let versionString = '';
+                                                for (let i = 5; i < 5 + fcSize && i < fcValue.length - 1; i++) {
+                                                    if (fcValue[i] >= 32 && fcValue[i] <= 126) {
+                                                        versionString += String.fromCharCode(fcValue[i]);
+                                                    }
+                                                }
+                                                
+                                                document.getElementById('fcVersion').textContent = versionString || 'N/A';
+                                                addLog(`Flight Controller: ${versionString}`, 'success');
+                                            }
+                                        }
+                                    } catch (err) {
+                                        addLog(`Ошибка чтения версии FC: ${err.message}`, 'error');
+                                    }
+                                }, 500);
+                            }
+                        } else {
+                            addLog('Некорректный MSP-ответ', 'error');
+                            addLog(`Данные: ${Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ')}`, 'info');
+                        }
+                    } catch (err) {
+                        addLog(`Ошибка чтения данных: ${err.message}`, 'error');
+                    }
+                }, 500);
+                
+            } catch (error) {
+                addLog(`Ошибка подключения: ${error.message}`, 'error');
+                updateConnectionStatus(false);
             }
         });
-        
-        responseContainer.classList.add('hidden-response');
-        console.log("✅ Кафедра жалоб адаптирована под телефон! Терминатор на фоне, упражнения, всё читабельно.");
-    })();
-</script>
+
+        // Отключение
+        document.getElementById('disconnectBtn').addEventListener('click', async () => {
+            try {
+                if (reader) {
+                    await reader.cancel();
+                    reader.releaseLock();
+                }
+                if (writer) {
+                    await writer.close();
+                    writer.releaseLock();
+                }
+                if (port) {
+                    await port.close();
+                }
+                
+                isConnected = false;
+                updateConnectionStatus(false);
+                addLog('Отключено от полетника', 'info');
+            } catch (error) {
+                addLog(`Ошибка отключения: ${error.message}`, 'error');
+            }
+        });
+
+        // Обновление статуса подключения
+        function updateConnectionStatus(connected) {
+            const indicator = document.getElementById('statusIndicator');
+            const status = document.getElementById('connectionStatus');
+            const connectBtn = document.getElementById('connectBtn');
+            const disconnectBtn = document.getElementById('disconnectBtn');
+            
+            if (connected) {
+                indicator.className = 'status-indicator status-connected';
+                status.textContent = 'Подключено';
+                connectBtn.style.display = 'none';
+                disconnectBtn.style.display = 'block';
+            } else {
+                indicator.className = 'status-indicator status-disconnected';
+                status.textContent = 'Не подключено';
+                connectBtn.style.display = 'block';
+                disconnectBtn.style.display = 'none';
+                document.getElementById('flightControllerInfo').style.display = 'none';
+            }
+        }
+    </script>
 </body>
 </html>
