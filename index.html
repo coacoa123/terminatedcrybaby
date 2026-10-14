@@ -1,422 +1,921 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Веб-конфигуратор iNav - Тест подключения</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            min-height: 100vh;
-            padding: 20px;
-        }
-        
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
-            background: white;
-            border-radius: 15px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            overflow: hidden;
-        }
-        
-        .header {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            padding: 30px;
-            text-align: center;
-        }
-        
-        .header h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-        }
-        
-        .header p {
-            opacity: 0.9;
-            font-size: 14px;
-        }
-        
-        .content {
-            padding: 30px;
-        }
-        
-        .status-card {
-            background: #f8f9fa;
-            border-radius: 10px;
-            padding: 20px;
-            margin-bottom: 20px;
-            border-left: 4px solid #667eea;
-        }
-        
-        .status-card h2 {
-            font-size: 18px;
-            margin-bottom: 15px;
-            color: #333;
-        }
-        
-        .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            border: none;
-            padding: 15px 30px;
-            font-size: 16px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: transform 0.2s, box-shadow 0.2s;
-            width: 100%;
-            margin-bottom: 15px;
-        }
-        
-        .btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 5px 20px rgba(102, 126, 234, 0.4);
-        }
-        
-        .btn:disabled {
-            background: #ccc;
-            cursor: not-allowed;
-            transform: none;
-        }
-        
-        .info-row {
-            display: flex;
-            justify-content: space-between;
-            padding: 10px 0;
-            border-bottom: 1px solid #e0e0e0;
-        }
-        
-        .info-row:last-child {
-            border-bottom: none;
-        }
-        
-        .info-label {
-            font-weight: 600;
-            color: #666;
-        }
-        
-        .info-value {
-            color: #333;
-            font-family: 'Courier New', monospace;
-        }
-        
-        .status-indicator {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border-radius: 50%;
-            margin-right: 8px;
-        }
-        
-        .status-connected {
-            background: #4caf50;
-            box-shadow: 0 0 10px #4caf50;
-        }
-        
-        .status-disconnected {
-            background: #f44336;
-        }
-        
-        .log {
-            background: #1e1e1e;
-            color: #d4d4d4;
-            padding: 15px;
-            border-radius: 8px;
-            font-family: 'Courier New', monospace;
-            font-size: 13px;
-            max-height: 300px;
-            overflow-y: auto;
-            margin-top: 20px;
-        }
-        
-        .log-entry {
-            margin: 5px 0;
-            padding: 5px;
-            border-left: 3px solid #667eea;
-            padding-left: 10px;
-        }
-        
-        .log-error {
-            border-left-color: #f44336;
-            color: #ff6b6b;
-        }
-        
-        .log-success {
-            border-left-color: #4caf50;
-            color: #81c784;
-        }
-        
-        .warning {
-            background: #fff3cd;
-            border: 1px solid #ffc107;
-            border-radius: 8px;
-            padding: 15px;
-            margin-bottom: 20px;
-            color: #856404;
-        }
-        
-        .warning strong {
-            color: #856404;
-        }
-    </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>EVENT HORIZON · iNav Web</title>
+<style>
+:root{
+  --bg:#04060e; --panel:rgba(12,17,34,.82); --line:rgba(140,170,255,.16);
+  --txt:#dbe4ff; --dim:#8493ba; --cy:#67e8f9; --vi:#a78bfa; --am:#fbbf24; --red:#fb7185;
+}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--txt);
+  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
+#cosmos{position:fixed;inset:0;z-index:0;pointer-events:none}
+.app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
+
+.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
+  padding:16px 24px;border-bottom:1px solid var(--line);background:rgba(4,6,14,.65)}
+.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
+.brand .mark{font-size:30px;color:var(--am);text-shadow:0 0 18px rgba(251,191,36,.7)}
+.brand b{letter-spacing:3px;font-size:17px}
+.brand small{display:block;color:var(--dim);letter-spacing:2px;font-size:10px;text-transform:uppercase}
+.led{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red)}
+.led.on{background:#4ade80;box-shadow:0 0 12px #4ade80}
+#linkState{font-size:11px;letter-spacing:2px;color:var(--dim);min-width:70px}
+
+button,select{font:inherit;color:var(--txt);background:#141b32;border:1px solid var(--line);
+  padding:9px 16px;border-radius:8px;cursor:pointer;transition:.2s}
+button:hover{border-color:var(--cy);box-shadow:0 0 16px rgba(103,232,249,.15)}
+button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
+button.primary{background:linear-gradient(135deg,#3b3f8f,#6d28d9);border-color:transparent}
+button.ghost{background:transparent}
+select{padding:8px 10px}
+
+.layout{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:24px;flex:1}
+.rail{display:flex;flex-direction:column;gap:8px}
+.nav{text-align:left;background:transparent;border:1px solid transparent;
+  padding:13px 14px;border-radius:10px;color:var(--dim);display:flex;gap:10px;align-items:center}
+.nav:hover{color:var(--txt);background:rgba(103,232,249,.05)}
+.nav.active{color:var(--cy);border-color:var(--line);background:rgba(103,232,249,.07);
+  box-shadow:inset 3px 0 0 var(--cy)}
+.nav.locked{opacity:.45}
+.rail-foot{margin-top:auto;padding:16px 10px;color:var(--dim);font-size:11px;line-height:1.8}
+
+.panel{display:none;animation:appear .4s ease}
+.panel.active{display:block}
+@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+
+.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:start}
+.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;
+  backdrop-filter:blur(6px);position:relative;overflow:hidden}
+.card h2{margin:0 0 16px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim)}
+.card h2 span{color:var(--cy)}
+.low-fx .card{backdrop-filter:none}
+
+.instrument{display:flex;flex-direction:column;align-items:center;gap:14px}
+#horizon{width:100%;max-width:330px;display:block}
+#compass{width:150px;height:150px;display:block}
+.readouts{display:flex;justify-content:center;gap:26px;width:100%}
+.readouts div{text-align:center}
+.readouts label{display:block;font-size:10px;letter-spacing:2px;color:var(--dim)}
+.readouts b{font:600 22px ui-monospace,monospace}
+
+.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.stat{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:10px;padding:12px}
+.stat label{display:block;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
+.stat b{font:600 24px ui-monospace,monospace;color:var(--cy)}
+.stat small{color:var(--dim);font-size:11px}
+
+.rows .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
+.rows .row:last-child{border:none}
+.rows .row span{color:var(--dim)}
+.rows .row b{font-family:ui-monospace,monospace;font-weight:500;text-align:right}
+
+.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
+.big3 div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
+.big3 label{display:block;font-size:11px;letter-spacing:3px;color:var(--dim)}
+.big3 b{font:600 46px ui-monospace,monospace}
+#chart{width:100%;height:auto;display:block}
+
+.warn{border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.06);
+  color:#fcd68a;padding:12px 16px;border-radius:10px;font-size:12px;margin-bottom:20px}
+.note{color:var(--dim);font-size:12px;margin-top:14px}
+
+.log{background:#05070f;border:1px solid var(--line);border-radius:10px;padding:12px;
+  height:220px;overflow-y:auto;font:12px/1.7 ui-monospace,monospace}
+.log div{padding:2px 0;border-left:2px solid var(--vi);padding-left:8px;word-break:break-word}
+.log .ok{border-color:#4ade80;color:#86efac}
+.log .err{border-color:var(--red);color:#fda4af}
+.log .warn{border-color:var(--am);color:#fcd68a;background:none;padding:2px 0 2px 8px}
+
+.flow{display:flex;flex-wrap:wrap;gap:10px;align-items:center;margin:20px 0}
+.flow span{padding:10px 14px;border:1px solid var(--line);border-radius:8px;font-size:12px;background:rgba(167,139,250,.07)}
+.flow i{color:var(--vi);font-style:normal}
+
+footer{padding:14px 24px;border-top:1px solid var(--line);color:var(--dim);
+  font-size:11px;letter-spacing:1px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+
+@media(max-width:950px){
+  .layout{grid-template-columns:1fr;padding:16px}
+  .rail{flex-direction:row;flex-wrap:wrap}
+  .rail-foot{display:none}
+  .grid{grid-template-columns:1fr}
+  .big3 b{font-size:32px}
+}
+</style>
 </head>
 <body>
-    <div class="container">
-        <div class="header">
-            <h1>🛩️ Веб-конфигуратор iNav</h1>
-            <p>Тест подключения к полетнику через Web Serial API</p>
-        </div>
-        
-        <div class="content">
-            <div class="warning" id="browserWarning" style="display: none;">
-                <strong>⚠️ Внимание:</strong> Ваш браузер не поддерживает Web Serial API. 
-                Пожалуйста, используйте Chrome, Edge или Opera.
-            </div>
-            
-            <div class="status-card">
-                <h2>
-                    <span class="status-indicator status-disconnected" id="statusIndicator"></span>
-                    Статус подключения
-                </h2>
-                <div class="info-row">
-                    <span class="info-label">Состояние:</span>
-                    <span class="info-value" id="connectionStatus">Не подключено</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Порт:</span>
-                    <span class="info-value" id="portInfo">-</span>
-                </div>
-            </div>
-            
-            <button class="btn" id="connectBtn">🔌 Подключиться к полетнику</button>
-            <button class="btn" id="disconnectBtn" style="display: none;">❌ Отключиться</button>
-            
-            <div class="status-card" id="flightControllerInfo" style="display: none;">
-                <h2>ℹ️ Информация о полетнике</h2>
-                <div class="info-row">
-                    <span class="info-label">MSP API Version:</span>
-                    <span class="info-value" id="apiVersion">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Flight Controller Version:</span>
-                    <span class="info-value" id="fcVersion">-</span>
-                </div>
-                <div class="info-row">
-                    <span class="info-label">Protocol Version:</span>
-                    <span class="info-value" id="protocolVersion">-</span>
-                </div>
-            </div>
-            
-            <div class="log" id="log">
-                <div class="log-entry">Готов к работе. Нажмите "Подключиться к полетнику".</div>
-            </div>
-        </div>
+
+<canvas id="cosmos"></canvas>
+
+<div class="app">
+  <header class="topbar">
+    <div class="brand">
+      <span class="mark">◉</span>
+      <div><b>EVENT HORIZON</b><small>iNav · Web Serial Observatory</small></div>
     </div>
+    <span class="led" id="led"></span>
+    <span id="linkState">ОФЛАЙН</span>
+    <select id="rate" title="Частота опроса аттитюды">
+      <option value="200">5 Гц</option>
+      <option value="100" selected>10 Гц</option>
+      <option value="50">20 Гц</option>
+    </select>
+    <button class="ghost" id="fxBtn">✦ Эффекты: вкл</button>
+    <button class="primary" id="connect">Подключить</button>
+    <button id="disconnect" disabled>Отключить</button>
+  </header>
 
-    <script>
-        let port = null;
-        let reader = null;
-        let writer = null;
-        let isConnected = false;
+  <div class="layout">
+    <nav class="rail">
+      <button class="nav active" data-panel="panel-overview">◈ Обзор</button>
+      <button class="nav" data-panel="panel-attitude">◎ Аттитюда</button>
+      <button class="nav" data-panel="panel-telemetry">▤ Телеметрия</button>
+      <button class="nav locked" data-panel="panel-climb">⬆ Летадло</button>
+      <div class="rail-foot">
+        MSP v1 · 115200<br>
+        Режим: только чтение<br>
+        Без библиотек и сборки
+      </div>
+    </nav>
 
-        // Проверка поддержки Web Serial API
-        if (!('serial' in navigator)) {
-            document.getElementById('browserWarning').style.display = 'block';
-            document.getElementById('connectBtn').disabled = true;
-            addLog('Web Serial API не поддерживается в этом браузере', 'error');
-        }
+    <main>
+      <!-- ================= ОБЗОР ================= -->
+      <section class="panel active" id="panel-overview">
+        <div class="warn">
+          ⚠ Снимите пропеллеры перед подключением по USB. Этот сайт только читает данные.
+        </div>
+        <div class="grid">
+          <div class="card">
+            <h2><span>◎</span> Аттитюда · в реальном времени</h2>
+            <div class="instrument">
+              <canvas id="horizon" width="600" height="600"></canvas>
+              <canvas id="compass" width="360" height="360"></canvas>
+              <div class="readouts">
+                <div><label>КРЕН</label><b id="o-roll">—</b></div>
+                <div><label>ТАНГАЗ</label><b id="o-pitch">—</b></div>
+                <div><label>КУРС</label><b id="o-yaw">—</b></div>
+              </div>
+            </div>
+          </div>
 
-        // Функция добавления записи в лог
-        function addLog(message, type = 'info') {
-            const logDiv = document.getElementById('log');
-            const entry = document.createElement('div');
-            entry.className = `log-entry ${type === 'error' ? 'log-error' : type === 'success' ? 'log-success' : ''}`;
-            entry.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
-            logDiv.appendChild(entry);
-            logDiv.scrollTop = logDiv.scrollHeight;
-        }
+          <div style="display:grid;gap:20px">
+            <div class="card">
+              <h2><span>▤</span> Быстрые показатели</h2>
+              <div class="stats">
+                <div class="stat"><label>Высота</label><b id="q-alt">—</b> <small>м</small></div>
+                <div class="stat"><label>Вариометр</label><b id="q-vario">—</b> <small>м/с</small></div>
+                <div class="stat"><label>Напряжение</label><b id="q-volt">—</b> <small>V</small></div>
+                <div class="stat"><label>Спутники</label><b id="q-sats">—</b></div>
+              </div>
+            </div>
+            <div class="card rows">
+              <h2><span>◈</span> Объект наблюдения</h2>
+              <div class="row"><span>Порт (VID:PID)</span><b id="d-port">—</b></div>
+              <div class="row"><span>Семейство прошивки</span><b id="d-variant">—</b></div>
+              <div class="row"><span>Версия прошивки</span><b id="d-version">—</b></div>
+              <div class="row"><span>MSP API</span><b id="d-api">—</b></div>
+              <div class="row"><span>Плата</span><b id="d-board">—</b></div>
+              <p class="note">Данные запрашиваются напрямую у полетника при подключении.</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
-        // Функция расчета CRC для MSP
-        function calculateCRC(data) {
-            let crc = 0;
-            for (let i = 0; i < data.length; i++) {
-                crc ^= data[i];
-            }
-            return crc;
-        }
+      <!-- ================= АТТИТЮДА ================= -->
+      <section class="panel" id="panel-attitude">
+        <div class="big3">
+          <div><label>ROLL · КРЕН</label><b id="a-roll" style="color:var(--cy)">—</b></div>
+          <div><label>PITCH · ТАНГАЗ</label><b id="a-pitch" style="color:var(--am)">—</b></div>
+          <div><label>YAW · КУРС</label><b id="a-yaw" style="color:var(--vi)">—</b></div>
+        </div>
+        <div class="card">
+          <h2><span>◈</span> История углов · последние ~18 секунд</h2>
+          <canvas id="chart" width="900" height="280"></canvas>
+          <p class="note">
+            Голубая линия — крен. Жёлтая — тангаж. Горизонтальная нулевая линия — уровень.
+            Источник: MSP_ATTITUDE (108), опрос 5–20 Гц.
+          </p>
+        </div>
+      </section>
 
-        // Создание MSP-запроса
-        function createMSPRequest(code) {
-            const header = [36, 77, 60]; // $M<
-            const size = 0;
-            const data = [header[0], header[1], header[2], size, code];
-            const crc = calculateCRC([size, code]);
-            data.push(crc);
-            return new Uint8Array(data);
-        }
+      <!-- ================= ТЕЛЕМЕТРИЯ ================= -->
+      <section class="panel" id="panel-telemetry">
+        <div class="grid">
+          <div style="display:grid;gap:20px">
+            <div class="card rows">
+              <h2><span>▤</span> Питание</h2>
+              <div class="row"><span>Напряжение</span><b id="t-volt">—</b></div>
+              <div class="row"><span>Ток</span><b id="t-amp">—</b></div>
+              <div class="row"><span>Израсходовано</span><b id="t-mah">—</b></div>
+              <div class="row"><span>RSSI (сырое)</span><b id="t-rssi">—</b></div>
+            </div>
+            <div class="card rows">
+              <h2><span>△</span> Навигация</h2>
+              <div class="row"><span>Высота</span><b id="t-alt">—</b></div>
+              <div class="row"><span>Вертикальная скорость</span><b id="t-vario">—</b></div>
+              <div class="row"><span>GPS fix (код)</span><b id="t-fix">—</b></div>
+              <div class="row"><span>Спутники</span><b id="t-sats">—</b></div>
+              <div class="row"><span>Широта</span><b id="t-lat">—</b></div>
+              <div class="row"><span>Долгота</span><b id="t-lon">—</b></div>
+            </div>
+          </div>
+          <div class="card">
+            <h2><span>≡</span> Журнал обмена</h2>
+            <button class="ghost" id="clearLog" style="margin-bottom:12px">Очистить</button>
+            <div class="log" id="log"></div>
+            <p class="note">Здесь видны реальные события: открытие порта, ответы MSP, тайм-ауты и ошибки.</p>
+          </div>
+        </div>
+      </section>
 
-        // Подключение к полетнику
-        document.getElementById('connectBtn').addEventListener('click', async () => {
-            try {
-                addLog('Запрос выбора порта...');
-                
-                // Запрашиваем у пользователя выбор COM-порта
-                port = await navigator.serial.requestPort();
-                
-                addLog('Открытие порта со скоростью 115200...', 'info');
-                
-                // Открываем порт
-                await port.open({ baudRate: 115200 });
-                
-                isConnected = true;
-                updateConnectionStatus(true);
-                addLog('✓ Порт успешно открыт', 'success');
-                
-                // Получаем информацию о порте
-                const portInfo = port.getInfo();
-                document.getElementById('portInfo').textContent = 
-                    `USB ID: ${portInfo.usbVendorId || 'N/A'}:${portInfo.usbProductId || 'N/A'}`;
-                
-                // Создаем reader и writer
-                reader = port.readable.getReader();
-                writer = port.writable.getWriter();
-                
-                addLog('Отправка MSP-запроса версии API (код 1)...');
-                
-                // Отправляем MSP_API_VERSION (код 1)
-                const mspRequest = createMSPRequest(1);
-                await writer.write(mspRequest);
-                
-                addLog('Ожидание ответа от полетника...');
-                
-                // Читаем ответ
-                setTimeout(async () => {
-                    try {
-                        const { value, done } = await reader.read();
-                        
-                        if (done) {
-                            addLog('Поток данных закрыт', 'error');
-                            return;
-                        }
-                        
-                        addLog(`Получено ${value.length} байт данных`, 'success');
-                        
-                        // Парсим MSP-ответ
-                        if (value.length >= 6 && value[0] === 36 && value[1] === 77 && value[2] === 62) {
-                            const size = value[3];
-                            const code = value[4];
-                            
-                            if (code === 1 && size >= 3) {
-                                const protocolVersion = value[5];
-                                const apiVersionMajor = value[6];
-                                const apiVersionMinor = value[7];
-                                
-                                document.getElementById('apiVersion').textContent = 
-                                    `${apiVersionMajor}.${apiVersionMinor}`;
-                                document.getElementById('protocolVersion').textContent = 
-                                    `MSPv${protocolVersion}`;
-                                
-                                document.getElementById('flightControllerInfo').style.display = 'block';
-                                
-                                addLog(`MSP API Version: ${apiVersionMajor}.${apiVersionMinor}`, 'success');
-                                addLog(`Protocol: MSPv${protocolVersion}`, 'success');
-                                
-                                // Запрашиваем версию полетника (код 3)
-                                addLog('Запрос версии полетника (код 3)...');
-                                const fcRequest = createMSPRequest(3);
-                                await writer.write(fcRequest);
-                                
-                                setTimeout(async () => {
-                                    try {
-                                        const { value: fcValue } = await reader.read();
-                                        
-                                        if (fcValue.length >= 6 && fcValue[0] === 36 && fcValue[1] === 77 && fcValue[2] === 62) {
-                                            const fcSize = fcValue[3];
-                                            const fcCode = fcValue[4];
-                                            
-                                            if (fcCode === 3) {
-                                                // Парсим строку версии (формат зависит от прошивки)
-                                                let versionString = '';
-                                                for (let i = 5; i < 5 + fcSize && i < fcValue.length - 1; i++) {
-                                                    if (fcValue[i] >= 32 && fcValue[i] <= 126) {
-                                                        versionString += String.fromCharCode(fcValue[i]);
-                                                    }
-                                                }
-                                                
-                                                document.getElementById('fcVersion').textContent = versionString || 'N/A';
-                                                addLog(`Flight Controller: ${versionString}`, 'success');
-                                            }
-                                        }
-                                    } catch (err) {
-                                        addLog(`Ошибка чтения версии FC: ${err.message}`, 'error');
-                                    }
-                                }, 500);
-                            }
-                        } else {
-                            addLog('Некорректный MSP-ответ', 'error');
-                            addLog(`Данные: ${Array.from(value).map(b => b.toString(16).padStart(2, '0')).join(' ')}`, 'info');
-                        }
-                    } catch (err) {
-                        addLog(`Ошибка чтения данных: ${err.message}`, 'error');
-                    }
-                }, 500);
-                
-            } catch (error) {
-                addLog(`Ошибка подключения: ${error.message}`, 'error');
-                updateConnectionStatus(false);
-            }
-        });
+      <!-- ================= ЛЕТАДЛО ================= -->
+      <section class="panel" id="panel-climb">
+        <div class="card">
+          <h2><span>⬆</span> Летадло · концепт</h2>
+          <p>Автоматический набор безопасной высоты при потере радиосвязи.</p>
+          <div class="flow">
+            <span>Потеря-link</span><i>→</i>
+            <span>Набор до целевой высоты</span><i>→</i>
+            <span>Удержание / поиск связи</span><i>→</i>
+            <span>Возврат (RTH)</span>
+          </div>
+          <div class="warn">
+            Это макет будущей вкладки. Чтобы функция работала по-настоящему,
+            нужна поддержка в <b>прошивке iNav</b> и своя MSP-команда для записи параметров.
+            Сайт сам по себе не может научить полетник новому поведению.
+          </div>
+          <p class="note">
+            Проектируемые параметры: целевая высота (м), максимальный тангаж (°),
+            таймаут ожидания связи, поведение при недоборе высоты.
+          </p>
+        </div>
+      </section>
+    </main>
+  </div>
 
-        // Отключение
-        document.getElementById('disconnectBtn').addEventListener('click', async () => {
-            try {
-                if (reader) {
-                    await reader.cancel();
-                    reader.releaseLock();
-                }
-                if (writer) {
-                    await writer.close();
-                    writer.releaseLock();
-                }
-                if (port) {
-                    await port.close();
-                }
-                
-                isConnected = false;
-                updateConnectionStatus(false);
-                addLog('Отключено от полетника', 'info');
-            } catch (error) {
-                addLog(`Ошибка отключения: ${error.message}`, 'error');
-            }
-        });
+  <footer>
+    <span>EVENT HORIZON / экспериментальный веб-конфигуратор</span>
+    <span id="streamState">поток: нет данных</span>
+  </footer>
+</div>
 
-        // Обновление статуса подключения
-        function updateConnectionStatus(connected) {
-            const indicator = document.getElementById('statusIndicator');
-            const status = document.getElementById('connectionStatus');
-            const connectBtn = document.getElementById('connectBtn');
-            const disconnectBtn = document.getElementById('disconnectBtn');
-            
-            if (connected) {
-                indicator.className = 'status-indicator status-connected';
-                status.textContent = 'Подключено';
-                connectBtn.style.display = 'none';
-                disconnectBtn.style.display = 'block';
-            } else {
-                indicator.className = 'status-indicator status-disconnected';
-                status.textContent = 'Не подключено';
-                connectBtn.style.display = 'block';
-                disconnectBtn.style.display = 'none';
-                document.getElementById('flightControllerInfo').style.display = 'none';
-            }
-        }
-    </script>
+<script>
+'use strict';
+
+/* ============================================================
+   0. УТИЛИТЫ
+   ============================================================ */
+const $ = id => document.getElementById(id);
+const TAU = Math.PI * 2, RAD = Math.PI / 180;
+const sleep = ms => new Promise(r => setTimeout(r, ms));
+const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
+
+const u16 = (b,o) => b[o] | (b[o+1] << 8);
+const i16 = (b,o) => { const v = u16(b,o); return v < 32768 ? v : v - 65536; };
+const u32 = (b,o) => (b[o] | (b[o+1]<<8) | (b[o+2]<<16) | (b[o+3]<<24)) >>> 0;
+const i32 = (b,o) => { const v = u32(b,o); return v < 2147483648 ? v : v - 4294967296; };
+const ascii = (b,o,n) => Array.from(b.slice(o,o+n)).map(c => String.fromCharCode(c)).join('').replace(/\0/g,'').trim();
+
+function txt(id, value){
+  const el = $(id);
+  if (el && el.textContent !== String(value)) el.textContent = value;
+}
+function log(msg, type=''){
+  const box = $('log');
+  const line = document.createElement('div');
+  if (type) line.className = type;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  box.appendChild(line);
+  while (box.children.length > 150) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
+/* ============================================================
+   1. СОСТОЯНИЕ
+   ============================================================ */
+const S = {
+  roll:0, pitch:0, yaw:0,
+  alt:0, vario:0, volt:0, amp:0, mah:0, rssi:0,
+  fix:0, sats:0, lat:0, lon:0,
+  hasAtt:false, hasAlt:false, hasAnalog:false, hasGps:false,
+  lastAtt:0
+};
+const history = [];
+
+/* ============================================================
+   2. MSP-КАНАЛ (v1, последовательный, с CRC и тайм-аутами)
+   Кадр:  $ M < | size | cmd | payload | crc8
+   Ответ: $ M > | size | cmd | payload | crc8
+   ============================================================ */
+class MSP {
+  constructor(){
+    this.port = null; this.reader = null; this.writer = null;
+    this.loop = null; this.connected = false;
+    this.pending = new Map();
+    this._reset();
+  }
+  _reset(){ this._st = 0; this._size = 0; this._cmd = 0; this._pay = []; this._crc = 0; }
+
+  async open(){
+    if (!('serial' in navigator))
+      throw new Error('Web Serial API недоступен. Нужны Chrome или Edge.');
+
+    this.port = await navigator.serial.requestPort();
+    await this.port.open({ baudRate: 115200 });
+    this.connected = true;
+    this.writer = this.port.writable.getWriter();
+    this.loop = this._readLoop();
+
+    this.port.addEventListener('disconnect', () => {
+      if (this.connected) handleUnplug();
+    });
+  }
+
+  async _readLoop(){
+    const reader = this.port.readable.getReader();
+    this.reader = reader;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        for (let i = 0; i < value.length; i++) this._feed(value[i]);
+      }
+    } catch (e) {
+      if (this.connected) log('Чтение прервано: ' + e.message, 'err');
+    } finally {
+      try { reader.releaseLock(); } catch {}
+      this.reader = null;
+    }
+  }
+
+  // Посимвольный конечный автомат: переживает любые разрывы пакета
+  _feed(b){
+    switch (this._st) {
+      case 0: if (b === 0x24) this._st = 1; break;             // '$'
+      case 1: this._st = (b === 0x4D) ? 2 : 0; break;          // 'M'
+      case 2:                                                  // '<' или '>'
+        if (b === 0x3E) { this._st = 3; this._pay = []; }
+        else if (b === 0x24) this._st = 1;
+        else this._st = 0;
+        break;
+      case 3:
+        this._size = b;
+        if (b > 200) { this._reset(); break; }
+        this._crc = b; this._st = 4;
+        break;
+      case 4:
+        this._cmd = b; this._crc ^= b;
+        this._st = this._size > 0 ? 5 : 6;
+        break;
+      case 5:
+        this._pay.push(b); this._crc ^= b;
+        if (this._pay.length === this._size) this._st = 6;
+        break;
+      case 6:
+        if (b === this._crc) this._dispatch(this._cmd, Uint8Array.from(this._pay));
+        else log('CRC не совпал (cmd ' + this._cmd + ')', 'warn');
+        this._reset();
+        break;
+    }
+  }
+
+  _dispatch(cmd, payload){
+    const q = this.pending.get(cmd);
+    if (q) {
+      clearTimeout(q.timer);
+      this.pending.delete(cmd);
+      q.resolve(payload);
+    }
+  }
+
+  async _write(cmd, payload){
+    const n = payload.length;
+    const buf = new Uint8Array(6 + n);
+    buf[0]=0x24; buf[1]=0x4D; buf[2]=0x3C; buf[3]=n; buf[4]=cmd;
+    let crc = n ^ cmd;
+    for (let i=0; i<n; i++){ buf[5+i] = payload[i]; crc ^= payload[i]; }
+    buf[5+n] = crc;
+    await this.writer.write(buf);
+  }
+
+  request(cmd, payload = new Uint8Array(), timeout = 700){
+    if (!this.connected) return Promise.reject(new Error('Нет подключения'));
+    return new Promise((resolve, reject) => {
+      if (this.pending.has(cmd)) { reject(new Error('Команда ' + cmd + ' уже ожидает')); return; }
+      const timer = setTimeout(() => {
+        this.pending.delete(cmd);
+        reject(new Error('Тайм-аут MSP ' + cmd));
+      }, timeout);
+      this.pending.set(cmd, { resolve, reject, timer });
+      this._write(cmd, payload).catch(e => {
+        clearTimeout(timer); this.pending.delete(cmd); reject(e);
+      });
+    });
+  }
+
+  async close(){
+    this.connected = false;
+    for (const q of this.pending.values()){
+      clearTimeout(q.timer);
+      try { q.reject(new Error('Отключено')); } catch {}
+    }
+    this.pending.clear();
+    try { if (this.reader) await this.reader.cancel(); } catch {}
+    try { if (this.loop) await this.loop; } catch {}
+    try { if (this.writer){ await this.writer.close(); this.writer.releaseLock(); } } catch {}
+    try { if (this.port) await this.port.close(); } catch {}
+    this.writer = null; this.reader = null; this.port = null; this.loop = null;
+    this._reset();
+  }
+}
+
+const msp = new MSP();
+
+/* ============================================================
+   3. РАЗБОР ОТВЕТОВ
+   ============================================================ */
+function readIdentity(cmd, p){
+  if (cmd === 1 && p.length >= 3){
+    txt('d-api', `${p[1]}.${p[2]}  (MSP ${p[0]})`);
+    log(`MSP API ${p[1]}.${p[2]}, протокол v${p[0]}`, 'ok');
+  }
+  if (cmd === 2 && p.length >= 4){
+    txt('d-variant', ascii(p, 0, p.length));
+    log('Семейство: ' + ascii(p, 0, p.length), 'ok');
+  }
+  if (cmd === 3 && p.length >= 3){
+    txt('d-version', `${p[0]}.${p[1]}.${p[2]}`);
+    log(`Прошивка ${p[0]}.${p[1]}.${p[2]}`, 'ok');
+  }
+  if (cmd === 4 && p.length >= 6){
+    txt('d-board', ascii(p,0,4) + ' · rev ' + u16(p,4));
+    log('Плата: ' + ascii(p,0,4), 'ok');
+  }
+}
+
+function readAttitude(p){
+  if (p.length < 6) return;
+  S.roll  = i16(p,0);
+  S.pitch = i16(p,2);
+  S.yaw   = i16(p,4);
+  if (S.yaw < 0) S.yaw += 360;
+  S.hasAtt = true;
+  S.lastAtt = performance.now();
+  history.push({ roll:S.roll, pitch:S.pitch });
+  if (history.length > 180) history.shift();
+}
+
+function readAltitude(p){
+  if (p.length < 8) return;
+  S.alt = i32(p,0) / 100;      // см -> м
+  S.vario = i32(p,4) / 100;    // см/с -> м/с
+  S.hasAlt = true;
+}
+
+function readAnalog(p){
+  if (p.length < 7) return;
+  S.volt = p[0] / 10;
+  S.mah  = u16(p,1);
+  S.rssi = u16(p,3);
+  S.amp  = u16(p,5) / 100;     // 0.01 А -> А
+  S.hasAnalog = true;
+}
+
+function readGps(p){
+  if (p.length < 10) return;
+  S.fix  = p[0];
+  S.sats = p[1];
+  S.lat  = i32(p,2) / 1e7;
+  S.lon  = i32(p,6) / 1e7;
+  S.hasGps = true;
+}
+
+/* ============================================================
+   4. ОПРОС ПОЛЕТНИКА (последовательно, без коллизий на порту)
+   ============================================================ */
+let polling = false, stopPoll = false, tick = 0;
+
+async function startPolling(){
+  if (polling) return;
+  polling = true; stopPoll = false; tick = 0;
+
+  while (msp.connected && !stopPoll){
+    const start = performance.now();
+    try {
+      // Каждый цикл — аттитюда
+      readAttitude(await msp.request(108));
+
+      // Остальное — реже, чтобы не забивать линию
+      if (tick % 5 === 0)  readAltitude(await msp.request(109));
+      if (tick % 10 === 0) readAnalog(await msp.request(110));
+      if (tick % 25 === 0) readGps(await msp.request(106));
+    } catch (e) {
+      log(e.message, 'warn');
+    }
+
+    tick++;
+    const period = Number($('rate').value);
+    await sleep(Math.max(15, period - (performance.now() - start)));
+  }
+  polling = false;
+}
+
+/* ============================================================
+   5. ПОДКЛЮЧЕНИЕ / ОТКЛЮЧЕНИЕ
+   ============================================================ */
+function setLink(on){
+  $('led').classList.toggle('on', on);
+  txt('linkState', on ? 'ОНЛАЙН' : 'ОФЛАЙН');
+  $('connect').disabled = on;
+  $('disconnect').disabled = !on;
+  if (!on){
+    S.hasAtt = false;
+    txt('streamState', 'поток: нет данных');
+  }
+}
+
+async function handleUnplug(){
+  log('USB-устройство отключено', 'warn');
+  stopPoll = true;
+  try { await msp.close(); } catch {}
+  setLink(false);
+}
+
+$('connect').addEventListener('click', async () => {
+  $('connect').disabled = true;
+  try {
+    await msp.open();
+    setLink(true);
+
+    const info = msp.port.getInfo();
+    const vid = info.usbVendorId ? info.usbVendorId.toString(16).padStart(4,'0').toUpperCase() : '????';
+    const pid = info.usbProductId ? info.usbProductId.toString(16).padStart(4,'0').toUpperCase() : '????';
+    txt('d-port', `${vid}:${pid}`);
+    log('Порт открыт, 115200 baud', 'ok');
+
+    for (const cmd of [1,2,3,4]){
+      try { readIdentity(cmd, await msp.request(cmd, new Uint8Array(), 1200)); }
+      catch (e) { log('Команда ' + cmd + ': ' + e.message, 'warn'); }
+    }
+
+    log('Запуск телеметрии…', 'ok');
+    startPolling();
+  } catch (e) {
+    log('Подключение не удалось: ' + e.message, 'err');
+    try { await msp.close(); } catch {}
+    setLink(false);
+  } finally {
+    $('connect').disabled = msp.connected;
+  }
+});
+
+$('disconnect').addEventListener('click', async () => {
+  stopPoll = true;
+  try { await msp.close(); } catch {}
+  setLink(false);
+  log('Отключено пользователем');
+});
+
+$('clearLog').addEventListener('click', () => { $('log').innerHTML = ''; });
+
+/* ============================================================
+   6. МЕНЮ
+   ============================================================ */
+document.querySelectorAll('.nav').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.panel).classList.add('active');
+  });
+});
+
+/* ============================================================
+   7. ПРИБОР: АВИАГОРИЗОНТ
+   ============================================================ */
+function drawHorizon(){
+  const g = $('horizon').getContext('2d');
+  g.clearRect(0,0,600,600);
+  const cx=300, cy=300, R=246;
+
+  // Внешняя шкала крена (вращается против крена)
+  g.save(); g.translate(cx,cy);
+  g.strokeStyle='rgba(160,190,255,.4)'; g.lineWidth=2;
+  g.beginPath(); g.arc(0,0,R+12,0,TAU); g.stroke();
+
+  g.save(); g.rotate(-S.roll*RAD);
+  for (let d=-60; d<=60; d+=10){
+    const a=(d-90)*RAD, len=(d%30===0)?18:10;
+    g.beginPath();
+    g.moveTo(Math.cos(a)*(R+2), Math.sin(a)*(R+2));
+    g.lineTo(Math.cos(a)*(R+2+len), Math.sin(a)*(R+2+len));
+    g.stroke();
+  }
+  g.restore();
+
+  // Неподвижный указатель крена
+  g.fillStyle='#fbbf24';
+  g.beginPath(); g.moveTo(0,-R-6); g.lineTo(-9,-R-25); g.lineTo(9,-R-25); g.closePath(); g.fill();
+  g.restore();
+
+  // Вращающийся мир внутри круглого окна
+  g.save();
+  g.beginPath(); g.arc(cx,cy,R,0,TAU); g.clip();
+  g.translate(cx,cy);
+  g.rotate(-S.roll*RAD);
+  g.translate(0, S.pitch*3.1);
+
+  const sky=g.createLinearGradient(0,-700,0,0);
+  sky.addColorStop(0,'#0b2545'); sky.addColorStop(1,'#155e75');
+  g.fillStyle=sky; g.fillRect(-900,-900,1800,900);
+
+  const ground=g.createLinearGradient(0,0,0,700);
+  ground.addColorStop(0,'#7c4a12'); ground.addColorStop(1,'#2a1608');
+  g.fillStyle=ground; g.fillRect(-900,0,1800,900);
+
+  g.strokeStyle='#e0f2fe'; g.lineWidth=3;
+  g.beginPath(); g.moveTo(-900,0); g.lineTo(900,0); g.stroke();
+
+  // Линейка тангажа
+  g.lineWidth=2; g.font='20px ui-monospace,monospace';
+  g.fillStyle='rgba(224,242,254,.85)'; g.textAlign='center';
+  for (let d=-80; d<=80; d+=10){
+    if (d===0) continue;
+    const y=-d*3.1, w=(d%20===0)?70:40;
+    g.beginPath(); g.moveTo(-w,y); g.lineTo(w,y); g.stroke();
+    if (d%20===0){
+      g.fillText(String(Math.abs(d)), -w-28, y+7);
+      g.fillText(String(Math.abs(d)),  w+28, y+7);
+    }
+  }
+  g.restore();
+
+  // Неподвижный символ самолёта
+  g.strokeStyle='#fbbf24'; g.lineWidth=6; g.lineCap='round';
+  g.beginPath();
+  g.moveTo(cx-95,cy); g.lineTo(cx-35,cy);
+  g.moveTo(cx+35,cy); g.lineTo(cx+95,cy);
+  g.moveTo(cx-35,cy); g.lineTo(cx-35,cy+18);
+  g.moveTo(cx+35,cy); g.lineTo(cx+35,cy+18);
+  g.stroke();
+  g.fillStyle='#fbbf24';
+  g.beginPath(); g.arc(cx,cy,5,0,TAU); g.fill();
+
+  g.strokeStyle='rgba(160,190,255,.55)'; g.lineWidth=3;
+  g.beginPath(); g.arc(cx,cy,R,0,TAU); g.stroke();
+
+  if (!S.hasAtt){
+    g.fillStyle='rgba(4,6,14,.72)';
+    g.beginPath(); g.arc(cx,cy,R,0,TAU); g.fill();
+    g.fillStyle='#8493ba'; g.font='22px system-ui'; g.textAlign='center';
+    g.fillText('НЕТ ДАННЫХ', cx, cy+8);
+  }
+}
+
+/* ============================================================
+   8. ПРИБОР: КУРС
+   ============================================================ */
+function drawCompass(){
+  const g=$('compass').getContext('2d');
+  g.clearRect(0,0,360,360);
+  const cx=180, cy=180, R=140;
+
+  g.save(); g.translate(cx,cy);
+  g.strokeStyle='rgba(160,190,255,.3)'; g.lineWidth=2;
+  g.beginPath(); g.arc(0,0,R+8,0,TAU); g.stroke();
+
+  g.rotate(-S.yaw*RAD);
+  for (let d=0; d<360; d+=10){
+    const a=(d-90)*RAD, len=(d%30===0)?20:10;
+    g.strokeStyle=(d%30===0)?'#a78bfa':'rgba(160,190,255,.45)';
+    g.beginPath();
+    g.moveTo(Math.cos(a)*R, Math.sin(a)*R);
+    g.lineTo(Math.cos(a)*(R-len), Math.sin(a)*(R-len));
+    g.stroke();
+  }
+  g.fillStyle='#c4b5fd'; g.font='bold 22px ui-monospace,monospace';
+  g.textAlign='center'; g.textBaseline='middle';
+  [['N',0],['E',90],['S',180],['W',270]].forEach(([t,d])=>{
+    const a=(d-90)*RAD;
+    g.fillText(t, Math.cos(a)*(R-42), Math.sin(a)*(R-42));
+  });
+  g.restore();
+
+  // Неподвижная риска курса
+  g.fillStyle='#67e8f9';
+  g.beginPath(); g.moveTo(cx,cy-R+16); g.lineTo(cx-8,cy-R-2); g.lineTo(cx+8,cy-R-2); g.closePath(); g.fill();
+
+  g.fillStyle='#dbe4ff'; g.font='bold 30px ui-monospace,monospace'; g.textAlign='center';
+  g.fillText(String(Math.round(S.yaw)).padStart(3,'0')+'°', cx, cy+12);
+}
+
+/* ============================================================
+   9. ГРАФИК ИСТОРИИ
+   ============================================================ */
+function drawChart(){
+  const g=$('chart').getContext('2d');
+  g.clearRect(0,0,900,280);
+  const left=50, right=870, mid=140, scale=2;
+
+  g.strokeStyle='rgba(140,170,255,.12)'; g.lineWidth=1;
+  g.font='12px ui-monospace,monospace'; g.fillStyle='#8493ba'; g.textAlign='right';
+  for (let v=-60; v<=60; v+=30){
+    const y=mid-v*scale;
+    g.beginPath(); g.moveTo(left,y); g.lineTo(right,y); g.stroke();
+    g.fillText(v+'°', left-10, y+4);
+  }
+
+  if (history.length < 2){
+    g.textAlign='center'; g.fillStyle='#8493ba'; g.font='16px system-ui';
+    g.fillText('Ожидание телеметрии…', 450, 145);
+    return;
+  }
+
+  const plot=(key,color)=>{
+    g.strokeStyle=color; g.lineWidth=2; g.beginPath();
+    history.forEach((p,i)=>{
+      const x=left + i/179*(right-left);
+      const y=mid - clamp(p[key],-65,65)*scale;
+      i===0 ? g.moveTo(x,y) : g.lineTo(x,y);
+    });
+    g.stroke();
+  };
+  plot('roll','#67e8f9');
+  plot('pitch','#fbbf24');
+
+  g.textAlign='left'; g.fillStyle='#67e8f9'; g.fillText('— крен', left, 20);
+  g.fillStyle='#fbbf24'; g.fillText('— тангаж', left+90, 20);
+}
+
+/* ============================================================
+   10. КОСМОС: ЧЁРНАЯ ДЫРА
+   Стилизованная визуализация: диск + падающие частицы + фотонное кольцо.
+   ============================================================ */
+const cosmos=$('cosmos'), cg=cosmos.getContext('2d');
+let W=0, H=0, hole={x:0,y:0,r:80};
+let stars=[], infall=[];
+let fxOn = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+function resizeCosmos(){
+  const dpr=Math.min(window.devicePixelRatio||1, 1.25);
+  W=window.innerWidth; H=window.innerHeight;
+  cosmos.width=W*dpr; cosmos.height=H*dpr;
+  cosmos.style.width=W+'px'; cosmos.style.height=H+'px';
+  cg.setTransform(dpr,0,0,dpr,0,0);
+
+  hole={ x:W*0.82, y:H*0.26, r:clamp(Math.min(W,H)*0.10, 55, 110) };
+
+  stars=Array.from({length:170},()=>({
+    x:Math.random()*W, y:Math.random()*H,
+    r:Math.random()*1.3+.25, p:Math.random()*TAU
+  }));
+
+  const spawn=p=>{ p.r=hole.r*(1.3+Math.random()*3.4); p.a=Math.random()*TAU; p.s=.5+Math.random()*.7; };
+  infall=Array.from({length:130},()=>{ const p={}; spawn(p); p.spawn=spawn; return p; });
+}
+
+function drawCosmos(dt,t){
+  cg.fillStyle='#04060e'; cg.fillRect(0,0,W,H);
+
+  // Туманность
+  const neb=cg.createRadialGradient(hole.x,hole.y,0,hole.x,hole.y,Math.max(W,H)*.7);
+  neb.addColorStop(0,'rgba(88,28,135,.22)');
+  neb.addColorStop(.4,'rgba(30,58,138,.10)');
+  neb.addColorStop(1,'rgba(4,6,14,0)');
+  cg.fillStyle=neb; cg.fillRect(0,0,W,H);
+
+  // Звёзды
+  for (const s of stars){
+    s.x-=dt*3*s.r;
+    if (s.x<0) s.x=W;
+    cg.globalAlpha=.3+.35*(.5+.5*Math.sin(t*.001+s.p));
+    cg.fillStyle='#cfe0ff';
+    cg.beginPath(); cg.arc(s.x,s.y,s.r,0,TAU); cg.fill();
+  }
+  cg.globalAlpha=1;
+
+  const {x:hx,y:hy,r:R}=hole;
+
+  // Внешнее свечение
+  const halo=cg.createRadialGradient(hx,hy,R*.8,hx,hy,R*3.6);
+  halo.addColorStop(0,'rgba(251,191,36,.20)');
+  halo.addColorStop(.35,'rgba(167,139,250,.13)');
+  halo.addColorStop(1,'rgba(4,6,14,0)');
+  cg.fillStyle=halo;
+  cg.beginPath(); cg.arc(hx,hy,R*3.6,0,TAU); cg.fill();
+
+  // update + draw: сначала задняя половина диска, потом горизонт, потом передняя
+  const step=p=>{
+    const rel=p.r/R;
+    p.a += dt*(.35 + 1.7/rel)*p.s;      // ближе — быстрее (как Кеплер)
+    p.r -= dt*(5 + 26/rel);             // медленное падение внутрь
+    if (p.r < R*1.02) p.spawn(p);
+  };
+  const paint=p=>{
+    const rel=(p.r/R-1)/3.4;
+    const hue=35+clamp(rel,0,1)*230;     // от янтарного к фиолетовому
+    const alpha=(1-clamp(rel,0,1))*.85+.12;
+    const px=hx+Math.cos(p.a)*p.r;
+    const py=hy+Math.sin(p.a)*p.r*.38;   // наклонённый диск
+    cg.fillStyle=`hsla(${hue},95%,${70-clamp(rel,0,1)*25}%,${alpha})`;
+    cg.beginPath(); cg.arc(px,py,1.1+ (1-clamp(rel,0,1))*1.6,0,TAU); cg.fill();
+  };
+
+  for (const p of infall){ step(p); if (Math.sin(p.a)<0) paint(p); }
+
+  // Событийный горизонт
+  cg.fillStyle='#000';
+  cg.beginPath(); cg.arc(hx,hy,R*.98,0,TAU); cg.fill();
+
+  // Фотонное кольцо
+  cg.save();
+  cg.shadowColor='rgba(255,200,120,.9)'; cg.shadowBlur=22;
+  cg.strokeStyle='rgba(255,214,150,.85)'; cg.lineWidth=2.2;
+  cg.beginPath(); cg.arc(hx,hy,R*1.04,0,TAU); cg.stroke();
+  cg.restore();
+
+  for (const p of infall){ if (Math.sin(p.a)>=0) paint(p); }
+}
+
+$('fxBtn').addEventListener('click',()=>{
+  fxOn=!fxOn;
+  document.body.classList.toggle('low-fx',!fxOn);
+  txt('fxBtn', fxOn ? '✦ Эффекты: вкл' : '✦ Эффекты: выкл');
+  if (!fxOn) drawCosmos(0,0);
+});
+window.addEventListener('resize',resizeCosmos);
+
+/* ============================================================
+   11. ВЫВОД ЗНАЧЕНИЙ + ГЛАВНЫЙ ЦИКЛ ОТРИСОВКИ
+   ============================================================ */
+const f1 = v => (v>0?'+':'') + v.toFixed(1) + '°';
+
+function updateReadouts(){
+  const r=S.hasAtt?f1(S.roll):'—';
+  const p=S.hasAtt?f1(S.pitch):'—';
+  const y=S.hasAtt?String(Math.round(S.yaw)).padStart(3,'0')+'°':'—';
+
+  txt('o-roll',r); txt('o-pitch',p); txt('o-yaw',y);
+  txt('a-roll',r); txt('a-pitch',p); txt('a-yaw',y);
+
+  const alt=S.hasAlt?S.alt.toFixed(1):'—';
+  const var_=S.hasAlt?((S.vario>0?'+':'')+S.vario.toFixed(2)):'—';
+  txt('q-alt',alt); txt('t-alt',alt+' м');
+  txt('q-vario',var_); txt('t-vario',var_+' м/с');
+
+  const volt=S.hasAnalog?S.volt.toFixed(2):'—';
+  txt('q-volt',volt); txt('t-volt',volt+' V');
+  txt('t-amp',S.hasAnalog?S.amp.toFixed(2)+' A':'—');
+  txt('t-mah',S.hasAnalog?S.mah+' mAh':'—');
+  txt('t-rssi',S.hasAnalog?S.rssi:'—');
+
+  txt('q-sats',S.hasGps?S.sats:'—');
+  txt('t-sats',S.hasGps?S.sats:'—');
+  txt('t-fix',S.hasGps?S.fix:'—');
+  txt('t-lat',S.hasGps?S.lat.toFixed(7):'—');
+  txt('t-lon',S.hasGps?S.lon.toFixed(7):'—');
+
+  const fresh=S.hasAtt && (performance.now()-S.lastAtt < 1500);
+  txt('streamState', fresh ? 'поток: OK · MSP_ATTITUDE 108' : (msp.connected?'поток: ожидание…':'поток: нет данных'));
+}
+
+let last=0;
+function frame(t){
+  requestAnimationFrame(frame);
+  if (t-last < 33) return;              // ограничиваем ~30 FPS для слабого ПК
+  const dt=Math.min((t-last)/1000,.05);
+  last=t;
+
+  if (fxOn) drawCosmos(dt,t);
+
+  const overview=$('panel-overview').classList.contains('active');
+  const attitude=$('panel-attitude').classList.contains('active');
+  const telemetry=$('panel-telemetry').classList.contains('active');
+
+  if (overview){ drawHorizon(); drawCompass(); }
+  if (attitude) drawChart();
+  if (attitude || telemetry) updateReadouts();
+  else if (overview) updateReadouts();
+}
+
+/* ============================================================
+   12. СТАРТ
+   ============================================================ */
+if (!('serial' in navigator)){
+  log('Браузер не поддерживает Web Serial API. Откройте сайт в Chrome или Edge по HTTPS.', 'err');
+  $('connect').disabled=true;
+} else {
+  log('Готов. Подключите полетник USB и нажмите «Подключить».');
+}
+
+document.body.classList.toggle('low-fx',!fxOn);
+txt('fxBtn', fxOn ? '✦ Эффекты: вкл' : '✦ Эффекты: выкл');
+resizeCosmos();
+drawCosmos(0,0);
+requestAnimationFrame(frame);
+</script>
 </body>
 </html>
