@@ -3,446 +3,735 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>EVENT HORIZON · iNav 9 Web Configurator</title>
+<title>iNav Web Configurator</title>
 <style>
-:root{
-  --bg:#04060e; --panel:rgba(12,17,34,.82); --line:rgba(140,170,255,.16);
-  --txt:#dbe4ff; --dim:#8493ba; --cy:#67e8f9; --vi:#a78bfa; --am:#fbbf24; --red:#fb7185;
-  --ok:#4ade80;
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  background: #f5f5f5;
+  color: #333;
 }
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--txt);
-  font:14px/1.55 system-ui,-apple-system,"Segoe UI",sans-serif;overflow-x:hidden}
-#cosmos{position:fixed;inset:0;z-index:0;pointer-events:none}
-.app{position:relative;z-index:1;min-height:100vh;display:flex;flex-direction:column}
 
-.topbar{display:flex;align-items:center;gap:16px;flex-wrap:wrap;
-  padding:16px 24px;border-bottom:1px solid var(--line);background:rgba(4,6,14,.65)}
-.brand{display:flex;align-items:center;gap:12px;margin-right:auto}
-.brand .mark{font-size:30px;color:var(--am);text-shadow:0 0 18px rgba(251,191,36,.7)}
-.brand b{letter-spacing:3px;font-size:17px}
-.brand small{display:block;color:var(--dim);letter-spacing:2px;font-size:10px;text-transform:uppercase}
-.led{width:9px;height:9px;border-radius:50%;background:var(--red);box-shadow:0 0 10px var(--red)}
-.led.on{background:var(--ok);box-shadow:0 0 12px var(--ok)}
-#linkState{font-size:11px;letter-spacing:2px;color:var(--dim);min-width:70px}
+.header {
+  background: #fff;
+  border-bottom: 1px solid #ddd;
+  padding: 12px 20px;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+}
 
-button,select{font:inherit;color:var(--txt);background:#141b32;border:1px solid var(--line);
-  padding:9px 16px;border-radius:8px;cursor:pointer;transition:.2s}
-button:hover:not(:disabled){border-color:var(--cy);box-shadow:0 0 16px rgba(103,232,249,.15)}
-button:disabled{opacity:.35;cursor:not-allowed;box-shadow:none}
-button.primary{background:linear-gradient(135deg,#3b3f8f,#6d28d9);border-color:transparent}
-button.ghost{background:transparent}
-button.danger{background:linear-gradient(135deg,#7f1d1d,#991b1b);border-color:transparent}
-button.danger:hover:not(:disabled){border-color:var(--red);box-shadow:0 0 16px rgba(251,113,133,.3)}
-button.save{background:linear-gradient(135deg,#065f46,#047857);border-color:transparent}
-button.save:hover:not(:disabled){border-color:var(--ok);box-shadow:0 0 16px rgba(74,222,128,.3)}
-select{padding:8px 10px}
+.header h1 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+}
 
-.layout{display:grid;grid-template-columns:190px 1fr;gap:24px;padding:24px;flex:1}
-.rail{display:flex;flex-direction:column;gap:8px}
-.nav{text-align:left;background:transparent;border:1px solid transparent;
-  padding:13px 14px;border-radius:10px;color:var(--dim);display:flex;gap:10px;align-items:center}
-.nav:hover{color:var(--txt);background:rgba(103,232,249,.05)}
-.nav.active{color:var(--cy);border-color:var(--line);background:rgba(103,232,249,.07);
-  box-shadow:inset 3px 0 0 var(--cy)}
-.nav.locked{opacity:.45}
-.rail-foot{margin-top:auto;padding:16px 10px;color:var(--dim);font-size:11px;line-height:1.8}
+.header .status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 13px;
+  color: #666;
+}
 
-.panel{display:none;animation:appear .4s ease}
-.panel.active{display:block}
-@keyframes appear{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.header .led {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ccc;
+}
 
-.grid{display:grid;grid-template-columns:1.05fr 1fr;gap:20px;align-items:start}
-.card{background:var(--panel);border:1px solid var(--line);border-radius:16px;padding:20px;
-  backdrop-filter:blur(6px);position:relative;overflow:hidden}
-.card h2{margin:0 0 16px;font-size:12px;letter-spacing:2.5px;text-transform:uppercase;color:var(--dim)}
-.card h2 span{color:var(--cy)}
-.low-fx .card{backdrop-filter:none}
+.header .led.on {
+  background: #4caf50;
+}
 
-.instrument{display:flex;flex-direction:column;align-items:center;gap:14px}
-#horizon{width:100%;max-width:330px;display:block}
-#compass{width:150px;height:150px;display:block}
-.readouts{display:flex;justify-content:center;gap:26px;width:100%}
-.readouts div{text-align:center}
-.readouts label{display:block;font-size:10px;letter-spacing:2px;color:var(--dim)}
-.readouts b{font:600 22px ui-monospace,monospace}
+.header .controls {
+  margin-left: auto;
+  display: flex;
+  gap: 10px;
+}
 
-.stats{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.stat{background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:10px;padding:12px}
-.stat label{display:block;font-size:10px;letter-spacing:1.5px;color:var(--dim);text-transform:uppercase}
-.stat b{font:600 24px ui-monospace,monospace;color:var(--cy)}
-.stat small{color:var(--dim);font-size:11px}
+button, select {
+  font: inherit;
+  padding: 6px 14px;
+  border: 1px solid #ccc;
+  background: #fff;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 13px;
+}
 
-.rows .row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid var(--line)}
-.rows .row:last-child{border:none}
-.rows .row span{color:var(--dim)}
-.rows .row b{font-family:ui-monospace,monospace;font-weight:500;text-align:right}
+button:hover:not(:disabled) {
+  background: #f0f0f0;
+  border-color: #999;
+}
 
-.big3{display:grid;grid-template-columns:repeat(3,1fr);gap:16px;margin-bottom:20px}
-.big3 div{background:var(--panel);border:1px solid var(--line);border-radius:14px;padding:22px;text-align:center}
-.big3 label{display:block;font-size:11px;letter-spacing:3px;color:var(--dim)}
-.big3 b{font:600 46px ui-monospace,monospace}
-#chart{width:100%;height:auto;display:block}
+button:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
-.warn{border:1px solid rgba(251,191,36,.3);background:rgba(251,191,36,.06);
-  color:#fcd68a;padding:12px 16px;border-radius:10px;font-size:12px;margin-bottom:20px}
-.warn.critical{border-color:var(--red);background:rgba(251,113,133,.08);color:#fda4af}
-.note{color:var(--dim);font-size:12px;margin-top:14px}
+button.primary {
+  background: #007bff;
+  color: #fff;
+  border-color: #007bff;
+}
 
-.log{background:#05070f;border:1px solid var(--line);border-radius:10px;padding:12px;
-  height:220px;overflow-y:auto;font:12px/1.7 ui-monospace,monospace}
-.log div{padding:2px 0;border-left:2px solid var(--vi);padding-left:8px;word-break:break-word}
-.log .ok{border-color:var(--ok);color:#86efac}
-.log .err{border-color:var(--red);color:#fda4af}
-.log .warn{border-color:var(--am);color:#fcd68a;background:none;padding:2px 0 2px 8px}
+button.primary:hover:not(:disabled) {
+  background: #0056b3;
+}
 
-/* ====== НОВАЯ ВКЛАДКА: НАСТРОЙКИ ====== */
-.pid-table{width:100%;border-collapse:collapse;margin-top:10px}
-.pid-table th,.pid-table td{padding:8px 10px;text-align:center;border-bottom:1px solid var(--line)}
-.pid-table th{font-size:11px;letter-spacing:2px;color:var(--dim);text-transform:uppercase;font-weight:500}
-.pid-table td:first-child{text-align:left;color:var(--cy);font-weight:600;letter-spacing:1px}
-.pid-table input{width:70px;background:#0a0f20;border:1px solid var(--line);color:var(--txt);
-  padding:6px 8px;border-radius:6px;text-align:center;font:14px ui-monospace,monospace}
-.pid-table input:focus{outline:none;border-color:var(--cy);box-shadow:0 0 8px rgba(103,232,249,.2)}
+button.danger {
+  background: #dc3545;
+  color: #fff;
+  border-color: #dc3545;
+}
 
-.form-row{display:flex;align-items:center;gap:12px;margin:10px 0;padding:8px 0}
-.form-row label{flex:0 0 200px;color:var(--dim);font-size:13px}
-.form-row input,.form-row select{flex:1;max-width:180px;background:#0a0f20;border:1px solid var(--line);
-  color:var(--txt);padding:7px 10px;border-radius:6px;font:13px ui-monospace,monospace}
-.form-row input:focus,.form-row select:focus{outline:none;border-color:var(--cy)}
-.form-row .unit{color:var(--dim);font-size:12px;min-width:40px}
+button.danger:hover:not(:disabled) {
+  background: #c82333;
+}
 
-.feature-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:10px;margin-top:10px}
-.feature-item{display:flex;align-items:center;gap:10px;padding:10px 12px;
-  background:rgba(255,255,255,.025);border:1px solid var(--line);border-radius:8px;cursor:pointer;transition:.2s}
-.feature-item:hover{border-color:var(--cy);background:rgba(103,232,249,.05)}
-.feature-item input{width:16px;height:16px;accent-color:var(--cy);cursor:pointer}
-.feature-item label{cursor:pointer;font-size:13px;flex:1}
-.feature-item .bit{color:var(--dim);font-size:10px;font-family:ui-monospace,monospace}
+button.success {
+  background: #28a745;
+  color: #fff;
+  border-color: #28a745;
+}
 
-.action-bar{display:flex;gap:12px;margin-top:24px;padding-top:20px;border-top:1px solid var(--line);flex-wrap:wrap}
-.action-bar button{flex:1;min-width:140px;padding:12px 16px}
+button.success:hover:not(:disabled) {
+  background: #218838;
+}
 
-.status-pill{display:inline-block;padding:4px 10px;border-radius:12px;font-size:11px;letter-spacing:1px;margin-left:8px}
-.status-pill.loaded{background:rgba(74,222,128,.15);color:var(--ok)}
-.status-pill.dirty{background:rgba(251,191,36,.15);color:var(--am)}
+.layout {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  min-height: calc(100vh - 50px);
+}
 
-footer{padding:14px 24px;border-top:1px solid var(--line);color:var(--dim);
-  font-size:11px;letter-spacing:1px;display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.sidebar {
+  background: #fff;
+  border-right: 1px solid #ddd;
+  padding: 20px 0;
+}
 
-@media(max-width:950px){
-  .layout{grid-template-columns:1fr;padding:16px}
-  .rail{flex-direction:row;flex-wrap:wrap}
-  .rail-foot{display:none}
-  .grid{grid-template-columns:1fr}
-  .big3 b{font-size:32px}
-  .form-row{flex-direction:column;align-items:stretch}
-  .form-row label{flex:none}
+.nav-item {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 10px 20px;
+  background: none;
+  border: none;
+  border-left: 3px solid transparent;
+  color: #666;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: #f9f9f9;
+  color: #333;
+}
+
+.nav-item.active {
+  background: #e7f3ff;
+  color: #007bff;
+  border-left-color: #007bff;
+  font-weight: 500;
+}
+
+.main {
+  padding: 20px;
+}
+
+.panel {
+  display: none;
+}
+
+.panel.active {
+  display: block;
+}
+
+.card {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 20px;
+  margin-bottom: 20px;
+}
+
+.card h2 {
+  font-size: 14px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid #eee;
+}
+
+.telemetry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.telemetry-item {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+}
+
+.telemetry-item label {
+  display: block;
+  font-size: 11px;
+  color: #666;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 4px;
+}
+
+.telemetry-item .value {
+  font: 600 24px ui-monospace, monospace;
+  color: #333;
+}
+
+.telemetry-item .unit {
+  font-size: 12px;
+  color: #999;
+  margin-left: 4px;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+table th, table td {
+  padding: 8px 12px;
+  text-align: left;
+  border-bottom: 1px solid #eee;
+}
+
+table th {
+  font-size: 12px;
+  font-weight: 600;
+  color: #666;
+  text-transform: uppercase;
+  background: #f9f9f9;
+}
+
+table input {
+  width: 80px;
+  padding: 4px 8px;
+  border: 1px solid #ccc;
+  border-radius: 3px;
+  font: inherit;
+  font-size: 13px;
+}
+
+table input:focus {
+  outline: none;
+  border-color: #007bff;
+}
+
+.form-row {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 12px 0;
+}
+
+.form-row label {
+  flex: 0 0 200px;
+  font-size: 13px;
+  color: #666;
+}
+
+.form-row input, .form-row select {
+  flex: 1;
+  max-width: 150px;
+}
+
+.form-row .unit {
+  color: #999;
+  font-size: 12px;
+}
+
+.features-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+  gap: 10px;
+}
+
+.feature-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 12px;
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+}
+
+.feature-item input {
+  width: 16px;
+  height: 16px;
+}
+
+.feature-item label {
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.action-bar {
+  display: flex;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid #eee;
+}
+
+.log {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 3px;
+  padding: 12px;
+  height: 200px;
+  overflow-y: auto;
+  font: 12px/1.6 ui-monospace, monospace;
+}
+
+.log-entry {
+  padding: 2px 0;
+  border-left: 2px solid #ccc;
+  padding-left: 8px;
+}
+
+.log-entry.ok {
+  border-color: #4caf50;
+  color: #2e7d32;
+}
+
+.log-entry.err {
+  border-color: #f44336;
+  color: #c62828;
+}
+
+.log-entry.warn {
+  border-color: #ff9800;
+  color: #ef6c00;
+}
+
+.warning {
+  background: #fff3cd;
+  border: 1px solid #ffc107;
+  border-radius: 4px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 13px;
+  color: #856404;
+}
+
+.warning.critical {
+  background: #f8d7da;
+  border-color: #f5c6cb;
+  color: #721c24;
+}
+
+.status-pill {
+  display: inline-block;
+  padding: 3px 10px;
+  border-radius: 12px;
+  font-size: 11px;
+  font-weight: 500;
+}
+
+.status-pill.loaded {
+  background: #d4edda;
+  color: #155724;
+}
+
+.status-pill.dirty {
+  background: #fff3cd;
+  color: #856404;
+}
+
+.progress-bar {
+  width: 100%;
+  height: 24px;
+  background: #e0e0e0;
+  border-radius: 4px;
+  overflow: hidden;
+  margin: 12px 0;
+}
+
+.progress-fill {
+  height: 100%;
+  background: #007bff;
+  transition: width 0.3s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: #fff;
+  font-size: 12px;
+  font-weight: 600;
+}
+
+.file-input {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 12px 0;
+}
+
+.file-input input[type="file"] {
+  flex: 1;
+}
+
+.file-info {
+  background: #f9f9f9;
+  border: 1px solid #e0e0e0;
+  border-radius: 4px;
+  padding: 12px;
+  margin: 12px 0;
+  font-size: 13px;
+}
+
+.file-info div {
+  margin: 4px 0;
+}
+
+.file-info label {
+  color: #666;
+  display: inline-block;
+  width: 120px;
+}
+
+@media (max-width: 768px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+  .sidebar {
+    border-right: none;
+    border-bottom: 1px solid #ddd;
+  }
+  .nav-item {
+    border-left: none;
+    border-bottom: 2px solid transparent;
+  }
+  .nav-item.active {
+    border-left: none;
+    border-bottom-color: #007bff;
+  }
 }
 </style>
 </head>
 <body>
 
-<canvas id="cosmos"></canvas>
-
-<div class="app">
-  <header class="topbar">
-    <div class="brand">
-      <span class="mark">◉</span>
-      <div><b>EVENT HORIZON</b><small>iNav 9 · Web Configurator</small></div>
-    </div>
+<header class="header">
+  <h1>iNav Web Configurator</h1>
+  <div class="status">
     <span class="led" id="led"></span>
-    <span id="linkState">ОФЛАЙН</span>
-    <select id="rate" title="Частота опроса аттитюды">
+    <span id="linkState">Офлайн</span>
+  </div>
+  <div class="controls">
+    <select id="rate" title="Частота опроса">
       <option value="200">5 Гц</option>
       <option value="100" selected>10 Гц</option>
       <option value="50">20 Гц</option>
     </select>
-    <button class="ghost" id="fxBtn">✦ Эффекты: вкл</button>
     <button class="primary" id="connect">Подключить</button>
     <button id="disconnect" disabled>Отключить</button>
-  </header>
-
-  <div class="layout">
-    <nav class="rail">
-      <button class="nav active" data-panel="panel-overview">◈ Обзор</button>
-      <button class="nav" data-panel="panel-attitude">◎ Аттитюда</button>
-      <button class="nav" data-panel="panel-telemetry">▤ Телеметрия</button>
-      <button class="nav" data-panel="panel-settings">⚙ Настройки</button>
-      <button class="nav locked" data-panel="panel-climb">⬆ Летадло</button>
-      <div class="rail-foot">
-        MSP v1/v2 · 115200<br>
-        iNav 9.x совместимый<br>
-        Без библиотек и сборки
-      </div>
-    </nav>
-
-    <main>
-      <!-- ================= ОБЗОР ================= -->
-      <section class="panel active" id="panel-overview">
-        <div class="warn">
-          ⚠ Снимите пропеллеры перед подключением по USB.
-        </div>
-        <div class="grid">
-          <div class="card">
-            <h2><span>◎</span> Аттитюда · в реальном времени</h2>
-            <div class="instrument">
-              <canvas id="horizon" width="600" height="600"></canvas>
-              <canvas id="compass" width="360" height="360"></canvas>
-              <div class="readouts">
-                <div><label>КРЕН</label><b id="o-roll">—</b></div>
-                <div><label>ТАНГАЗ</label><b id="o-pitch">—</b></div>
-                <div><label>КУРС</label><b id="o-yaw">—</b></div>
-              </div>
-            </div>
-          </div>
-
-          <div style="display:grid;gap:20px">
-            <div class="card">
-              <h2><span>▤</span> Быстрые показатели</h2>
-              <div class="stats">
-                <div class="stat"><label>Высота</label><b id="q-alt">—</b> <small>м</small></div>
-                <div class="stat"><label>Вариометр</label><b id="q-vario">—</b> <small>м/с</small></div>
-                <div class="stat"><label>Напряжение</label><b id="q-volt">—</b> <small>V</small></div>
-                <div class="stat"><label>Спутники</label><b id="q-sats">—</b></div>
-              </div>
-            </div>
-            <div class="card rows">
-              <h2><span>◈</span> Объект наблюдения</h2>
-              <div class="row"><span>Порт (VID:PID)</span><b id="d-port">—</b></div>
-              <div class="row"><span>Семейство прошивки</span><b id="d-variant">—</b></div>
-              <div class="row"><span>Версия прошивки</span><b id="d-version">—</b></div>
-              <div class="row"><span>MSP API</span><b id="d-api">—</b></div>
-              <div class="row"><span>Плата</span><b id="d-board">—</b></div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= АТТИТЮДА ================= -->
-      <section class="panel" id="panel-attitude">
-        <div class="big3">
-          <div><label>ROLL · КРЕН</label><b id="a-roll" style="color:var(--cy)">—</b></div>
-          <div><label>PITCH · ТАНГАЗ</label><b id="a-pitch" style="color:var(--am)">—</b></div>
-          <div><label>YAW · КУРС</label><b id="a-yaw" style="color:var(--vi)">—</b></div>
-        </div>
-        <div class="card">
-          <h2><span>◈</span> История углов · последние ~18 секунд</h2>
-          <canvas id="chart" width="900" height="280"></canvas>
-        </div>
-      </section>
-
-      <!-- ================= ТЕЛЕМЕТРИЯ ================= -->
-      <section class="panel" id="panel-telemetry">
-        <div class="grid">
-          <div style="display:grid;gap:20px">
-            <div class="card rows">
-              <h2><span>▤</span> Питание</h2>
-              <div class="row"><span>Напряжение</span><b id="t-volt">—</b></div>
-              <div class="row"><span>Ток</span><b id="t-amp">—</b></div>
-              <div class="row"><span>Израсходовано</span><b id="t-mah">—</b></div>
-              <div class="row"><span>RSSI (сырое)</span><b id="t-rssi">—</b></div>
-            </div>
-            <div class="card rows">
-              <h2><span>△</span> Навигация</h2>
-              <div class="row"><span>Высота</span><b id="t-alt">—</b></div>
-              <div class="row"><span>Вертикальная скорость</span><b id="t-vario">—</b></div>
-              <div class="row"><span>GPS fix (код)</span><b id="t-fix">—</b></div>
-              <div class="row"><span>Спутники</span><b id="t-sats">—</b></div>
-              <div class="row"><span>Широта</span><b id="t-lat">—</b></div>
-              <div class="row"><span>Долгота</span><b id="t-lon">—</b></div>
-            </div>
-          </div>
-          <div class="card">
-            <h2><span>≡</span> Журнал обмена</h2>
-            <button class="ghost" id="clearLog" style="margin-bottom:12px">Очистить</button>
-            <div class="log" id="log"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- ================= НАСТРОЙКИ (НОВОЕ!) ================= -->
-      <section class="panel" id="panel-settings">
-        <div class="warn critical">
-          🔴 <b>ВНИМАНИЕ:</b> Изменение настроек влияет на поведение дрона.
-          Неправильные PID могут привести к потере контроля.
-          Сохраняйте изменения только если понимаете, что делаете.
-        </div>
-
-        <div id="settingsStatus" style="margin-bottom:20px">
-          <span style="color:var(--dim)">Статус:</span>
-          <span id="cfgStatus" class="status-pill">не загружено</span>
-        </div>
-
-        <!-- ===== PID ===== -->
-        <div class="card" style="margin-bottom:20px">
-          <h2><span>⚙</span> PID-коэффициенты</h2>
-          <p class="note" style="margin-top:-8px;margin-bottom:12px">
-            Базовые коэффициенты для Roll, Pitch, Yaw. Значения умножены на 10 (введите 45 вместо 4.5).
-          </p>
-          <table class="pid-table">
-            <thead>
-              <tr><th>Ось</th><th>P</th><th>I</th><th>D</th></tr>
-            </thead>
-            <tbody>
-              <tr>
-                <td>ROLL</td>
-                <td><input type="number" id="pid-roll-p" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-roll-i" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-roll-d" min="0" max="255" step="1"></td>
-              </tr>
-              <tr>
-                <td>PITCH</td>
-                <td><input type="number" id="pid-pitch-p" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-pitch-i" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-pitch-d" min="0" max="255" step="1"></td>
-              </tr>
-              <tr>
-                <td>YAW</td>
-                <td><input type="number" id="pid-yaw-p" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-yaw-i" min="0" max="255" step="1"></td>
-                <td><input type="number" id="pid-yaw-d" min="0" max="255" step="1"></td>
-              </tr>
-            </tbody>
-          </table>
-          <div class="action-bar">
-            <button class="primary" id="loadPid">📥 Загрузить из полётника</button>
-            <button class="save" id="writePid" disabled>💾 Применить к полётнику</button>
-          </div>
-        </div>
-
-        <!-- ===== BATTERY ===== -->
-        <div class="card" style="margin-bottom:20px">
-          <h2><span>🔋</span> Конфигурация батареи</h2>
-          <div class="form-row">
-            <label>Мин. напряжение ячейки</label>
-            <input type="number" id="bat-min" step="0.1" min="2.5" max="4.0">
-            <span class="unit">V</span>
-          </div>
-          <div class="form-row">
-            <label>Макс. напряжение ячейки</label>
-            <input type="number" id="bat-max" step="0.1" min="3.5" max="4.5">
-            <span class="unit">V</span>
-          </div>
-          <div class="form-row">
-            <label>Предупреждение (warning)</label>
-            <input type="number" id="bat-warn" step="0.1" min="2.8" max="4.0">
-            <span class="unit">V</span>
-          </div>
-          <div class="form-row">
-            <label>Ёмкость батареи</label>
-            <input type="number" id="bat-cap" step="50" min="0" max="20000">
-            <span class="unit">mAh</span>
-          </div>
-          <div class="action-bar">
-            <button class="primary" id="loadBat">📥 Загрузить</button>
-            <button class="save" id="writeBat" disabled>💾 Применить</button>
-          </div>
-        </div>
-
-        <!-- ===== FAILSAFE ===== -->
-        <div class="card" style="margin-bottom:20px">
-          <h2><span>🛡</span> Failsafe</h2>
-          <div class="form-row">
-            <label>Режим failsafe</label>
-            <select id="fs-mode">
-              <option value="0">0 — DROP (сбросить газ)</option>
-              <option value="1">1 — LAND (посадка)</option>
-              <option value="2">2 — SET-THROTTLE</option>
-              <option value="3">3 — RTH (возврат домой)</option>
-              <option value="4">4 — GPS-RESCUE</option>
-            </select>
-          </div>
-          <div class="form-row">
-            <label>Задержка срабатывания</label>
-            <input type="number" id="fs-delay" step="100" min="0" max="10000">
-            <span class="unit">мс</span>
-          </div>
-          <div class="form-row">
-            <label>Время отключения моторов</label>
-            <input type="number" id="fs-offtime" step="100" min="0" max="10000">
-            <span class="unit">мс</span>
-          </div>
-          <div class="action-bar">
-            <button class="primary" id="loadFs">📥 Загрузить</button>
-            <button class="save" id="writeFs" disabled>💾 Применить</button>
-          </div>
-        </div>
-
-        <!-- ===== FEATURES ===== -->
-        <div class="card" style="margin-bottom:20px">
-          <h2><span>✦</span> Активные функции</h2>
-          <p class="note" style="margin-top:-8px;margin-bottom:12px">
-            Включённые функции полётника. Снимайте галочки осторожно — некоторые функции критичны.
-          </p>
-          <div class="feature-grid" id="featureGrid"></div>
-          <div class="action-bar">
-            <button class="primary" id="loadFeat">📥 Загрузить</button>
-            <button class="save" id="writeFeat" disabled>💾 Применить</button>
-          </div>
-        </div>
-
-        <!-- ===== MIXER ===== -->
-        <div class="card" style="margin-bottom:20px">
-          <h2><span>✈</span> Тип дрона (Mixer)</h2>
-          <div class="form-row">
-            <label>Текущий микшер</label>
-            <b id="mixer-name" style="color:var(--cy)">—</b>
-          </div>
-          <p class="note">
-            Изменение типа дрона — опасная операция. Делайте это только если знаете, что делаете.
-            Запись микшера в этом прототипе отключена (только чтение).
-          </p>
-        </div>
-
-        <!-- ===== ГЛОБАЛЬНЫЕ ДЕЙСТВИЯ ===== -->
-        <div class="card">
-          <h2><span>⚡</span> Глобальные действия</h2>
-          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-            <button class="save" id="eepromSave" disabled>
-              💾 Сохранить ВСЁ в EEPROM
-            </button>
-            <button class="danger" id="reboot" disabled>
-              ⟳ Перезагрузить полётник
-            </button>
-          </div>
-          <p class="note">
-            «Сохранить в EEPROM» фиксирует все изменения в постоянной памяти.
-            Без этого шага настройки сбросятся после перезагрузки.
-          </p>
-        </div>
-      </section>
-
-      <!-- ================= ЛЕТАДЛО ================= -->
-      <section class="panel" id="panel-climb">
-        <div class="card">
-          <h2><span>⬆</span> Летадло · концепт</h2>
-          <p>Автоматический набор безопасной высоты при потере радиосвязи.</p>
-          <div class="warn">
-            Это макет будущей вкладки. Чтобы функция работала по-настоящему,
-            нужна поддержка в <b>прошивке iNav</b> и своя MSP-команда.
-          </div>
-        </div>
-      </section>
-    </main>
   </div>
+</header>
 
-  <footer>
-    <span>EVENT HORIZON · iNav 9 Web Configurator</span>
-    <span id="streamState">поток: нет данных</span>
-  </footer>
+<div class="layout">
+  <nav class="sidebar">
+    <button class="nav-item active" data-panel="panel-overview">Обзор</button>
+    <button class="nav-item" data-panel="panel-telemetry">Телеметрия</button>
+    <button class="nav-item" data-panel="panel-settings">Настройки</button>
+    <button class="nav-item" data-panel="panel-flash">Прошивка</button>
+  </nav>
+
+  <main class="main">
+    <!-- ===== ОБЗОР ===== -->
+    <section class="panel active" id="panel-overview">
+      <div class="warning">
+        Снимите пропеллеры перед подключением по USB.
+      </div>
+
+      <div class="telemetry-grid">
+        <div class="telemetry-item">
+          <label>Крен</label>
+          <div class="value" id="o-roll">—</div>
+        </div>
+        <div class="telemetry-item">
+          <label>Тангаж</label>
+          <div class="value" id="o-pitch">—</div>
+        </div>
+        <div class="telemetry-item">
+          <label>Курс</label>
+          <div class="value" id="o-yaw">—</div>
+        </div>
+        <div class="telemetry-item">
+          <label>Высота</label>
+          <div class="value" id="q-alt">—<span class="unit">м</span></div>
+        </div>
+        <div class="telemetry-item">
+          <label>Напряжение</label>
+          <div class="value" id="q-volt">—<span class="unit">V</span></div>
+        </div>
+        <div class="telemetry-item">
+          <label>Спутники</label>
+          <div class="value" id="q-sats">—</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Информация о полётнике</h2>
+        <table>
+          <tr><td>Порт (VID:PID)</td><td id="d-port">—</td></tr>
+          <tr><td>Семейство прошивки</td><td id="d-variant">—</td></tr>
+          <tr><td>Версия прошивки</td><td id="d-version">—</td></tr>
+          <tr><td>MSP API</td><td id="d-api">—</td></tr>
+          <tr><td>Плата</td><td id="d-board">—</td></tr>
+        </table>
+      </div>
+    </section>
+
+    <!-- ===== ТЕЛЕМЕТРИЯ ===== -->
+    <section class="panel" id="panel-telemetry">
+      <div class="card">
+        <h2>Питание</h2>
+        <table>
+          <tr><td>Напряжение</td><td id="t-volt">—</td></tr>
+          <tr><td>Ток</td><td id="t-amp">—</td></tr>
+          <tr><td>Израсходовано</td><td id="t-mah">—</td></tr>
+          <tr><td>RSSI (сырое)</td><td id="t-rssi">—</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Навигация</h2>
+        <table>
+          <tr><td>Высота</td><td id="t-alt">—</td></tr>
+          <tr><td>Вертикальная скорость</td><td id="t-vario">—</td></tr>
+          <tr><td>GPS fix</td><td id="t-fix">—</td></tr>
+          <tr><td>Спутники</td><td id="t-sats">—</td></tr>
+          <tr><td>Широта</td><td id="t-lat">—</td></tr>
+          <tr><td>Долгота</td><td id="t-lon">—</td></tr>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>Журнал</h2>
+        <button id="clearLog" style="margin-bottom:10px">Очистить</button>
+        <div class="log" id="log"></div>
+      </div>
+    </section>
+
+    <!-- ===== НАСТРОЙКИ ===== -->
+    <section class="panel" id="panel-settings">
+      <div class="warning critical">
+        Изменение настроек влияет на поведение дрона. Сохраняйте изменения только если понимаете, что делаете.
+      </div>
+
+      <div id="settingsStatus" style="margin-bottom:20px">
+        <span style="color:#666">Статус:</span>
+        <span id="cfgStatus" class="status-pill">не загружено</span>
+      </div>
+
+      <div class="card">
+        <h2>PID-коэффициенты</h2>
+        <table>
+          <thead>
+            <tr><th>Ось</th><th>P</th><th>I</th><th>D</th></tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>ROLL</td>
+              <td><input type="number" id="pid-roll-p" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-roll-i" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-roll-d" min="0" max="255" step="1"></td>
+            </tr>
+            <tr>
+              <td>PITCH</td>
+              <td><input type="number" id="pid-pitch-p" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-pitch-i" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-pitch-d" min="0" max="255" step="1"></td>
+            </tr>
+            <tr>
+              <td>YAW</td>
+              <td><input type="number" id="pid-yaw-p" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-yaw-i" min="0" max="255" step="1"></td>
+              <td><input type="number" id="pid-yaw-d" min="0" max="255" step="1"></td>
+            </tr>
+          </tbody>
+        </table>
+        <div class="action-bar">
+          <button class="primary" id="loadPid">Загрузить</button>
+          <button id="writePid" disabled>Применить</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Конфигурация батареи</h2>
+        <div class="form-row">
+          <label>Мин. напряжение ячейки</label>
+          <input type="number" id="bat-min" step="0.1" min="2.5" max="4.0">
+          <span class="unit">V</span>
+        </div>
+        <div class="form-row">
+          <label>Макс. напряжение ячейки</label>
+          <input type="number" id="bat-max" step="0.1" min="3.5" max="4.5">
+          <span class="unit">V</span>
+        </div>
+        <div class="form-row">
+          <label>Предупреждение</label>
+          <input type="number" id="bat-warn" step="0.1" min="2.8" max="4.0">
+          <span class="unit">V</span>
+        </div>
+        <div class="form-row">
+          <label>Ёмкость батареи</label>
+          <input type="number" id="bat-cap" step="50" min="0" max="20000">
+          <span class="unit">mAh</span>
+        </div>
+        <div class="action-bar">
+          <button class="primary" id="loadBat">Загрузить</button>
+          <button id="writeBat" disabled>Применить</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Failsafe</h2>
+        <div class="form-row">
+          <label>Режим failsafe</label>
+          <select id="fs-mode">
+            <option value="0">DROP</option>
+            <option value="1">LAND</option>
+            <option value="2">SET-THROTTLE</option>
+            <option value="3">RTH</option>
+            <option value="4">GPS-RESCUE</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>Задержка срабатывания</label>
+          <input type="number" id="fs-delay" step="100" min="0" max="10000">
+          <span class="unit">мс</span>
+        </div>
+        <div class="form-row">
+          <label>Время отключения моторов</label>
+          <input type="number" id="fs-offtime" step="100" min="0" max="10000">
+          <span class="unit">мс</span>
+        </div>
+        <div class="action-bar">
+          <button class="primary" id="loadFs">Загрузить</button>
+          <button id="writeFs" disabled>Применить</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Активные функции</h2>
+        <div class="features-grid" id="featureGrid"></div>
+        <div class="action-bar">
+          <button class="primary" id="loadFeat">Загрузить</button>
+          <button id="writeFeat" disabled>Применить</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Тип дрона</h2>
+        <div class="form-row">
+          <label>Текущий микшер</label>
+          <b id="mixer-name" style="color:#007bff">—</b>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Глобальные действия</h2>
+        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+          <button id="eepromSave" disabled>Сохранить в EEPROM</button>
+          <button class="danger" id="reboot" disabled>Перезагрузить</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ===== ПРОШИВКА (НОВОЕ!) ===== -->
+    <section class="panel" id="panel-flash">
+      <div class="warning critical">
+        ⚠️ <b>ВНИМАНИЕ:</b> Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
+        Убедитесь, что выбрали правильный файл для вашего таргета.
+      </div>
+
+      <!-- Шаг 1: Выбор файла -->
+      <div class="card">
+        <h2>Шаг 1: Выберите файл прошивки</h2>
+        <div class="form-row">
+          <label>Таргет полётника</label>
+          <select id="target">
+            <option value="SPEEDYBEEF405WING">SpeedyBee F405 Wing</option>
+            <option value="CADDXF405WING">Caddx F405 Wing</option>
+          </select>
+        </div>
+        <div class="file-input">
+          <input type="file" id="firmwareFile" accept=".bin,.hex">
+        </div>
+        <div class="file-info" id="fileInfo" style="display:none">
+          <div><label>Имя файла:</label><span id="fileName">—</span></div>
+          <div><label>Размер:</label><span id="fileSize">—</span></div>
+          <div><label>Контрольная сумма:</label><span id="fileChecksum">—</span></div>
+        </div>
+      </div>
+
+      <!-- Шаг 2: Вход в DFU -->
+      <div class="card">
+        <h2>Шаг 2: Переведите полётник в режим DFU</h2>
+        <p style="margin-bottom:12px;color:#666;font-size:13px">
+          Полётник должен быть подключён по USB и работать с прошивкой iNav.
+        </p>
+        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+          <button id="enterDfu" disabled>Войти в режим DFU</button>
+        </div>
+        <p style="margin-top:12px;color:#666;font-size:12px">
+          После нажатия полётник перезагрузится в DFU-режим. Устройство исчезнет из списка COM-портов
+          и появится как DFU-устройство (VID: 0483, PID: DF11).
+        </p>
+      </div>
+
+      <!-- Шаг 3: Подключение к DFU -->
+      <div class="card">
+        <h2>Шаг 3: Подключитесь к DFU-устройству</h2>
+        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+          <button id="connectDfu" disabled>Выбрать DFU-устройство</button>
+        </div>
+        <p style="margin-top:12px;color:#666;font-size:12px">
+          Браузер покажет диалог выбора USB-устройств. Выберите устройство с именем "STM32 Bootloader" или VID: 0483.
+        </p>
+      </div>
+
+      <!-- Шаг 4: Прошивка -->
+      <div class="card">
+        <h2>Шаг 4: Загрузка прошивки</h2>
+        <div class="progress-bar">
+          <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
+        </div>
+        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+          <button class="danger" id="startFlash" disabled>Начать прошивку</button>
+          <button id="cancelFlash" disabled>Отмена</button>
+        </div>
+        <div class="log" id="flashLog" style="margin-top:16px;height:250px"></div>
+      </div>
+    </section>
+  </main>
 </div>
 
 <script>
 'use strict';
 
-/* ============================================================
-   0. УТИЛИТЫ
-   ============================================================ */
 const $ = id => document.getElementById(id);
-const TAU = Math.PI * 2, RAD = Math.PI / 180;
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-const clamp = (v,a,b) => Math.max(a, Math.min(b,v));
 
 const u16 = (b,o) => b[o] | (b[o+1] << 8);
 const i16 = (b,o) => { const v = u16(b,o); return v < 32768 ? v : v - 65536; };
@@ -454,31 +743,35 @@ function txt(id, value){
   const el = $(id);
   if (el && el.textContent !== String(value)) el.textContent = value;
 }
+
 function log(msg, type=''){
   const box = $('log');
   const line = document.createElement('div');
-  if (type) line.className = type;
+  line.className = 'log-entry ' + type;
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
   box.appendChild(line);
-  while (box.children.length > 150) box.removeChild(box.firstChild);
+  while (box.children.length > 100) box.removeChild(box.firstChild);
   box.scrollTop = box.scrollHeight;
 }
 
-/* ============================================================
-   1. СОСТОЯНИЕ
-   ============================================================ */
+function flashLog(msg, type=''){
+  const box = $('flashLog');
+  const line = document.createElement('div');
+  line.className = 'log-entry ' + type;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  box.appendChild(line);
+  box.scrollTop = box.scrollHeight;
+}
+
+// ===== STATE =====
 const S = {
   roll:0, pitch:0, yaw:0,
   alt:0, vario:0, volt:0, amp:0, mah:0, rssi:0,
   fix:0, sats:0, lat:0, lon:0,
-  hasAtt:false, hasAlt:false, hasAnalog:false, hasGps:false,
-  lastAtt:0
+  hasAtt:false, hasAlt:false, hasAnalog:false, hasGps:false
 };
-const history = [];
 
-/* ============================================================
-   2. MSP-КАНАЛ (v1 + v2)
-   ============================================================ */
+// ===== MSP =====
 class MSP {
   constructor(){
     this.port = null; this.reader = null; this.writer = null;
@@ -486,20 +779,15 @@ class MSP {
     this.pending = new Map();
     this._reset();
   }
-  _reset(){ this._st = 0; this._size = 0; this._cmd = 0; this._pay = []; this._crc = 0;
-    this._v2 = false; this._flags = 0; this._dir = 0; }
+  _reset(){ this._st = 0; this._size = 0; this._cmd = 0; this._pay = []; this._crc = 0; }
 
   async open(){
-    if (!('serial' in navigator))
-      throw new Error('Web Serial API недоступен. Нужны Chrome или Edge.');
+    if (!('serial' in navigator)) throw new Error('Web Serial API недоступен');
     this.port = await navigator.serial.requestPort();
     await this.port.open({ baudRate: 115200 });
     this.connected = true;
     this.writer = this.port.writable.getWriter();
     this.loop = this._readLoop();
-    this.port.addEventListener('disconnect', () => {
-      if (this.connected) handleUnplug();
-    });
   }
 
   async _readLoop(){
@@ -515,24 +803,17 @@ class MSP {
       if (this.connected) log('Чтение прервано: ' + e.message, 'err');
     } finally {
       try { reader.releaseLock(); } catch {}
-      this.reader = null;
     }
   }
 
   _feed(b){
     switch (this._st) {
       case 0: if (b === 0x24) this._st = 1; break;
-      case 1:
-        if (b === 0x4D) { this._v2 = false; this._st = 2; }
-        else if (b === 0x58) { this._v2 = true; this._st = 2; }  // MSP v2: $X
-        else this._st = 0;
-        break;
+      case 1: this._st = (b === 0x4D) ? 2 : 0; break;
       case 2:
-        if (b === 0x3E) { this._dir = 1; this._st = this._v2 ? 10 : 3; this._pay = []; }
-        else if (b === 0x24) this._st = 1;
+        if (b === 0x3E) { this._st = 3; this._pay = []; }
         else this._st = 0;
         break;
-      // ===== MSP v1 =====
       case 3:
         this._size = b;
         if (b > 200) { this._reset(); break; }
@@ -548,20 +829,6 @@ class MSP {
         break;
       case 6:
         if (b === this._crc) this._dispatch(this._cmd, Uint8Array.from(this._pay));
-        else log('CRC не совпал (cmd ' + this._cmd + ')', 'warn');
-        this._reset();
-        break;
-      // ===== MSP v2 (упрощённо) =====
-      case 10: this._flags = b; this._crc = b; this._st = 11; break;
-      case 11: this._cmd = b | (this._cmd << 8); this._crc ^= b; this._st = 12; break;
-      case 12: this._size = b; this._crc ^= b; this._st = 13; break;
-      case 13: this._size |= (b << 8); this._crc ^= b; this._st = 14; break;
-      case 14:
-        this._pay.push(b); this._crc ^= b;
-        if (this._pay.length === this._size) this._st = 15;
-        break;
-      case 15:
-        if (b === this._crc) this._dispatch(this._cmd, Uint8Array.from(this._pay));
         this._reset();
         break;
     }
@@ -576,10 +843,10 @@ class MSP {
     }
   }
 
-  async _writeV1(cmd, payload, dir = 0x3C){
+  async _write(cmd, payload){
     const n = payload.length;
     const buf = new Uint8Array(6 + n);
-    buf[0]=0x24; buf[1]=0x4D; buf[2]=dir; buf[3]=n; buf[4]=cmd;
+    buf[0]=0x24; buf[1]=0x4D; buf[2]=0x3C; buf[3]=n; buf[4]=cmd;
     let crc = n ^ cmd;
     for (let i=0; i<n; i++){ buf[5+i] = payload[i]; crc ^= payload[i]; }
     buf[5+n] = crc;
@@ -589,13 +856,12 @@ class MSP {
   request(cmd, payload = new Uint8Array(), timeout = 900){
     if (!this.connected) return Promise.reject(new Error('Нет подключения'));
     return new Promise((resolve, reject) => {
-      if (this.pending.has(cmd)) { reject(new Error('Команда ' + cmd + ' уже ожидает')); return; }
       const timer = setTimeout(() => {
         this.pending.delete(cmd);
         reject(new Error('Тайм-аут MSP ' + cmd));
       }, timeout);
       this.pending.set(cmd, { resolve, reject, timer });
-      this._writeV1(cmd, payload).catch(e => {
+      this._write(cmd, payload).catch(e => {
         clearTimeout(timer); this.pending.delete(cmd); reject(e);
       });
     });
@@ -612,45 +878,27 @@ class MSP {
     try { if (this.loop) await this.loop; } catch {}
     try { if (this.writer){ await this.writer.close(); this.writer.releaseLock(); } } catch {}
     try { if (this.port) await this.port.close(); } catch {}
-    this.writer = null; this.reader = null; this.port = null; this.loop = null;
-    this._reset();
+    this.writer = null; this.reader = null; this.port = null;
   }
 }
 
 const msp = new MSP();
 
-/* ============================================================
-   3. РАЗБОР ОТВЕТОВ (телеметрия)
-   ============================================================ */
+// ===== TELEMETRY PARSERS =====
 function readIdentity(cmd, p){
-  if (cmd === 1 && p.length >= 3){
-    txt('d-api', `${p[1]}.${p[2]}  (MSP ${p[0]})`);
-    log(`MSP API ${p[1]}.${p[2]}, протокол v${p[0]}`, 'ok');
-  }
-  if (cmd === 2 && p.length >= 4){
-    txt('d-variant', ascii(p, 0, p.length));
-    log('Семейство: ' + ascii(p, 0, p.length), 'ok');
-  }
-  if (cmd === 3 && p.length >= 3){
-    txt('d-version', `${p[0]}.${p[1]}.${p[2]}`);
-    log(`Прошивка ${p[0]}.${p[1]}.${p[2]}`, 'ok');
-  }
-  if (cmd === 4 && p.length >= 6){
-    txt('d-board', ascii(p,0,4) + ' · rev ' + u16(p,4));
-    log('Плата: ' + ascii(p,0,4), 'ok');
-  }
+  if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
+  if (cmd === 2 && p.length >= 4) txt('d-variant', ascii(p, 0, p.length));
+  if (cmd === 3 && p.length >= 3) txt('d-version', `${p[0]}.${p[1]}.${p[2]}`);
+  if (cmd === 4 && p.length >= 6) txt('d-board', ascii(p,0,4) + ' rev ' + u16(p,4));
 }
 
 function readAttitude(p){
   if (p.length < 6) return;
-  S.roll  = i16(p,0);
+  S.roll = i16(p,0);
   S.pitch = i16(p,2);
-  S.yaw   = i16(p,4);
+  S.yaw = i16(p,4);
   if (S.yaw < 0) S.yaw += 360;
   S.hasAtt = true;
-  S.lastAtt = performance.now();
-  history.push({ roll:S.roll, pitch:S.pitch });
-  if (history.length > 180) history.shift();
 }
 
 function readAltitude(p){
@@ -663,70 +911,50 @@ function readAltitude(p){
 function readAnalog(p){
   if (p.length < 7) return;
   S.volt = p[0] / 10;
-  S.mah  = u16(p,1);
+  S.mah = u16(p,1);
   S.rssi = u16(p,3);
-  S.amp  = u16(p,5) / 100;
+  S.amp = u16(p,5) / 100;
   S.hasAnalog = true;
 }
 
 function readGps(p){
   if (p.length < 10) return;
-  S.fix  = p[0];
+  S.fix = p[0];
   S.sats = p[1];
-  S.lat  = i32(p,2) / 1e7;
-  S.lon  = i32(p,6) / 1e7;
+  S.lat = i32(p,2) / 1e7;
+  S.lon = i32(p,6) / 1e7;
   S.hasGps = true;
 }
 
-/* ============================================================
-   4. ОПРОС ПОЛЕТНИКА
-   ============================================================ */
+// ===== POLLING =====
 let polling = false, stopPoll = false, tick = 0;
 
 async function startPolling(){
   if (polling) return;
   polling = true; stopPoll = false; tick = 0;
-
   while (msp.connected && !stopPoll){
-    const start = performance.now();
     try {
       readAttitude(await msp.request(108));
-      if (tick % 5 === 0)  readAltitude(await msp.request(109));
+      if (tick % 5 === 0) readAltitude(await msp.request(109));
       if (tick % 10 === 0) readAnalog(await msp.request(110));
       if (tick % 25 === 0) readGps(await msp.request(106));
-    } catch (e) {
-      log(e.message, 'warn');
-    }
+    } catch (e) { log(e.message, 'warn'); }
     tick++;
-    const period = Number($('rate').value);
-    await sleep(Math.max(15, period - (performance.now() - start)));
+    await sleep(Number($('rate').value));
   }
   polling = false;
 }
 
-/* ============================================================
-   5. ПОДКЛЮЧЕНИЕ / ОТКЛЮЧЕНИЕ
-   ============================================================ */
+// ===== CONNECTION =====
 function setLink(on){
   $('led').classList.toggle('on', on);
-  txt('linkState', on ? 'ОНЛАЙН' : 'ОФЛАЙН');
+  txt('linkState', on ? 'Онлайн' : 'Офлайн');
   $('connect').disabled = on;
   $('disconnect').disabled = !on;
-  // Разблокируем кнопки настроек
-  const settingsBtns = ['loadPid','loadBat','loadFs','loadFeat','eepromSave','reboot'];
-  settingsBtns.forEach(id => { if ($(id)) $(id).disabled = !on; });
-  if (!on){
-    S.hasAtt = false;
-    txt('streamState', 'поток: нет данных');
-    setCfgStatus('не загружено', '');
-  }
-}
-
-async function handleUnplug(){
-  log('USB-устройство отключено', 'warn');
-  stopPoll = true;
-  try { await msp.close(); } catch {}
-  setLink(false);
+  ['loadPid','loadBat','loadFs','loadFeat','eepromSave','reboot','enterDfu'].forEach(id => {
+    if ($(id)) $(id).disabled = !on;
+  });
+  if (!on) setCfgStatus('не загружено', '');
 }
 
 $('connect').addEventListener('click', async () => {
@@ -734,26 +962,20 @@ $('connect').addEventListener('click', async () => {
   try {
     await msp.open();
     setLink(true);
-
     const info = msp.port.getInfo();
     const vid = info.usbVendorId ? info.usbVendorId.toString(16).padStart(4,'0').toUpperCase() : '????';
     const pid = info.usbProductId ? info.usbProductId.toString(16).padStart(4,'0').toUpperCase() : '????';
     txt('d-port', `${vid}:${pid}`);
-    log('Порт открыт, 115200 baud', 'ok');
-
+    log('Подключено', 'ok');
     for (const cmd of [1,2,3,4]){
       try { readIdentity(cmd, await msp.request(cmd, new Uint8Array(), 1200)); }
       catch (e) { log('Команда ' + cmd + ': ' + e.message, 'warn'); }
     }
-
-    log('Запуск телеметрии…', 'ok');
     startPolling();
   } catch (e) {
-    log('Подключение не удалось: ' + e.message, 'err');
+    log('Ошибка: ' + e.message, 'err');
     try { await msp.close(); } catch {}
     setLink(false);
-  } finally {
-    $('connect').disabled = msp.connected;
   }
 });
 
@@ -761,314 +983,52 @@ $('disconnect').addEventListener('click', async () => {
   stopPoll = true;
   try { await msp.close(); } catch {}
   setLink(false);
-  log('Отключено пользователем');
+  log('Отключено');
 });
 
 $('clearLog').addEventListener('click', () => { $('log').innerHTML = ''; });
 
-/* ============================================================
-   6. МЕНЮ
-   ============================================================ */
-document.querySelectorAll('.nav').forEach(btn => {
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
-    document.querySelectorAll('.nav').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
     document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
     btn.classList.add('active');
     $(btn.dataset.panel).classList.add('active');
   });
 });
 
-/* ============================================================
-   7-9. ПРИБОРЫ (аттитюда, компас, график) — без изменений
-   ============================================================ */
-function drawHorizon(){
-  const g = $('horizon').getContext('2d');
-  g.clearRect(0,0,600,600);
-  const cx=300, cy=300, R=246;
-  g.save(); g.translate(cx,cy);
-  g.strokeStyle='rgba(160,190,255,.4)'; g.lineWidth=2;
-  g.beginPath(); g.arc(0,0,R+12,0,TAU); g.stroke();
-  g.save(); g.rotate(-S.roll*RAD);
-  for (let d=-60; d<=60; d+=10){
-    const a=(d-90)*RAD, len=(d%30===0)?18:10;
-    g.beginPath();
-    g.moveTo(Math.cos(a)*(R+2), Math.sin(a)*(R+2));
-    g.lineTo(Math.cos(a)*(R+2+len), Math.sin(a)*(R+2+len));
-    g.stroke();
-  }
-  g.restore();
-  g.fillStyle='#fbbf24';
-  g.beginPath(); g.moveTo(0,-R-6); g.lineTo(-9,-R-25); g.lineTo(9,-R-25); g.closePath(); g.fill();
-  g.restore();
-
-  g.save();
-  g.beginPath(); g.arc(cx,cy,R,0,TAU); g.clip();
-  g.translate(cx,cy);
-  g.rotate(-S.roll*RAD);
-  g.translate(0, S.pitch*3.1);
-  const sky=g.createLinearGradient(0,-700,0,0);
-  sky.addColorStop(0,'#0b2545'); sky.addColorStop(1,'#155e75');
-  g.fillStyle=sky; g.fillRect(-900,-900,1800,900);
-  const ground=g.createLinearGradient(0,0,0,700);
-  ground.addColorStop(0,'#7c4a12'); ground.addColorStop(1,'#2a1608');
-  g.fillStyle=ground; g.fillRect(-900,0,1800,900);
-  g.strokeStyle='#e0f2fe'; g.lineWidth=3;
-  g.beginPath(); g.moveTo(-900,0); g.lineTo(900,0); g.stroke();
-  g.lineWidth=2; g.font='20px ui-monospace,monospace';
-  g.fillStyle='rgba(224,242,254,.85)'; g.textAlign='center';
-  for (let d=-80; d<=80; d+=10){
-    if (d===0) continue;
-    const y=-d*3.1, w=(d%20===0)?70:40;
-    g.beginPath(); g.moveTo(-w,y); g.lineTo(w,y); g.stroke();
-    if (d%20===0){
-      g.fillText(String(Math.abs(d)), -w-28, y+7);
-      g.fillText(String(Math.abs(d)),  w+28, y+7);
-    }
-  }
-  g.restore();
-
-  g.strokeStyle='#fbbf24'; g.lineWidth=6; g.lineCap='round';
-  g.beginPath();
-  g.moveTo(cx-95,cy); g.lineTo(cx-35,cy);
-  g.moveTo(cx+35,cy); g.lineTo(cx+95,cy);
-  g.moveTo(cx-35,cy); g.lineTo(cx-35,cy+18);
-  g.moveTo(cx+35,cy); g.lineTo(cx+35,cy+18);
-  g.stroke();
-  g.fillStyle='#fbbf24';
-  g.beginPath(); g.arc(cx,cy,5,0,TAU); g.fill();
-  g.strokeStyle='rgba(160,190,255,.55)'; g.lineWidth=3;
-  g.beginPath(); g.arc(cx,cy,R,0,TAU); g.stroke();
-
-  if (!S.hasAtt){
-    g.fillStyle='rgba(4,6,14,.72)';
-    g.beginPath(); g.arc(cx,cy,R,0,TAU); g.fill();
-    g.fillStyle='#8493ba'; g.font='22px system-ui'; g.textAlign='center';
-    g.fillText('НЕТ ДАННЫХ', cx, cy+8);
-  }
-}
-
-function drawCompass(){
-  const g=$('compass').getContext('2d');
-  g.clearRect(0,0,360,360);
-  const cx=180, cy=180, R=140;
-  g.save(); g.translate(cx,cy);
-  g.strokeStyle='rgba(160,190,255,.3)'; g.lineWidth=2;
-  g.beginPath(); g.arc(0,0,R+8,0,TAU); g.stroke();
-  g.rotate(-S.yaw*RAD);
-  for (let d=0; d<360; d+=10){
-    const a=(d-90)*RAD, len=(d%30===0)?20:10;
-    g.strokeStyle=(d%30===0)?'#a78bfa':'rgba(160,190,255,.45)';
-    g.beginPath();
-    g.moveTo(Math.cos(a)*R, Math.sin(a)*R);
-    g.lineTo(Math.cos(a)*(R-len), Math.sin(a)*(R-len));
-    g.stroke();
-  }
-  g.fillStyle='#c4b5fd'; g.font='bold 22px ui-monospace,monospace';
-  g.textAlign='center'; g.textBaseline='middle';
-  [['N',0],['E',90],['S',180],['W',270]].forEach(([t,d])=>{
-    const a=(d-90)*RAD;
-    g.fillText(t, Math.cos(a)*(R-42), Math.sin(a)*(R-42));
-  });
-  g.restore();
-  g.fillStyle='#67e8f9';
-  g.beginPath(); g.moveTo(cx,cy-R+16); g.lineTo(cx-8,cy-R-2); g.lineTo(cx+8,cy-R-2); g.closePath(); g.fill();
-  g.fillStyle='#dbe4ff'; g.font='bold 30px ui-monospace,monospace'; g.textAlign='center';
-  g.fillText(String(Math.round(S.yaw)).padStart(3,'0')+'°', cx, cy+12);
-}
-
-function drawChart(){
-  const g=$('chart').getContext('2d');
-  g.clearRect(0,0,900,280);
-  const left=50, right=870, mid=140, scale=2;
-  g.strokeStyle='rgba(140,170,255,.12)'; g.lineWidth=1;
-  g.font='12px ui-monospace,monospace'; g.fillStyle='#8493ba'; g.textAlign='right';
-  for (let v=-60; v<=60; v+=30){
-    const y=mid-v*scale;
-    g.beginPath(); g.moveTo(left,y); g.lineTo(right,y); g.stroke();
-    g.fillText(v+'°', left-10, y+4);
-  }
-  if (history.length < 2){
-    g.textAlign='center'; g.fillStyle='#8493ba'; g.font='16px system-ui';
-    g.fillText('Ожидание телеметрии…', 450, 145);
-    return;
-  }
-  const plot=(key,color)=>{
-    g.strokeStyle=color; g.lineWidth=2; g.beginPath();
-    history.forEach((p,i)=>{
-      const x=left + i/179*(right-left);
-      const y=mid - clamp(p[key],-65,65)*scale;
-      i===0 ? g.moveTo(x,y) : g.lineTo(x,y);
-    });
-    g.stroke();
-  };
-  plot('roll','#67e8f9');
-  plot('pitch','#fbbf24');
-  g.textAlign='left'; g.fillStyle='#67e8f9'; g.fillText('— крен', left, 20);
-  g.fillStyle='#fbbf24'; g.fillText('— тангаж', left+90, 20);
-}
-
-/* ============================================================
-   10. КОСМОС
-   ============================================================ */
-const cosmos=$('cosmos'), cg=cosmos.getContext('2d');
-let W=0, H=0, hole={x:0,y:0,r:80};
-let stars=[], infall=[];
-let fxOn = !window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-
-function resizeCosmos(){
-  const dpr=Math.min(window.devicePixelRatio||1, 1.25);
-  W=window.innerWidth; H=window.innerHeight;
-  cosmos.width=W*dpr; cosmos.height=H*dpr;
-  cosmos.style.width=W+'px'; cosmos.style.height=H+'px';
-  cg.setTransform(dpr,0,0,dpr,0,0);
-  hole={ x:W*0.82, y:H*0.26, r:clamp(Math.min(W,H)*0.10, 55, 110) };
-  stars=Array.from({length:170},()=>({
-    x:Math.random()*W, y:Math.random()*H,
-    r:Math.random()*1.3+.25, p:Math.random()*TAU
-  }));
-  const spawn=p=>{ p.r=hole.r*(1.3+Math.random()*3.4); p.a=Math.random()*TAU; p.s=.5+Math.random()*.7; };
-  infall=Array.from({length:130},()=>{ const p={}; spawn(p); p.spawn=spawn; return p; });
-}
-
-function drawCosmos(dt,t){
-  cg.fillStyle='#04060e'; cg.fillRect(0,0,W,H);
-  const neb=cg.createRadialGradient(hole.x,hole.y,0,hole.x,hole.y,Math.max(W,H)*.7);
-  neb.addColorStop(0,'rgba(88,28,135,.22)');
-  neb.addColorStop(.4,'rgba(30,58,138,.10)');
-  neb.addColorStop(1,'rgba(4,6,14,0)');
-  cg.fillStyle=neb; cg.fillRect(0,0,W,H);
-  for (const s of stars){
-    s.x-=dt*3*s.r;
-    if (s.x<0) s.x=W;
-    cg.globalAlpha=.3+.35*(.5+.5*Math.sin(t*.001+s.p));
-    cg.fillStyle='#cfe0ff';
-    cg.beginPath(); cg.arc(s.x,s.y,s.r,0,TAU); cg.fill();
-  }
-  cg.globalAlpha=1;
-  const {x:hx,y:hy,r:R}=hole;
-  const halo=cg.createRadialGradient(hx,hy,R*.8,hx,hy,R*3.6);
-  halo.addColorStop(0,'rgba(251,191,36,.20)');
-  halo.addColorStop(.35,'rgba(167,139,250,.13)');
-  halo.addColorStop(1,'rgba(4,6,14,0)');
-  cg.fillStyle=halo;
-  cg.beginPath(); cg.arc(hx,hy,R*3.6,0,TAU); cg.fill();
-  const step=p=>{
-    const rel=p.r/R;
-    p.a += dt*(.35 + 1.7/rel)*p.s;
-    p.r -= dt*(5 + 26/rel);
-    if (p.r < R*1.02) p.spawn(p);
-  };
-  const paint=p=>{
-    const rel=(p.r/R-1)/3.4;
-    const hue=35+clamp(rel,0,1)*230;
-    const alpha=(1-clamp(rel,0,1))*.85+.12;
-    const px=hx+Math.cos(p.a)*p.r;
-    const py=hy+Math.sin(p.a)*p.r*.38;
-    cg.fillStyle=`hsla(${hue},95%,${70-clamp(rel,0,1)*25}%,${alpha})`;
-    cg.beginPath(); cg.arc(px,py,1.1+ (1-clamp(rel,0,1))*1.6,0,TAU); cg.fill();
-  };
-  for (const p of infall){ step(p); if (Math.sin(p.a)<0) paint(p); }
-  cg.fillStyle='#000';
-  cg.beginPath(); cg.arc(hx,hy,R*.98,0,TAU); cg.fill();
-  cg.save();
-  cg.shadowColor='rgba(255,200,120,.9)'; cg.shadowBlur=22;
-  cg.strokeStyle='rgba(255,214,150,.85)'; cg.lineWidth=2.2;
-  cg.beginPath(); cg.arc(hx,hy,R*1.04,0,TAU); cg.stroke();
-  cg.restore();
-  for (const p of infall){ if (Math.sin(p.a)>=0) paint(p); }
-}
-
-$('fxBtn').addEventListener('click',()=>{
-  fxOn=!fxOn;
-  document.body.classList.toggle('low-fx',!fxOn);
-  txt('fxBtn', fxOn ? '✦ Эффекты: вкл' : '✦ Эффекты: выкл');
-  if (!fxOn) drawCosmos(0,0);
-});
-window.addEventListener('resize',resizeCosmos);
-
-/* ============================================================
-   11. ВЫВОД ЗНАЧЕНИЙ
-   ============================================================ */
-const f1 = v => (v>0?'+':'') + v.toFixed(1) + '°';
-
+// ===== READOUTS =====
 function updateReadouts(){
-  const r=S.hasAtt?f1(S.roll):'—';
-  const p=S.hasAtt?f1(S.pitch):'—';
-  const y=S.hasAtt?String(Math.round(S.yaw)).padStart(3,'0')+'°':'—';
-  txt('o-roll',r); txt('o-pitch',p); txt('o-yaw',y);
-  txt('a-roll',r); txt('a-pitch',p); txt('a-yaw',y);
-  const alt=S.hasAlt?S.alt.toFixed(1):'—';
-  const var_=S.hasAlt?((S.vario>0?'+':'')+S.vario.toFixed(2)):'—';
-  txt('q-alt',alt); txt('t-alt',alt+' м');
-  txt('q-vario',var_); txt('t-vario',var_+' м/с');
-  const volt=S.hasAnalog?S.volt.toFixed(2):'—';
-  txt('q-volt',volt); txt('t-volt',volt+' V');
-  txt('t-amp',S.hasAnalog?S.amp.toFixed(2)+' A':'—');
-  txt('t-mah',S.hasAnalog?S.mah+' mAh':'—');
-  txt('t-rssi',S.hasAnalog?S.rssi:'—');
-  txt('q-sats',S.hasGps?S.sats:'—');
-  txt('t-sats',S.hasGps?S.sats:'—');
-  txt('t-fix',S.hasGps?S.fix:'—');
-  txt('t-lat',S.hasGps?S.lat.toFixed(7):'—');
-  txt('t-lon',S.hasGps?S.lon.toFixed(7):'—');
-  const fresh=S.hasAtt && (performance.now()-S.lastAtt < 1500);
-  txt('streamState', fresh ? 'поток: OK · MSP_ATTITUDE 108' : (msp.connected?'поток: ожидание…':'поток: нет данных'));
+  const f1 = v => (v>0?'+':'') + v.toFixed(1) + '°';
+  txt('o-roll', S.hasAtt ? f1(S.roll) : '—');
+  txt('o-pitch', S.hasAtt ? f1(S.pitch) : '—');
+  txt('o-yaw', S.hasAtt ? String(Math.round(S.yaw)).padStart(3,'0')+'°' : '—');
+  txt('q-alt', S.hasAlt ? S.alt.toFixed(1) : '—');
+  txt('q-volt', S.hasAnalog ? S.volt.toFixed(2) : '—');
+  txt('q-sats', S.hasGps ? S.sats : '—');
+  txt('t-volt', S.hasAnalog ? S.volt.toFixed(2)+' V' : '—');
+  txt('t-amp', S.hasAnalog ? S.amp.toFixed(2)+' A' : '—');
+  txt('t-mah', S.hasAnalog ? S.mah+' mAh' : '—');
+  txt('t-rssi', S.hasAnalog ? S.rssi : '—');
+  txt('t-alt', S.hasAlt ? S.alt.toFixed(1)+' м' : '—');
+  txt('t-vario', S.hasAlt ? S.vario.toFixed(2)+' м/с' : '—');
+  txt('t-fix', S.hasGps ? S.fix : '—');
+  txt('t-sats', S.hasGps ? S.sats : '—');
+  txt('t-lat', S.hasGps ? S.lat.toFixed(7) : '—');
+  txt('t-lon', S.hasGps ? S.lon.toFixed(7) : '—');
 }
 
-let last=0;
-function frame(t){
-  requestAnimationFrame(frame);
-  if (t-last < 33) return;
-  const dt=Math.min((t-last)/1000,.05);
-  last=t;
-  if (fxOn) drawCosmos(dt,t);
-  const overview=$('panel-overview').classList.contains('active');
-  const attitude=$('panel-attitude').classList.contains('active');
-  const telemetry=$('panel-telemetry').classList.contains('active');
-  if (overview){ drawHorizon(); drawCompass(); }
-  if (attitude) drawChart();
-  if (attitude || telemetry) updateReadouts();
-  else if (overview) updateReadouts();
-}
+setInterval(updateReadouts, 100);
 
-/* ============================================================
-   12. НОВОЕ: НАСТРОЙКИ (PID, BATTERY, FAILSAFE, FEATURES, MIXER)
-   ============================================================ */
-
-// Список функций iNav (биты в MSP_FEATURE_CONFIG)
+// ===== SETTINGS =====
 const FEATURES = [
-  { bit:0,  name:'RX_PPM' },
-  { bit:1,  name:'VBAT' },
-  { bit:2,  name:'TX_PROF_SEL' },
-  { bit:3,  name:'INFLIGHT_ACC_CAL' },
-  { bit:4,  name:'MOTOR_STOP' },
-  { bit:5,  name:'SERVO_TILT' },
-  { bit:6,  name:'SOFTSERIAL' },
-  { bit:7,  name:'GPS' },
-  { bit:9,  name:'SONAR' },
-  { bit:10, name:'TELEMETRY' },
-  { bit:11, name:'3D' },
-  { bit:12, name:'RX_PARALLEL_PWM' },
-  { bit:13, name:'RX_MSP' },
-  { bit:14, name:'RSSI_ADC' },
-  { bit:15, name:'LED_STRIP' },
-  { bit:16, name:'DASHBOARD' },
-  { bit:17, name:'OSD' },
-  { bit:20, name:'RX_SERIAL' },
-  { bit:22, name:'PWM_OUTPUT_ENABLE' },
-  { bit:26, name:'RX_SPI' },
-  { bit:27, name:'SOFTSPI' },
-  { bit:28, name:'PWM_SERVO_DRIVER' },
+  {bit:0,name:'RX_PPM'},{bit:1,name:'VBAT'},{bit:7,name:'GPS'},{bit:10,name:'TELEMETRY'},
+  {bit:15,name:'LED_STRIP'},{bit:17,name:'OSD'},{bit:20,name:'RX_SERIAL'},{bit:26,name:'RX_SPI'}
 ];
 
-// Список микшеров iNav
 const MIXERS = {
-  0:'TRI',1:'QUAD P',2:'QUAD X',3:'BI',4:'GIMBAL',5:'Y6',6:'HEX6',
-  7:'FLYING_WING',8:'Y4',9:'HEX6 X',10:'OCTOX8',11:'OCTO FLAT P',
-  12:'OCTO FLAT X',13:'AIRPLANE',14:'HELI_120_CCPM',15:'HELI_90_DEG',
-  16:'VTAIL4',17:'HEX6 H',18:'PPM_TO_SERVO',19:'DUALCOPTER',20:'SINGLECOPTER',
-  21:'ATAIL4',22:'CUSTOM',23:'CUSTOM AIRPLANE',24:'CUSTOM TAILSIM',
-  25:'VTAIL_SINGLE',26:'QUAD S',27:'OCTOX8+',28:'CUSTOM_MIXER'
+  0:'TRI',1:'QUAD P',2:'QUAD X',7:'FLYING_WING',13:'AIRPLANE',22:'CUSTOM'
 };
 
 let cfgDirty = false;
@@ -1084,89 +1044,88 @@ function markDirty(){
   setCfgStatus('есть несохранённые изменения', 'dirty');
 }
 
-// ----- PID -----
+function buildFeatureGrid(){
+  const grid = $('featureGrid');
+  grid.innerHTML = '';
+  FEATURES.forEach(f => {
+    const item = document.createElement('div');
+    item.className = 'feature-item';
+    item.innerHTML = `<input type="checkbox" id="feat-${f.bit}" data-bit="${f.bit}"><label for="feat-${f.bit}">${f.name}</label>`;
+    grid.appendChild(item);
+  });
+}
+
 async function loadPid(){
   try {
     const p = await msp.request(112);
-    if (p.length < 9) { log('MSP_PID: слишком короткий ответ', 'err'); return; }
-    $('pid-roll-p').value  = p[0];
-    $('pid-roll-i').value  = p[1];
-    $('pid-roll-d').value  = p[2];
-    $('pid-pitch-p').value = p[3];
-    $('pid-pitch-i').value = p[4];
-    $('pid-pitch-d').value = p[5];
-    $('pid-yaw-p').value   = p[6];
-    $('pid-yaw-i').value   = p[7];
-    $('pid-yaw-d').value   = p[8];
+    if (p.length < 9) return;
+    $('pid-roll-p').value = p[0]; $('pid-roll-i').value = p[1]; $('pid-roll-d').value = p[2];
+    $('pid-pitch-p').value = p[3]; $('pid-pitch-i').value = p[4]; $('pid-pitch-d').value = p[5];
+    $('pid-yaw-p').value = p[6]; $('pid-yaw-i').value = p[7]; $('pid-yaw-d').value = p[8];
     $('writePid').disabled = false;
     log('PID загружены', 'ok');
-  } catch (e) { log('Ошибка чтения PID: ' + e.message, 'err'); }
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
 async function writePid(){
-  if (!confirm('Записать новые PID-коэффициенты в полётник?\n\nЭто изменит поведение дрона в полёте.')) return;
+  if (!confirm('Записать PID?')) return;
   try {
     const buf = new Uint8Array([
       +$('pid-roll-p').value, +$('pid-roll-i').value, +$('pid-roll-d').value,
       +$('pid-pitch-p').value, +$('pid-pitch-i').value, +$('pid-pitch-d').value,
       +$('pid-yaw-p').value, +$('pid-yaw-i').value, +$('pid-yaw-d').value
     ]);
-    await msp.request(202, buf);  // MSP_SET_PID = 202
+    await msp.request(202, buf);
     markDirty();
-    log('PID записаны (не забудьте сохранить в EEPROM!)', 'ok');
-  } catch (e) { log('Ошибка записи PID: ' + e.message, 'err'); }
+    log('PID записаны', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// ----- BATTERY -----
 async function loadBat(){
   try {
     const p = await msp.request(32);
-    if (p.length < 8) { log('MSP_BATTERY_CONFIG: слишком короткий ответ', 'err'); return; }
-    // Формат iNav 9: cellDetect(1), cellCount(1), capacity(2), config(1), vbat_min(1), vbat_max(1), vbat_warn(1)
-    $('bat-cap').value  = u16(p, 2);
-    $('bat-min').value  = (p[5] / 10).toFixed(1);
-    $('bat-max').value  = (p[6] / 10).toFixed(1);
+    if (p.length < 8) return;
+    $('bat-cap').value = u16(p, 2);
+    $('bat-min').value = (p[5] / 10).toFixed(1);
+    $('bat-max').value = (p[6] / 10).toFixed(1);
     $('bat-warn').value = (p[7] / 10).toFixed(1);
     $('writeBat').disabled = false;
-    log('Battery config загружен', 'ok');
-  } catch (e) { log('Ошибка чтения Battery: ' + e.message, 'err'); }
+    log('Battery загружен', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
 async function writeBat(){
-  if (!confirm('Записать новую конфигурацию батареи?')) return;
+  if (!confirm('Записать Battery config?')) return;
   try {
-    const minV  = Math.round(parseFloat($('bat-min').value) * 10);
-    const maxV  = Math.round(parseFloat($('bat-max').value) * 10);
-    const warnV = Math.round(parseFloat($('bat-warn').value) * 10);
-    const cap   = +$('bat-cap').value;
-    // Сперва читаем текущий конфиг, чтобы сохранить cellDetect/cellCount/config
     const cur = await msp.request(32);
     const buf = new Uint8Array(8);
     buf[0] = cur[0]; buf[1] = cur[1];
+    const cap = +$('bat-cap').value;
     buf[2] = cap & 0xFF; buf[3] = (cap >> 8) & 0xFF;
     buf[4] = cur[4];
-    buf[5] = minV; buf[6] = maxV; buf[7] = warnV;
-    await msp.request(170, buf);  // MSP_SET_BATTERY_CONFIG = 170
+    buf[5] = Math.round(parseFloat($('bat-min').value) * 10);
+    buf[6] = Math.round(parseFloat($('bat-max').value) * 10);
+    buf[7] = Math.round(parseFloat($('bat-warn').value) * 10);
+    await msp.request(170, buf);
     markDirty();
-    log('Battery config записан', 'ok');
-  } catch (e) { log('Ошибка записи Battery: ' + e.message, 'err'); }
+    log('Battery записан', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// ----- FAILSAFE -----
 async function loadFs(){
   try {
     const p = await msp.request(75);
-    if (p.length < 8) { log('MSP_FAILSAFE_CONFIG: слишком короткий ответ', 'err'); return; }
-    $('fs-mode').value    = p[2];
-    $('fs-delay').value   = u16(p, 3) * 100;  // в 0.1с -> мс
+    if (p.length < 8) return;
+    $('fs-mode').value = p[2];
+    $('fs-delay').value = u16(p, 3) * 100;
     $('fs-offtime').value = u16(p, 5) * 100;
     $('writeFs').disabled = false;
-    log('Failsafe config загружен', 'ok');
-  } catch (e) { log('Ошибка чтения Failsafe: ' + e.message, 'err'); }
+    log('Failsafe загружен', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
 async function writeFs(){
-  if (!confirm('Записать новую конфигурацию Failsafe?\n\nНеправильные настройки могут привести к потере дрона.')) return;
+  if (!confirm('Записать Failsafe?')) return;
   try {
     const cur = await msp.request(75);
     const buf = new Uint8Array(cur.length);
@@ -1176,103 +1135,74 @@ async function writeFs(){
     buf[3] = delay & 0xFF; buf[4] = (delay >> 8) & 0xFF;
     const offtime = Math.round(+$('fs-offtime').value / 100);
     buf[5] = offtime & 0xFF; buf[6] = (offtime >> 8) & 0xFF;
-    await msp.request(203, buf);  // MSP_SET_FAILSAFE_CONFIG = 203
+    await msp.request(203, buf);
     markDirty();
-    log('Failsafe config записан', 'ok');
-  } catch (e) { log('Ошибка записи Failsafe: ' + e.message, 'err'); }
-}
-
-// ----- FEATURES -----
-function buildFeatureGrid(){
-  const grid = $('featureGrid');
-  grid.innerHTML = '';
-  FEATURES.forEach(f => {
-    const item = document.createElement('div');
-    item.className = 'feature-item';
-    item.innerHTML = `
-      <input type="checkbox" id="feat-${f.bit}" data-bit="${f.bit}">
-      <label for="feat-${f.bit}">${f.name}</label>
-      <span class="bit">bit ${f.bit}</span>
-    `;
-    grid.appendChild(item);
-  });
+    log('Failsafe записан', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
 async function loadFeat(){
   try {
     const p = await msp.request(36);
-    if (p.length < 4) { log('MSP_FEATURE_CONFIG: слишком короткий ответ', 'err'); return; }
+    if (p.length < 4) return;
     const mask = u32(p, 0);
     FEATURES.forEach(f => {
       $('feat-' + f.bit).checked = (mask & (1 << f.bit)) !== 0;
     });
     $('writeFeat').disabled = false;
-    log(`Features загружены (маска: 0x${mask.toString(16).toUpperCase().padStart(8,'0')})`, 'ok');
-  } catch (e) { log('Ошибка чтения Features: ' + e.message, 'err'); }
+    log('Features загружены', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
 async function writeFeat(){
-  if (!confirm('Записать новую конфигурацию функций?\n\nОтключение критичных функций (GPS, RX) может сделать дрон неработоспособным.')) return;
+  if (!confirm('Записать Features?')) return;
   try {
     let mask = 0;
     FEATURES.forEach(f => {
       if ($('feat-' + f.bit).checked) mask |= (1 << f.bit);
     });
     const buf = new Uint8Array(4);
-    buf[0] = mask & 0xFF;
-    buf[1] = (mask >> 8) & 0xFF;
-    buf[2] = (mask >> 16) & 0xFF;
-    buf[3] = (mask >> 24) & 0xFF;
-    await msp.request(170, buf);  // MSP_SET_FEATURE = 170 (в некоторых версиях 36)
+    buf[0] = mask & 0xFF; buf[1] = (mask >> 8) & 0xFF;
+    buf[2] = (mask >> 16) & 0xFF; buf[3] = (mask >> 24) & 0xFF;
+    await msp.request(170, buf);
     markDirty();
-    log(`Features записаны (маска: 0x${mask.toString(16).toUpperCase().padStart(8,'0')})`, 'ok');
-  } catch (e) { log('Ошибка записи Features: ' + e.message, 'err'); }
+    log('Features записаны', 'ok');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// ----- MIXER (только чтение) -----
 async function loadMixer(){
   try {
     const p = await msp.request(42);
-    if (p.length < 1) { log('MSP_MIXER_CONFIG: слишком короткий ответ', 'err'); return; }
-    const mixerId = p[0];
-    const name = MIXERS[mixerId] || ('UNKNOWN (' + mixerId + ')');
-    txt('mixer-name', `${name} (id ${mixerId})`);
-    log(`Mixer: ${name}`, 'ok');
-  } catch (e) { log('Ошибка чтения Mixer: ' + e.message, 'err'); }
+    if (p.length < 1) return;
+    const id = p[0];
+    txt('mixer-name', (MIXERS[id] || 'UNKNOWN') + ' (' + id + ')');
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// ----- EEPROM SAVE -----
 async function eepromSave(){
-  if (!cfgDirty) {
-    alert('Нет изменений для сохранения.');
-    return;
-  }
-  if (!confirm('⚠️ СОХРАНИТЬ ВСЕ ИЗМЕНЕНИЯ В EEPROM?\n\nЭто запишет новые настройки в постоянную память полётника.\nБез этого шага все изменения потеряются после перезагрузки.')) return;
-  if (!confirm('Точно уверены? Отменить будет невозможно без повторной настройки.')) return;
+  if (!cfgDirty) { alert('Нет изменений'); return; }
+  if (!confirm('Сохранить в EEPROM?')) return;
   try {
-    await msp.request(250);  // MSP_EEPROM_WRITE
-    log('✓ EEPROM сохранён. Изменения теперь постоянные.', 'ok');
-    setCfgStatus('сохранено в EEPROM', 'loaded');
+    await msp.request(250);
+    log('EEPROM сохранён', 'ok');
+    setCfgStatus('сохранено', 'loaded');
     cfgDirty = false;
-  } catch (e) { log('Ошибка сохранения EEPROM: ' + e.message, 'err'); }
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// ----- REBOOT -----
 async function reboot(){
-  if (!confirm('⟳ ПЕРЕЗАГРУЗИТЬ ПОЛЁТНИК?\n\nВсе несохранённые изменения будут потеряны!')) return;
+  if (!confirm('Перезагрузить?')) return;
   try {
-    await msp.request(68, new Uint8Array([0]));  // MSP_SET_REBOOT
-    log('Команда перезагрузки отправлена', 'warn');
+    await msp.request(68, new Uint8Array([0]));
+    log('Перезагрузка...', 'warn');
     stopPoll = true;
     setTimeout(async () => {
       try { await msp.close(); } catch {}
       setLink(false);
-      log('Переподключите полётник вручную', 'warn');
     }, 1500);
-  } catch (e) { log('Ошибка перезагрузки: ' + e.message, 'err'); }
+  } catch (e) { log('Ошибка: ' + e.message, 'err'); }
 }
 
-// Привязка обработчиков
 $('loadPid').addEventListener('click', loadPid);
 $('writePid').addEventListener('click', writePid);
 $('loadBat').addEventListener('click', loadBat);
@@ -1284,28 +1214,106 @@ $('writeFeat').addEventListener('click', writeFeat);
 $('eepromSave').addEventListener('click', eepromSave);
 $('reboot').addEventListener('click', reboot);
 
-// Отслеживаем изменения в полях настроек
-['pid-roll-p','pid-roll-i','pid-roll-d','pid-pitch-p','pid-pitch-i','pid-pitch-d','pid-yaw-p','pid-yaw-i','pid-yaw-d',
- 'bat-min','bat-max','bat-warn','bat-cap','fs-mode','fs-delay','fs-offtime'].forEach(id => {
-  $(id).addEventListener('input', markDirty);
+buildFeatureGrid();
+log('Готов к работе');
+
+// ===== FLASHING (НОВОЕ!) =====
+
+let dfuDevice = null;
+let firmwareData = null;
+let flashing = false;
+let cancelFlash = false;
+
+// STM32F405 Flash layout
+const FLASH_BASE = 0x08000000;
+const FLASH_SIZE = 1024 * 1024; // 1 MB
+const SECTORS = [
+  { addr: 0x08000000, size: 16 * 1024 },
+  { addr: 0x08004000, size: 16 * 1024 },
+  { addr: 0x08008000, size: 16 * 1024 },
+  { addr: 0x0800C000, size: 16 * 1024 },
+  { addr: 0x08010000, size: 64 * 1024 },
+  { addr: 0x08020000, size: 128 * 1024 },
+  { addr: 0x08040000, size: 128 * 1024 },
+  { addr: 0x08060000, size: 128 * 1024 },
+  { addr: 0x08080000, size: 128 * 1024 },
+  { addr: 0x080A0000, size: 128 * 1024 },
+  { addr: 0x080C0000, size: 128 * 1024 },
+  { addr: 0x080E0000, size: 128 * 1024 },
+];
+
+// File selection
+$('firmwareFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+
+  flashLog(`Выбран файл: ${file.name}`);
+  txt('fileName', file.name);
+  txt('fileSize', (file.size / 1024).toFixed(1) + ' KB');
+
+  const buffer = await file.arrayBuffer();
+  firmwareData = new Uint8Array(buffer);
+
+  // Calculate checksum (CRC32)
+  let crc = 0xFFFFFFFF;
+  for (let i = 0; i < firmwareData.length; i++) {
+    crc ^= firmwareData[i];
+    for (let j = 0; j < 8; j++) {
+      crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
+    }
+  }
+  crc = (crc ^ 0xFFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
+  txt('fileChecksum', '0x' + crc);
+
+  $('fileInfo').style.display = 'block';
+  flashLog(`Размер: ${firmwareData.length} байт, CRC32: 0x${crc}`, 'ok');
+
+  if (firmwareData.length > FLASH_SIZE) {
+    flashLog('ОШИБКА: Файл слишком большой для flash!', 'err');
+    firmwareData = null;
+    return;
+  }
+
+  $('connectDfu').disabled = false;
 });
 
-/* ============================================================
-   13. СТАРТ
-   ============================================================ */
-if (!('serial' in navigator)){
-  log('Браузер не поддерживает Web Serial API. Откройте сайт в Chrome или Edge по HTTPS.', 'err');
-  $('connect').disabled=true;
-} else {
-  log('Готов. Подключите полетник USB и нажмите «Подключить».');
-}
+// Enter DFU mode
+$('enterDfu').addEventListener('click', async () => {
+  if (!confirm('Полётник перезагрузится в режим DFU. Продолжить?')) return;
 
-document.body.classList.toggle('low-fx',!fxOn);
-txt('fxBtn', fxOn ? '✦ Эффекты: вкл' : '✦ Эффекты: выкл');
-buildFeatureGrid();
-resizeCosmos();
-drawCosmos(0,0);
-requestAnimationFrame(frame);
-</script>
-</body>
-</html>
+  try {
+    flashLog('Отправка команды перехода в DFU...');
+    // MSP_SET_REBOOT with magic number 0xDF20 for DFU mode
+    await msp.request(68, new Uint8Array([0x20, 0xDF]));
+    flashLog('Команда отправлена. Ожидание перезагрузки...', 'warn');
+    stopPoll = true;
+
+    setTimeout(async () => {
+      try { await msp.close(); } catch {}
+      setLink(false);
+      flashLog('Полётник в режиме DFU. Выберите DFU-устройство.', 'ok');
+      $('connectDfu').disabled = false;
+    }, 2000);
+  } catch (e) {
+    flashLog('Ошибка: ' + e.message, 'err');
+  }
+});
+
+// Connect to DFU device via WebUSB
+$('connectDfu').addEventListener('click', async () => {
+  if (!('usb' in navigator)) {
+    flashLog('WebUSB API не поддерживается в этом браузере', 'err');
+    return;
+  }
+
+  try {
+    flashLog('Выберите DFU-устройство...');
+    dfuDevice = await navigator.usb.requestDevice({
+      filters: [{ vendorId: 0x0483, productId: 0xDF11 }] // STM32 DFU
+    });
+
+    await dfuDevice.open();
+    flashLog('Устройство открыто', 'ok');
+
+    await dfuDevice.selectConfiguration(1);
+    await
