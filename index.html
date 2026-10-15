@@ -3,342 +3,233 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iNav Configurator · Cosmic Edition</title>
+<title>iNav Configurator · Пасека Edition</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
 :root {
-  --space-deep: #0a0e27;
-  --space-mid: #1a1f3a;
-  --nebula-purple: #6b46c1;
-  --nebula-blue: #3b82f6;
-  --nebula-pink: #ec4899;
-  --neon-yellow: #fbbf24;
-  --neon-cyan: #06b6d4;
-  --neon-orange: #f97316;
-  --text: #e0e7ff;
-  --text-dim: #94a3b8;
-  --glass: rgba(15, 23, 42, 0.6);
-  --glass-border: rgba(148, 163, 184, 0.2);
-  --danger: #ef4444;
-  --success: #10b981;
+  --void: #04060e;
+  --cyan: #67e8f9;
+  --vi: #a78bfa;
+  --am: #fbbf24;
+  --red: #fb7185;
+  --ok: #4ade80;
+  --glass: rgba(12, 17, 34, 0.75);
+  --glass-border: rgba(140, 170, 255, 0.16);
+  --text: #dbe4ff;
+  --dim: #8493ba;
 }
 
 body {
-  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: var(--void);
   color: var(--text);
   min-height: 100vh;
   position: relative;
   overflow-x: hidden;
-  background: var(--space-deep);
+  display: flex;
+  flex-direction: column;
 }
 
-/* ===== КОСМИЧЕСКИЙ ФОН ===== */
-.bg-cosmos {
+#cosmos {
   position: fixed;
   inset: 0;
   z-index: 0;
   pointer-events: none;
-  overflow: hidden;
-  background: radial-gradient(ellipse at 20% 30%, rgba(107, 70, 193, 0.15) 0%, transparent 50%),
-              radial-gradient(ellipse at 80% 70%, rgba(59, 130, 246, 0.12) 0%, transparent 50%),
-              radial-gradient(ellipse at 50% 50%, rgba(236, 72, 153, 0.08) 0%, transparent 60%),
-              var(--space-deep);
 }
 
-.bg-cosmos svg {
-  width: 100%;
-  height: 100%;
-}
-
-/* Звёзды мерцают */
-.star {
-  animation: twinkle 3s infinite ease-in-out;
-}
-
-.star:nth-child(2n) { animation-duration: 4s; animation-delay: -1s; }
-.star:nth-child(3n) { animation-duration: 5s; animation-delay: -2s; }
-
-@keyframes twinkle {
-  0%, 100% { opacity: 0.3; }
-  50% { opacity: 1; }
-}
-
-/* Космические пчёлы */
-.cosmic-bee {
-  animation: fly-cosmic 30s infinite linear;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
-}
-
-.cosmic-bee:nth-child(2) { animation-duration: 40s; animation-delay: -10s; }
-.cosmic-bee:nth-child(3) { animation-duration: 35s; animation-delay: -20s; }
-.cosmic-bee:nth-child(4) { animation-duration: 45s; animation-delay: -5s; }
-
-@keyframes fly-cosmic {
-  0% { transform: translate(0, 0) rotate(0deg) scale(1); }
-  25% { transform: translate(200px, -80px) rotate(15deg) scale(1.1); }
-  50% { transform: translate(400px, 50px) rotate(-10deg) scale(0.9); }
-  75% { transform: translate(600px, -60px) rotate(20deg) scale(1.05); }
-  100% { transform: translate(800px, 0) rotate(0deg) scale(1); }
-}
-
-/* Реактивный след */
-.bee-trail {
-  animation: trail-fade 2s infinite;
-}
-
-@keyframes trail-fade {
-  0% { opacity: 0.8; }
-  100% { opacity: 0; }
+.app {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
 }
 
 /* ===== HEADER ===== */
 .header {
-  position: relative;
-  z-index: 10;
   background: var(--glass);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
   border-bottom: 1px solid var(--glass-border);
-  padding: 16px 24px;
+  padding: 14px 24px;
   display: flex;
   align-items: center;
-  gap: 24px;
-  box-shadow: 0 4px 30px rgba(0, 0, 0, 0.3);
+  gap: 20px;
 }
 
 .header h1 {
-  font-size: 22px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--neon-yellow), var(--neon-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  display: flex;
-  align-items: center;
-  gap: 10px;
+  font-size: 18px;
+  font-weight: 600;
+  color: var(--am);
+  text-shadow: 0 0 18px rgba(251, 191, 36, 0.5);
+  letter-spacing: 1px;
 }
 
-.header h1::before {
-  content: "🚀";
-  font-size: 28px;
-  filter: drop-shadow(0 0 8px rgba(251, 191, 36, 0.6));
+.header .subtitle {
+  font-size: 11px;
+  color: var(--dim);
+  letter-spacing: 2px;
+  text-transform: uppercase;
 }
 
 .header .status {
   display: flex;
   align-items: center;
-  gap: 10px;
-  font-size: 15px;
-  color: var(--text-dim);
-  font-weight: 500;
+  gap: 8px;
+  font-size: 13px;
+  color: var(--dim);
 }
 
 .header .led {
-  width: 12px;
-  height: 12px;
+  width: 9px;
+  height: 9px;
   border-radius: 50%;
-  background: #475569;
-  box-shadow: 0 0 0 2px rgba(148, 163, 184, 0.2);
+  background: var(--red);
+  box-shadow: 0 0 10px var(--red);
 }
 
 .header .led.on {
-  background: var(--success);
-  box-shadow: 0 0 12px var(--success), 0 0 0 2px rgba(16, 185, 129, 0.3);
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0%, 100% { box-shadow: 0 0 12px var(--success), 0 0 0 2px rgba(16, 185, 129, 0.3); }
-  50% { box-shadow: 0 0 20px var(--success), 0 0 0 4px rgba(16, 185, 129, 0.2); }
+  background: var(--ok);
+  box-shadow: 0 0 12px var(--ok);
 }
 
 .header .controls {
   margin-left: auto;
   display: flex;
-  gap: 12px;
+  gap: 10px;
 }
 
-/* ===== КНОПКИ ===== */
+/* ===== BUTTONS ===== */
 button, select {
   font: inherit;
-  font-weight: 600;
-  padding: 14px 28px;
+  padding: 10px 20px;
   border: 1px solid var(--glass-border);
-  border-radius: 10px;
-  cursor: pointer;
-  font-size: 16px;
-  transition: all 0.3s;
-  min-height: 50px;
   background: var(--glass);
-  backdrop-filter: blur(10px);
   color: var(--text);
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 13px;
+  transition: all 0.2s;
+  backdrop-filter: blur(8px);
 }
 
 button:hover:not(:disabled) {
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.3);
-  transform: translateY(-2px);
+  border-color: var(--cyan);
+  box-shadow: 0 0 12px rgba(103, 232, 249, 0.2);
 }
 
 button:disabled {
-  opacity: 0.4;
+  opacity: 0.35;
   cursor: not-allowed;
 }
 
 button.primary {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.2), rgba(6, 182, 212, 0.2));
-  border-color: var(--neon-yellow);
-  color: var(--neon-yellow);
-}
-
-button.primary:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(251, 191, 36, 0.3), rgba(6, 182, 212, 0.3));
-  box-shadow: 0 0 25px rgba(251, 191, 36, 0.4);
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.15), rgba(167, 139, 250, 0.15));
+  border-color: var(--cyan);
+  color: var(--cyan);
 }
 
 button.danger {
-  background: rgba(239, 68, 68, 0.2);
-  border-color: var(--danger);
-  color: var(--danger);
-}
-
-button.danger:hover:not(:disabled) {
-  background: rgba(239, 68, 68, 0.3);
-  box-shadow: 0 0 20px rgba(239, 68, 68, 0.4);
-}
-
-select {
-  background: var(--glass);
-  color: var(--text);
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.15), rgba(251, 113, 133, 0.25));
+  border-color: var(--red);
+  color: var(--red);
 }
 
 /* ===== LAYOUT ===== */
 .layout {
-  position: relative;
-  z-index: 5;
   display: grid;
-  grid-template-columns: 220px 1fr;
-  min-height: calc(100vh - 85px);
+  grid-template-columns: 200px 1fr;
+  flex: 1;
 }
 
-/* ===== SIDEBAR ===== */
 .sidebar {
   background: var(--glass);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
   border-right: 1px solid var(--glass-border);
-  padding: 24px 0;
+  padding: 20px 0;
 }
 
 .nav-item {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 16px 24px;
+  padding: 12px 20px;
   background: none;
   border: none;
   border-left: 3px solid transparent;
-  color: var(--text-dim);
-  font-size: 16px;
-  font-weight: 500;
+  color: var(--dim);
+  font-size: 13px;
   cursor: pointer;
-  border-radius: 0;
-  box-shadow: none;
-  min-height: auto;
   backdrop-filter: none;
 }
 
 .nav-item:hover {
-  background: rgba(6, 182, 212, 0.1);
+  background: rgba(103, 232, 249, 0.05);
   color: var(--text);
 }
 
 .nav-item.active {
-  background: rgba(251, 191, 36, 0.15);
-  color: var(--neon-yellow);
-  border-left-color: var(--neon-yellow);
-  font-weight: 700;
+  background: rgba(103, 232, 249, 0.08);
+  color: var(--cyan);
+  border-left-color: var(--cyan);
 }
 
-/* ===== MAIN ===== */
 .main {
-  padding: 28px;
-  overflow-y: auto;
+  padding: 24px;
 }
 
 .panel {
   display: none;
-  animation: fadeIn 0.3s ease;
 }
 
 .panel.active {
   display: block;
 }
 
-@keyframes fadeIn {
-  from { opacity: 0; transform: translateY(8px); }
-  to { opacity: 1; transform: none; }
-}
-
 /* ===== CARDS ===== */
 .card {
   background: var(--glass);
-  backdrop-filter: blur(20px);
+  backdrop-filter: blur(12px);
   border: 1px solid var(--glass-border);
-  border-radius: 14px;
-  padding: 24px;
-  margin-bottom: 24px;
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+  border-radius: 12px;
+  padding: 20px;
+  margin-bottom: 20px;
 }
 
 .card h2 {
-  font-size: 18px;
-  font-weight: 700;
-  background: linear-gradient(135deg, var(--neon-yellow), var(--neon-cyan));
-  -webkit-background-clip: text;
-  -webkit-text-fill-color: transparent;
-  background-clip: text;
-  margin-bottom: 20px;
-  padding-bottom: 12px;
-  border-bottom: 1px solid var(--glass-border);
-}
-
-/* ===== TELEMETRY ===== */
-.telemetry-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 16px;
-  margin-bottom: 24px;
-}
-
-.telemetry-item {
-  background: var(--glass);
-  backdrop-filter: blur(20px);
-  border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 18px;
-  box-shadow: 0 4px 16px rgba(0, 0, 0, 0.2);
-}
-
-.telemetry-item label {
-  display: block;
-  font-size: 12px;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  letter-spacing: 1px;
-  margin-bottom: 6px;
+  font-size: 13px;
   font-weight: 600;
+  color: var(--dim);
+  margin-bottom: 16px;
+  padding-bottom: 10px;
+  border-bottom: 1px solid var(--glass-border);
+  text-transform: uppercase;
+  letter-spacing: 1.5px;
 }
 
-.telemetry-item .value {
-  font: 700 32px ui-monospace, monospace;
-  color: var(--neon-cyan);
-  text-shadow: 0 0 10px rgba(6, 182, 212, 0.5);
+/* ===== 3D AIRCRAFT ===== */
+.aircraft-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 400px;
+  perspective: 1000px;
+  margin-bottom: 20px;
 }
 
-.telemetry-item .unit {
-  font-size: 14px;
-  color: var(--text-dim);
-  margin-left: 4px;
+.aircraft {
+  width: 200px;
+  height: 200px;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform 0.1s ease-out;
+}
+
+.aircraft svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 0 20px rgba(103, 232, 249, 0.4));
 }
 
 /* ===== TABLES ===== */
@@ -348,736 +239,335 @@ table {
 }
 
 table th, table td {
-  padding: 12px 14px;
+  padding: 10px 12px;
   text-align: left;
   border-bottom: 1px solid var(--glass-border);
-  font-size: 15px;
 }
 
 table th {
-  font-size: 13px;
-  font-weight: 700;
-  color: var(--text-dim);
-  text-transform: uppercase;
-  background: rgba(6, 182, 212, 0.05);
-}
-
-table input {
-  width: 100px;
-  padding: 10px 12px;
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  font: inherit;
-  font-size: 16px;
+  font-size: 11px;
   font-weight: 600;
-  background: rgba(15, 23, 42, 0.5);
-  color: var(--text);
+  color: var(--dim);
+  text-transform: uppercase;
+  background: rgba(103, 232, 249, 0.05);
 }
 
-table input:focus {
-  outline: none;
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
-}
-
-/* ===== FORMS ===== */
 .form-row {
   display: flex;
   align-items: center;
-  gap: 16px;
-  margin: 16px 0;
+  gap: 12px;
+  margin: 12px 0;
 }
 
 .form-row label {
-  flex: 0 0 240px;
-  font-size: 15px;
-  color: var(--text);
-  font-weight: 500;
+  flex: 0 0 200px;
+  font-size: 13px;
+  color: var(--dim);
 }
 
-.form-row input, .form-row select {
+.form-row select {
   flex: 1;
-  max-width: 200px;
-  padding: 10px 14px;
+  max-width: 300px;
+  padding: 8px 10px;
   border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  font: inherit;
-  font-size: 16px;
-  background: rgba(15, 23, 42, 0.5);
+  background: rgba(0, 0, 0, 0.3);
   color: var(--text);
+  border-radius: 4px;
+  font: inherit;
 }
 
-.form-row input:focus, .form-row select:focus {
-  outline: none;
-  border-color: var(--neon-cyan);
-  box-shadow: 0 0 0 3px rgba(6, 182, 212, 0.2);
-}
-
-.form-row .unit {
-  color: var(--text-dim);
-  font-size: 14px;
-}
-
-/* ===== FEATURES ===== */
-.features-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
-  gap: 12px;
-}
-
-.feature-item {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  cursor: pointer;
-  transition: all 0.3s;
-}
-
-.feature-item:hover {
-  border-color: var(--neon-cyan);
-  background: rgba(6, 182, 212, 0.1);
-}
-
-.feature-item input {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--neon-cyan);
-  cursor: pointer;
-}
-
-.feature-item label {
-  font-size: 15px;
-  cursor: pointer;
-  font-weight: 500;
-}
-
-/* ===== ACTION BAR ===== */
 .action-bar {
   display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  padding-top: 20px;
+  gap: 10px;
+  margin-top: 16px;
+  padding-top: 16px;
   border-top: 1px solid var(--glass-border);
-  flex-wrap: wrap;
 }
 
-/* ===== LOG ===== */
 .log {
-  background: rgba(10, 14, 39, 0.8);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--glass-border);
-  border-radius: 10px;
-  padding: 16px;
-  height: 220px;
+  border-radius: 6px;
+  padding: 12px;
+  height: 200px;
   overflow-y: auto;
-  font: 13px/1.7 ui-monospace, monospace;
-  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.3);
+  font: 12px/1.6 ui-monospace, monospace;
 }
 
 .log-entry {
-  padding: 3px 0 3px 12px;
-  border-left: 3px solid #475569;
+  padding: 2px 0 2px 8px;
+  border-left: 2px solid var(--vi);
 }
 
 .log-entry.ok {
-  border-color: var(--success);
-  color: #6ee7b7;
+  border-color: var(--ok);
+  color: var(--ok);
 }
 
 .log-entry.err {
-  border-color: var(--danger);
-  color: #fca5a5;
+  border-color: var(--red);
+  color: var(--red);
 }
 
 .log-entry.warn {
-  border-color: var(--neon-orange);
-  color: #fdba74;
+  border-color: var(--am);
+  color: var(--am);
 }
 
-/* ===== WARNING ===== */
 .warning {
-  background: rgba(251, 191, 36, 0.1);
+  background: rgba(251, 191, 36, 0.08);
   border: 1px solid rgba(251, 191, 36, 0.3);
-  border-radius: 10px;
-  padding: 16px 20px;
-  margin-bottom: 24px;
-  font-size: 15px;
-  color: var(--neon-yellow);
-  font-weight: 500;
-  backdrop-filter: blur(10px);
+  border-radius: 8px;
+  padding: 12px 16px;
+  margin-bottom: 20px;
+  font-size: 12px;
+  color: var(--am);
 }
 
 .warning.critical {
-  background: rgba(239, 68, 68, 0.1);
-  border-color: rgba(239, 68, 68, 0.3);
-  color: var(--danger);
+  background: rgba(251, 113, 133, 0.08);
+  border-color: rgba(251, 113, 133, 0.3);
+  color: var(--red);
 }
 
-/* ===== STATUS ===== */
-.status-pill {
-  display: inline-block;
-  padding: 5px 14px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  margin-left: 8px;
+.wisdom {
+  font-size: 11px;
+  color: var(--dim);
+  font-style: italic;
+  margin-top: 8px;
+  padding-left: 12px;
+  border-left: 2px solid var(--vi);
 }
 
-.status-pill.loaded {
-  background: rgba(16, 185, 129, 0.2);
-  color: var(--success);
-}
-
-.status-pill.dirty {
-  background: rgba(251, 191, 36, 0.2);
-  color: var(--neon-yellow);
-}
-
-/* ===== PROGRESS ===== */
 .progress-bar {
   width: 100%;
-  height: 32px;
-  background: rgba(15, 23, 42, 0.5);
-  border-radius: 8px;
-  overflow: hidden;
-  margin: 16px 0;
+  height: 24px;
+  background: rgba(0, 0, 0, 0.3);
   border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  overflow: hidden;
+  margin: 12px 0;
 }
 
 .progress-fill {
   height: 100%;
-  background: linear-gradient(90deg, var(--neon-yellow), var(--neon-cyan));
+  background: linear-gradient(90deg, var(--cyan), var(--vi));
   transition: width 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 14px;
-  font-weight: 700;
-  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 20px rgba(6, 182, 212, 0.5);
+  font-size: 12px;
+  font-weight: 600;
 }
 
-/* ===== FIRMWARE LIST ===== */
 .firmware-list {
-  display: grid;
-  gap: 12px;
-  margin: 16px 0;
+  background: rgba(0, 0, 0, 0.3);
+  border: 1px solid var(--glass-border);
+  border-radius: 6px;
+  padding: 12px;
+  max-height: 300px;
+  overflow-y: auto;
 }
 
 .firmware-item {
   display: flex;
   align-items: center;
-  gap: 16px;
-  padding: 16px;
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--glass-border);
-  border-radius: 10px;
+  gap: 12px;
+  padding: 10px;
+  border: 1px solid transparent;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s;
+  margin-bottom: 6px;
 }
 
 .firmware-item:hover {
-  border-color: var(--neon-cyan);
-  background: rgba(6, 182, 212, 0.1);
-  transform: translateX(4px);
+  background: rgba(103, 232, 249, 0.05);
+  border-color: var(--glass-border);
 }
 
 .firmware-item.selected {
-  border-color: var(--neon-yellow);
-  background: rgba(251, 191, 36, 0.15);
-  box-shadow: 0 0 20px rgba(251, 191, 36, 0.3);
+  background: rgba(103, 232, 249, 0.1);
+  border-color: var(--cyan);
 }
 
 .firmware-item input[type="radio"] {
-  width: 20px;
-  height: 20px;
-  accent-color: var(--neon-yellow);
-  cursor: pointer;
+  width: 16px;
+  height: 16px;
+  accent-color: var(--cyan);
 }
 
-.firmware-info {
-  flex: 1;
-}
-
-.firmware-name {
-  font-size: 16px;
+.firmware-version {
+  font-size: 14px;
   font-weight: 600;
-  color: var(--text);
-  margin-bottom: 4px;
+  color: var(--cyan);
 }
 
 .firmware-meta {
-  font-size: 13px;
-  color: var(--text-dim);
+  font-size: 11px;
+  color: var(--dim);
 }
 
-.file-info {
-  background: rgba(15, 23, 42, 0.5);
-  border: 1px solid var(--glass-border);
-  border-radius: 10px;
-  padding: 16px;
-  margin: 16px 0;
-  font-size: 15px;
-}
-
-.file-info div {
-  margin: 6px 0;
-}
-
-.file-info label {
-  color: var(--text-dim);
-  display: inline-block;
-  width: 150px;
-  font-weight: 600;
-}
-
-/* ===== RESPONSIVE ===== */
-@media (max-width: 900px) {
-  .layout {
-    grid-template-columns: 1fr;
-  }
-  .sidebar {
-    border-right: none;
-    border-bottom: 1px solid var(--glass-border);
-  }
-  .nav-item {
-    border-left: none;
-    border-bottom: 2px solid transparent;
-  }
-  .nav-item.active {
-    border-left: none;
-    border-bottom-color: var(--neon-yellow);
-  }
+/* ===== FOOTER ===== */
+.footer {
+  position: relative;
+  z-index: 1;
+  background: var(--glass);
+  backdrop-filter: blur(12px);
+  border-top: 1px solid var(--glass-border);
+  padding: 10px 24px;
+  text-align: center;
+  font-size: 10px;
+  color: var(--dim);
+  letter-spacing: 1px;
 }
 </style>
 </head>
 <body>
 
-<!-- КОСМИЧЕСКИЙ ФОН -->
-<div class="bg-cosmos">
-  <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
-    <defs>
-      <!-- Градиенты для туманностей -->
-      <radialGradient id="nebula1">
-        <stop offset="0%" stop-color="#6b46c1" stop-opacity="0.3"/>
-        <stop offset="100%" stop-color="#6b46c1" stop-opacity="0"/>
-      </radialGradient>
-      <radialGradient id="nebula2">
-        <stop offset="0%" stop-color="#3b82f6" stop-opacity="0.25"/>
-        <stop offset="100%" stop-color="#3b82f6" stop-opacity="0"/>
-      </radialGradient>
-      <radialGradient id="nebula3">
-        <stop offset="0%" stop-color="#ec4899" stop-opacity="0.2"/>
-        <stop offset="100%" stop-color="#ec4899" stop-opacity="0"/>
-      </radialGradient>
-      
-      <!-- Свечение для пчёл -->
-      <filter id="glow">
-        <feGaussianBlur stdDeviation="3" result="coloredBlur"/>
-        <feMerge>
-          <feMergeNode in="coloredBlur"/>
-          <feMergeNode in="SourceGraphic"/>
-        </feMerge>
-      </filter>
-      
-      <!-- Градиент для тела пчелы -->
-      <linearGradient id="beeBody" x1="0%" y1="0%" x2="100%" y2="100%">
-        <stop offset="0%" stop-color="#fbbf24"/>
-        <stop offset="50%" stop-color="#f97316"/>
-        <stop offset="100%" stop-color="#fbbf24"/>
-      </linearGradient>
-      
-      <!-- Градиент для крыльев -->
-      <radialGradient id="beeWing">
-        <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.6"/>
-        <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.1"/>
-      </radialGradient>
-    </defs>
-    
-    <!-- Туманности -->
-    <ellipse cx="400" cy="300" rx="300" ry="200" fill="url(#nebula1)"/>
-    <ellipse cx="1500" cy="700" rx="350" ry="250" fill="url(#nebula2)"/>
-    <ellipse cx="900" cy="500" rx="400" ry="300" fill="url(#nebula3)"/>
-    
-    <!-- Звёзды (статичные) -->
-    <g fill="#fff">
-      <circle class="star" cx="150" cy="100" r="1.5"/>
-      <circle class="star" cx="350" cy="200" r="1"/>
-      <circle class="star" cx="600" cy="150" r="2"/>
-      <circle class="star" cx="850" cy="250" r="1.2"/>
-      <circle class="star" cx="1100" cy="180" r="1.8"/>
-      <circle class="star" cx="1350" cy="300" r="1"/>
-      <circle class="star" cx="1600" cy="120" r="1.5"/>
-      <circle class="star" cx="200" cy="400" r="1.3"/>
-      <circle class="star" cx="500" cy="500" r="1"/>
-      <circle class="star" cx="750" cy="600" r="1.7"/>
-      <circle class="star" cx="1000" cy="700" r="1.2"/>
-      <circle class="star" cx="1250" cy="800" r="1.5"/>
-      <circle class="star" cx="1500" cy="900" r="1"/>
-      <circle class="star" cx="1750" cy="950" r="1.8"/>
-      <circle class="star" cx="300" cy="750" r="1.4"/>
-      <circle class="star" cx="650" cy="850" r="1.1"/>
-      <circle class="star" cx="950" cy="950" r="1.6"/>
-      <circle class="star" cx="1400" cy="450" r="1.3"/>
-    </g>
-    
-    <!-- Космические пчёлы -->
-    <g class="cosmic-bee" transform="translate(200, 300)">
-      <!-- Реактивный след -->
-      <g class="bee-trail">
-        <circle cx="-30" cy="0" r="3" fill="#fbbf24" opacity="0.6"/>
-        <circle cx="-50" cy="2" r="2.5" fill="#f97316" opacity="0.4"/>
-        <circle cx="-70" cy="4" r="2" fill="#fbbf24" opacity="0.2"/>
-      </g>
-      
-      <!-- Крылья -->
-      <ellipse cx="-8" cy="-12" rx="15" ry="8" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="8" cy="-12" rx="15" ry="8" fill="url(#beeWing)" filter="url(#glow)"/>
-      
-      <!-- Тело -->
-      <ellipse cx="0" cy="0" rx="18" ry="12" fill="url(#beeBody)" filter="url(#glow)"/>
-      
-      <!-- Полоски -->
-      <rect x="-12" y="-4" width="4" height="8" fill="#1e293b" opacity="0.7"/>
-      <rect x="-4" y="-6" width="4" height="12" fill="#1e293b" opacity="0.7"/>
-      <rect x="4" y="-4" width="4" height="8" fill="#1e293b" opacity="0.7"/>
-      
-      <!-- Глаза -->
-      <circle cx="-6" cy="-3" r="2" fill="#06b6d4"/>
-      <circle cx="6" cy="-3" r="2" fill="#06b6d4"/>
-    </g>
-    
-    <g class="cosmic-bee" transform="translate(700, 500)">
-      <g class="bee-trail">
-        <circle cx="-25" cy="0" r="2.5" fill="#fbbf24" opacity="0.6"/>
-        <circle cx="-45" cy="2" r="2" fill="#f97316" opacity="0.4"/>
-        <circle cx="-65" cy="4" r="1.5" fill="#fbbf24" opacity="0.2"/>
-      </g>
-      <ellipse cx="-7" cy="-10" rx="12" ry="6" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="7" cy="-10" rx="12" ry="6" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="0" cy="0" rx="15" ry="10" fill="url(#beeBody)" filter="url(#glow)"/>
-      <rect x="-10" y="-3" width="3" height="6" fill="#1e293b" opacity="0.7"/>
-      <rect x="-3" y="-5" width="3" height="10" fill="#1e293b" opacity="0.7"/>
-      <rect x="4" y="-3" width="3" height="6" fill="#1e293b" opacity="0.7"/>
-      <circle cx="-5" cy="-2" r="1.5" fill="#06b6d4"/>
-      <circle cx="5" cy="-2" r="1.5" fill="#06b6d4"/>
-    </g>
-    
-    <g class="cosmic-bee" transform="translate(1200, 400)">
-      <g class="bee-trail">
-        <circle cx="-28" cy="0" r="2.8" fill="#fbbf24" opacity="0.6"/>
-        <circle cx="-48" cy="2" r="2.2" fill="#f97316" opacity="0.4"/>
-        <circle cx="-68" cy="4" r="1.8" fill="#fbbf24" opacity="0.2"/>
-      </g>
-      <ellipse cx="-7.5" cy="-11" rx="13" ry="7" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="7.5" cy="-11" rx="13" ry="7" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="0" cy="0" rx="16" ry="11" fill="url(#beeBody)" filter="url(#glow)"/>
-      <rect x="-11" y="-3.5" width="3.5" height="7" fill="#1e293b" opacity="0.7"/>
-      <rect x="-3.5" y="-5.5" width="3.5" height="11" fill="#1e293b" opacity="0.7"/>
-      <rect x="4.5" y="-3.5" width="3.5" height="7" fill="#1e293b" opacity="0.7"/>
-      <circle cx="-5.5" cy="-2.5" r="1.8" fill="#06b6d4"/>
-      <circle cx="5.5" cy="-2.5" r="1.8" fill="#06b6d4"/>
-    </g>
-    
-    <g class="cosmic-bee" transform="translate(1600, 600)">
-      <g class="bee-trail">
-        <circle cx="-26" cy="0" r="2.6" fill="#fbbf24" opacity="0.6"/>
-        <circle cx="-46" cy="2" r="2.1" fill="#f97316" opacity="0.4"/>
-        <circle cx="-66" cy="4" r="1.6" fill="#fbbf24" opacity="0.2"/>
-      </g>
-      <ellipse cx="-7.2" cy="-10.5" rx="12.5" ry="6.5" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="7.2" cy="-10.5" rx="12.5" ry="6.5" fill="url(#beeWing)" filter="url(#glow)"/>
-      <ellipse cx="0" cy="0" rx="15.5" ry="10.5" fill="url(#beeBody)" filter="url(#glow)"/>
-      <rect x="-10.5" y="-3.2" width="3.2" height="6.5" fill="#1e293b" opacity="0.7"/>
-      <rect x="-3.2" y="-5.2" width="3.2" height="10.5" fill="#1e293b" opacity="0.7"/>
-      <rect x="4.2" y="-3.2" width="3.2" height="6.5" fill="#1e293b" opacity="0.7"/>
-      <circle cx="-5.2" cy="-2.2" r="1.6" fill="#06b6d4"/>
-      <circle cx="5.2" cy="-2.2" r="1.6" fill="#06b6d4"/>
-    </g>
-  </svg>
-</div>
+<canvas id="cosmos"></canvas>
 
-<!-- HEADER -->
-<header class="header">
-  <h1>iNav Configurator</h1>
-  <div class="status">
-    <span class="led" id="led"></span>
-    <span id="linkState">Офлайн</span>
+<div class="app">
+  <header class="header">
+    <div>
+      <h1>iNav Configurator</h1>
+      <div class="subtitle">Пасека Edition</div>
+    </div>
+    <div class="status">
+      <span class="led" id="led"></span>
+      <span id="linkState">Офлайн</span>
+    </div>
+    <div class="controls">
+      <select id="rate">
+        <option value="200">5 Гц</option>
+        <option value="100" selected>10 Гц</option>
+        <option value="50">20 Гц</option>
+      </select>
+      <button class="primary" id="connect">Подключить</button>
+      <button id="disconnect" disabled>Отключить</button>
+    </div>
+  </header>
+
+  <div class="layout">
+    <nav class="sidebar">
+      <button class="nav-item active" data-panel="panel-overview">Обзор</button>
+      <button class="nav-item" data-panel="panel-flash">Прошивка</button>
+    </nav>
+
+    <main class="main">
+      <!-- ОБЗОР -->
+      <section class="panel active" id="panel-overview">
+        <div class="warning">
+          Снимите пропеллеры перед подключением по USB.
+          <div class="wisdom">«Нормально делай, нормально будет»</div>
+        </div>
+
+        <div class="card">
+          <h2>Ориентация в пространстве</h2>
+          <div class="aircraft-container">
+            <div class="aircraft" id="aircraft">
+              <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+                <ellipse cx="100" cy="100" rx="15" ry="60" fill="#67e8f9" opacity="0.8"/>
+                <ellipse cx="100" cy="100" rx="12" ry="58" fill="none" stroke="#a78bfa" stroke-width="1"/>
+                <rect x="30" y="95" width="140" height="10" rx="2" fill="#a78bfa" opacity="0.7"/>
+                <rect x="30" y="95" width="140" height="10" rx="2" fill="none" stroke="#67e8f9" stroke-width="1"/>
+                <rect x="85" y="150" width="30" height="8" rx="1" fill="#fbbf24" opacity="0.7"/>
+                <rect x="95" y="145" width="10" height="15" rx="1" fill="#fbbf24" opacity="0.7"/>
+                <circle cx="100" cy="45" r="8" fill="#fb7185" opacity="0.8"/>
+                <circle cx="50" cy="95" r="12" fill="none" stroke="#4ade80" stroke-width="2" opacity="0.5"/>
+                <circle cx="150" cy="95" r="12" fill="none" stroke="#4ade80" stroke-width="2" opacity="0.5"/>
+                <polygon points="100,35 95,45 105,45" fill="#fff" opacity="0.9"/>
+              </svg>
+            </div>
+          </div>
+          <div style="display:flex;justify-content:center;gap:40px;margin-top:20px">
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Крен</div>
+              <div style="font:600 24px ui-monospace,monospace;color:var(--cyan)" id="o-roll">—</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Тангаж</div>
+              <div style="font:600 24px ui-monospace,monospace;color:var(--am)" id="o-pitch">—</div>
+            </div>
+            <div style="text-align:center">
+              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Курс</div>
+              <div style="font:600 24px ui-monospace,monospace;color:var(--vi)" id="o-yaw">—</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>Информация о полётнике</h2>
+          <table>
+            <tr><td>Порт (VID:PID)</td><td id="d-port">—</td></tr>
+            <tr><td>Семейство прошивки</td><td id="d-variant">—</td></tr>
+            <tr><td>Версия прошивки</td><td id="d-version">—</td></tr>
+            <tr><td>MSP API</td><td id="d-api">—</td></tr>
+            <tr><td>Плата</td><td id="d-board">—</td></tr>
+          </table>
+        </div>
+      </section>
+
+      <!-- ПРОШИВКА -->
+      <section class="panel" id="panel-flash">
+        <div class="warning critical">
+          Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
+          <div class="wisdom">«Семь раз отмерь, один раз отрежь»</div>
+        </div>
+
+        <div class="card">
+          <h2>Шаг 1: Выберите прошивку</h2>
+          <div class="form-row">
+            <label>Таргет</label>
+            <select id="target">
+              <option value="">Загрузка списка...</option>
+            </select>
+          </div>
+          <div id="firmwareListContainer" style="display:none">
+            <div class="firmware-list" id="firmwareList"></div>
+          </div>
+          <div class="form-row" style="margin-top:16px">
+            <label>Или загрузите свой файл</label>
+            <input type="file" id="firmwareFile" accept=".bin" style="flex:1">
+          </div>
+          <div class="wisdom">«Ебанул жидким — косарь в кассу клади» — выбирай прошивку под свой таргет, а не под настроение</div>
+        </div>
+
+        <div class="card">
+          <h2>Шаг 2: Режим DFU</h2>
+          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+            <button id="enterDfu" disabled>Войти в DFU</button>
+          </div>
+          <div class="wisdom">«Не спеши, а то споткнёшься» — убедись, что полётник подключён и работает</div>
+        </div>
+
+        <div class="card">
+          <h2>Шаг 3: Подключение к DFU</h2>
+          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+            <button id="connectDfu" disabled>Выбрать DFU-устройство</button>
+          </div>
+          <div class="wisdom">«Думай головой, а не задницей» — выбирай устройство с VID 0483 (STM32)</div>
+        </div>
+
+        <div class="card">
+          <h2>Шаг 4: Прошивка</h2>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
+          </div>
+          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+            <button class="danger" id="startFlash" disabled>Начать прошивку</button>
+            <button id="cancelFlash" disabled>Отмена</button>
+          </div>
+          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс, иначе получишь кирпич</div>
+          <div class="log" id="flashLog" style="margin-top:12px;height:220px"></div>
+        </div>
+      </section>
+    </main>
   </div>
-  <div class="controls">
-    <select id="rate" title="Частота опроса">
-      <option value="200">5 Гц</option>
-      <option value="100" selected>10 Гц</option>
-      <option value="50">20 Гц</option>
-    </select>
-    <button class="primary" id="connect">🔌 Подключить</button>
-    <button id="disconnect" disabled>Отключить</button>
-  </div>
-</header>
 
-<!-- LAYOUT -->
-<div class="layout">
-  <nav class="sidebar">
-    <button class="nav-item active" data-panel="panel-overview">📊 Обзор</button>
-    <button class="nav-item" data-panel="panel-telemetry">📡 Телеметрия</button>
-    <button class="nav-item" data-panel="panel-settings">⚙️ Настройки</button>
-    <button class="nav-item" data-panel="panel-flash">💾 Прошивка</button>
-  </nav>
-
-  <main class="main">
-    <!-- ОБЗОР -->
-    <section class="panel active" id="panel-overview">
-      <div class="warning">
-        🚀 Снимите пропеллеры перед подключением по USB.
-      </div>
-
-      <div class="telemetry-grid">
-        <div class="telemetry-item">
-          <label>Крен</label>
-          <div class="value" id="o-roll">—</div>
-        </div>
-        <div class="telemetry-item">
-          <label>Тангаж</label>
-          <div class="value" id="o-pitch">—</div>
-        </div>
-        <div class="telemetry-item">
-          <label>Курс</label>
-          <div class="value" id="o-yaw">—</div>
-        </div>
-        <div class="telemetry-item">
-          <label>Высота</label>
-          <div class="value" id="q-alt">—<span class="unit">м</span></div>
-        </div>
-        <div class="telemetry-item">
-          <label>Напряжение</label>
-          <div class="value" id="q-volt">—<span class="unit">V</span></div>
-        </div>
-        <div class="telemetry-item">
-          <label>Спутники</label>
-          <div class="value" id="q-sats">—</div>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Информация о полётнике</h2>
-        <table>
-          <tr><td>Порт (VID:PID)</td><td id="d-port">—</td></tr>
-          <tr><td>Семейство прошивки</td><td id="d-variant">—</td></tr>
-          <tr><td>Версия прошивки</td><td id="d-version">—</td></tr>
-          <tr><td>MSP API</td><td id="d-api">—</td></tr>
-          <tr><td>Плата</td><td id="d-board">—</td></tr>
-        </table>
-      </div>
-    </section>
-
-    <!-- ТЕЛЕМЕТРИЯ -->
-    <section class="panel" id="panel-telemetry">
-      <div class="card">
-        <h2>Питание</h2>
-        <table>
-          <tr><td>Напряжение</td><td id="t-volt">—</td></tr>
-          <tr><td>Ток</td><td id="t-amp">—</td></tr>
-          <tr><td>Израсходовано</td><td id="t-mah">—</td></tr>
-          <tr><td>RSSI (сырое)</td><td id="t-rssi">—</td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h2>Навигация</h2>
-        <table>
-          <tr><td>Высота</td><td id="t-alt">—</td></tr>
-          <tr><td>Вертикальная скорость</td><td id="t-vario">—</td></tr>
-          <tr><td>GPS fix</td><td id="t-fix">—</td></tr>
-          <tr><td>Спутники</td><td id="t-sats">—</td></tr>
-          <tr><td>Широта</td><td id="t-lat">—</td></tr>
-          <tr><td>Долгота</td><td id="t-lon">—</td></tr>
-        </table>
-      </div>
-
-      <div class="card">
-        <h2>Журнал</h2>
-        <button id="clearLog" style="margin-bottom:12px">🗑️ Очистить</button>
-        <div class="log" id="log"></div>
-      </div>
-    </section>
-
-    <!-- НАСТРОЙКИ -->
-    <section class="panel" id="panel-settings">
-      <div class="warning critical">
-        ⚠️ Изменение настроек влияет на поведение дрона. Сохраняйте изменения только если понимаете, что делаете.
-      </div>
-
-      <div id="settingsStatus" style="margin-bottom:20px">
-        <span style="color:var(--text-dim)">Статус:</span>
-        <span id="cfgStatus" class="status-pill">не загружено</span>
-      </div>
-
-      <div class="card">
-        <h2>PID-коэффициенты</h2>
-        <table>
-          <thead>
-            <tr><th>Ось</th><th>P</th><th>I</th><th>D</th></tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>ROLL</td>
-              <td><input type="number" id="pid-roll-p" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-roll-i" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-roll-d" min="0" max="255" step="1"></td>
-            </tr>
-            <tr>
-              <td>PITCH</td>
-              <td><input type="number" id="pid-pitch-p" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-pitch-i" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-pitch-d" min="0" max="255" step="1"></td>
-            </tr>
-            <tr>
-              <td>YAW</td>
-              <td><input type="number" id="pid-yaw-p" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-yaw-i" min="0" max="255" step="1"></td>
-              <td><input type="number" id="pid-yaw-d" min="0" max="255" step="1"></td>
-            </tr>
-          </tbody>
-        </table>
-        <div class="action-bar">
-          <button class="primary" id="loadPid">📥 Загрузить</button>
-          <button id="writePid" disabled>💾 Применить</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Конфигурация батареи</h2>
-        <div class="form-row">
-          <label>Мин. напряжение ячейки</label>
-          <input type="number" id="bat-min" step="0.1" min="2.5" max="4.0">
-          <span class="unit">V</span>
-        </div>
-        <div class="form-row">
-          <label>Макс. напряжение ячейки</label>
-          <input type="number" id="bat-max" step="0.1" min="3.5" max="4.5">
-          <span class="unit">V</span>
-        </div>
-        <div class="form-row">
-          <label>Предупреждение</label>
-          <input type="number" id="bat-warn" step="0.1" min="2.8" max="4.0">
-          <span class="unit">V</span>
-        </div>
-        <div class="form-row">
-          <label>Ёмкость батареи</label>
-          <input type="number" id="bat-cap" step="50" min="0" max="20000">
-          <span class="unit">mAh</span>
-        </div>
-        <div class="action-bar">
-          <button class="primary" id="loadBat">📥 Загрузить</button>
-          <button id="writeBat" disabled>💾 Применить</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Failsafe</h2>
-        <div class="form-row">
-          <label>Режим failsafe</label>
-          <select id="fs-mode">
-            <option value="0">DROP</option>
-            <option value="1">LAND</option>
-            <option value="2">SET-THROTTLE</option>
-            <option value="3">RTH</option>
-            <option value="4">GPS-RESCUE</option>
-          </select>
-        </div>
-        <div class="form-row">
-          <label>Задержка срабатывания</label>
-          <input type="number" id="fs-delay" step="100" min="0" max="10000">
-          <span class="unit">мс</span>
-        </div>
-        <div class="form-row">
-          <label>Время отключения моторов</label>
-          <input type="number" id="fs-offtime" step="100" min="0" max="10000">
-          <span class="unit">мс</span>
-        </div>
-        <div class="action-bar">
-          <button class="primary" id="loadFs">📥 Загрузить</button>
-          <button id="writeFs" disabled>💾 Применить</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Активные функции</h2>
-        <div class="features-grid" id="featureGrid"></div>
-        <div class="action-bar">
-          <button class="primary" id="loadFeat">📥 Загрузить</button>
-          <button id="writeFeat" disabled>💾 Применить</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Тип дрона</h2>
-        <div class="form-row">
-          <label>Текущий микшер</label>
-          <b id="mixer-name" style="color:var(--neon-yellow)">—</b>
-        </div>
-      </div>
-
-      <div class="card">
-        <h2>Глобальные действия</h2>
-        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="eepromSave" disabled>💾 Сохранить в EEPROM</button>
-          <button class="danger" id="reboot" disabled>🔄 Перезагрузить</button>
-        </div>
-      </div>
-    </section>
-
-    <!-- ПРОШИВКА -->
-    <section class="panel" id="panel-flash">
-      <div class="warning critical">
-        ⚠️ <b>ВНИМАНИЕ:</b> Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
-      </div>
-
-      <div class="card">
-        <h2>Шаг 1: Выберите прошивку</h2>
-        <div class="firmware-list" id="firmwareList"></div>
-      </div>
-
-      <div class="card">
-        <h2>Шаг 2: Переведите полётник в режим DFU</h2>
-        <p style="margin-bottom:12px;color:var(--text-dim);font-size:14px">
-          Полётник должен быть подключён по USB и работать с прошивкой iNav.
-        </p>
-        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="enterDfu" disabled>🔄 Войти в режим DFU</button>
-        </div>
-        <p style="margin-top:12px;color:var(--text-dim);font-size:13px">
-          После нажатия полётник перезагрузится в DFU-режим.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Шаг 3: Подключитесь к DFU-устройству</h2>
-        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="connectDfu" disabled>🔌 Выбрать DFU-устройство</button>
-        </div>
-        <p style="margin-top:12px;color:var(--text-dim);font-size:13px">
-          Выберите устройство "STM32 Bootloader" в диалоге браузера.
-        </p>
-      </div>
-
-      <div class="card">
-        <h2>Шаг 4: Загрузка прошивки</h2>
-        <div class="progress-bar">
-          <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
-        </div>
-        <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button class="danger" id="startFlash" disabled>⚡ Начать прошивку</button>
-          <button id="cancelFlash" disabled>❌ Отмена</button>
-        </div>
-        <div class="log" id="flashLog" style="margin-top:16px;height:250px"></div>
-      </div>
-    </section>
-  </main>
+  <footer class="footer">
+    © 2026 iNav Configurator · Пасека Edition · Сделано с 🐝 и ☕
+  </footer>
 </div>
 
 <script>
@@ -1085,7 +575,6 @@ table input:focus {
 
 const $ = id => document.getElementById(id);
 const sleep = ms => new Promise(r => setTimeout(r, ms));
-
 const u16 = (b,o) => b[o] | (b[o+1] << 8);
 const i16 = (b,o) => { const v = u16(b,o); return v < 32768 ? v : v - 65536; };
 const u32 = (b,o) => (b[o] | (b[o+1]<<8) | (b[o+2]<<16) | (b[o+3]<<24)) >>> 0;
@@ -1099,6 +588,7 @@ function txt(id, value){
 
 function log(msg, type=''){
   const box = $('log');
+  if (!box) return;
   const line = document.createElement('div');
   line.className = 'log-entry ' + type;
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
@@ -1109,6 +599,7 @@ function log(msg, type=''){
 
 function flashLog(msg, type=''){
   const box = $('flashLog');
+  if (!box) return;
   const line = document.createElement('div');
   line.className = 'log-entry ' + type;
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
@@ -1116,80 +607,530 @@ function flashLog(msg, type=''){
   box.scrollTop = box.scrollHeight;
 }
 
-// ===== СПИСОК ПРОШИВОК =====
-const FIRMWARES = [
-  {
-    id: 'inav-9.0.0-speedybeef405wing',
-    name: 'iNav 9.0.0',
-    target: 'SPEEDYBEEF405WING',
-    version: '9.0.0',
-    file: 'firmware/inav_9.0.0_SPEEDYBEEF405WING.bin',
-    size: '512 KB'
-  },
-  {
-    id: 'inav-9.0.0-caddxf405wing',
-    name: 'iNav 9.0.0',
-    target: 'CADDXF405WING',
-    version: '9.0.0',
-    file: 'firmware/inav_9.0.0_CADDXF405WING.bin',
-    size: '512 KB'
-  },
-  {
-    id: 'inav-8.0.0-speedybeef405wing',
-    name: 'iNav 8.0.0',
-    target: 'SPEEDYBEEF405WING',
-    version: '8.0.0',
-    file: 'firmware/inav_8.0.0_SPEEDYBEEF405WING.bin',
-    size: '498 KB'
-  }
-];
+// ===== КОСМОС С ЧЁРНОЙ ДЫРОЙ =====
+const cosmos = $('cosmos'), cg = cosmos.getContext('2d');
+let W = 0, H = 0, hole = {x:0, y:0, r:80};
+let stars = [], infall = [];
 
-let selectedFirmware = null;
-
-function buildFirmwareList(){
-  const list = $('firmwareList');
-  list.innerHTML = '';
-  FIRMWARES.forEach(fw => {
-    const item = document.createElement('div');
-    item.className = 'firmware-item';
-    item.dataset.id = fw.id;
-    item.innerHTML = `
-      <input type="radio" name="firmware" id="fw-${fw.id}" value="${fw.id}">
-      <div class="firmware-info">
-        <div class="firmware-name">${fw.name} · ${fw.target}</div>
-        <div class="firmware-meta">Версия: ${fw.version} · Размер: ${fw.size}</div>
-      </div>
-    `;
-    item.addEventListener('click', () => selectFirmware(fw));
-    list.appendChild(item);
+function resizeCosmos(){
+  W = window.innerWidth; H = window.innerHeight;
+  cosmos.width = W; cosmos.height = H;
+  hole = { x: W*0.85, y: H*0.25, r: Math.min(W,H)*0.08 };
+  
+  stars = Array.from({length: 120}, () => ({
+    x: Math.random()*W, y: Math.random()*H,
+    r: Math.random()*1.2 + 0.3, p: Math.random()*Math.PI*2
+  }));
+  
+  const spawn = p => {
+    p.r = hole.r * (1.5 + Math.random()*3);
+    p.a = Math.random() * Math.PI * 2;
+    p.s = 0.5 + Math.random()*0.6;
+  };
+  
+  infall = Array.from({length: 100}, () => {
+    const p = {};
+    spawn(p);
+    p.spawn = spawn;
+    return p;
   });
 }
 
-async function selectFirmware(fw){
-  selectedFirmware = fw;
-  document.querySelectorAll('.firmware-item').forEach(el => {
-    el.classList.toggle('selected', el.dataset.id === fw.id);
-  });
-  $(`fw-${fw.id}`).checked = true;
+function drawCosmos(t){
+  cg.fillStyle = '#04060e';
+  cg.fillRect(0, 0, W, H);
   
-  flashLog(`Выбрана прошивка: ${fw.name} (${fw.target})`);
+  for (const s of stars) {
+    cg.globalAlpha = 0.3 + 0.35*(0.5 + 0.5*Math.sin(t*0.001 + s.p));
+    cg.fillStyle = '#cfe0ff';
+    cg.beginPath();
+    cg.arc(s.x, s.y, s.r, 0, Math.PI*2);
+    cg.fill();
+  }
+  cg.globalAlpha = 1;
+  
+  const {x: hx, y: hy, r: R} = hole;
+  
+  const halo = cg.createRadialGradient(hx, hy, R*0.8, hx, hy, R*3.5);
+  halo.addColorStop(0, 'rgba(251,191,36,0.25)');
+  halo.addColorStop(0.4, 'rgba(167,139,250,0.15)');
+  halo.addColorStop(1, 'rgba(4,6,14,0)');
+  cg.fillStyle = halo;
+  cg.beginPath();
+  cg.arc(hx, hy, R*3.5, 0, Math.PI*2);
+  cg.fill();
+  
+  for (const p of infall) {
+    const rel = p.r / R;
+    p.a += 0.02 * (1 + 1.5/rel) * p.s;
+    p.r -= 0.15 * (1 + 5/rel);
+    if (p.r < R*1.05) p.spawn(p);
+    
+    const hue = 35 + Math.min(rel-1, 1) * 230;
+    const alpha = (1 - Math.min(rel-1, 1)) * 0.8 + 0.15;
+    const px = hx + Math.cos(p.a) * p.r;
+    const py = hy + Math.sin(p.a) * p.r * 0.4;
+    
+    cg.fillStyle = `hsla(${hue},95%,65%,${alpha})`;
+    cg.beginPath();
+    cg.arc(px, py, 1.2 + (1-Math.min(rel-1, 1))*1.5, 0, Math.PI*2);
+    cg.fill();
+  }
+  
+  cg.fillStyle = '#000';
+  cg.beginPath();
+  cg.arc(hx, hy, R*0.95, 0, Math.PI*2);
+  cg.fill();
+  
+  cg.save();
+  cg.shadowColor = 'rgba(255,200,120,0.9)';
+  cg.shadowBlur = 20;
+  cg.strokeStyle = 'rgba(255,214,150,0.9)';
+  cg.lineWidth = 2;
+  cg.beginPath();
+  cg.arc(hx, hy, R, 0, Math.PI*2);
+  cg.stroke();
+  cg.restore();
+}
+
+window.addEventListener('resize', resizeCosmos);
+resizeCosmos();
+
+// ===== 3D САМОЛЁТ =====
+const S = {
+  roll: 0, pitch: 0, yaw: 0,
+  alt: 0, vario: 0, volt: 0, amp: 0, mah: 0, rssi: 0,
+  fix: 0, sats: 0, lat: 0, lon: 0,
+  hasAtt: false, hasAlt: false, hasAnalog: false, hasGps: false
+};
+
+function updateAircraft(){
+  const aircraft = $('aircraft');
+  if (S.hasAtt) {
+    aircraft.style.transform = `
+      rotateX(${S.pitch * 0.5}deg)
+      rotateY(${S.yaw * 0.3}deg)
+      rotateZ(${-S.roll}deg)
+    `;
+  }
+}
+
+// ===== MSP =====
+class MSP {
+  constructor(){
+    this.port = null; this.reader = null; this.writer = null;
+    this.loop = null; this.connected = false;
+    this.pending = new Map();
+    this._reset();
+  }
+  _reset(){ this._st = 0; this._size = 0; this._cmd = 0; this._pay = []; this._crc = 0; }
+
+  async open(){
+    if (!('serial' in navigator)) throw new Error('Web Serial API недоступен');
+    this.port = await navigator.serial.requestPort();
+    await this.port.open({ baudRate: 115200 });
+    this.connected = true;
+    this.writer = this.port.writable.getWriter();
+    this.loop = this._readLoop();
+  }
+
+  async _readLoop(){
+    const reader = this.port.readable.getReader();
+    this.reader = reader;
+    try {
+      while (true) {
+        const { value, done } = await reader.read();
+        if (done) break;
+        for (let i = 0; i < value.length; i++) this._feed(value[i]);
+      }
+    } catch (e) {
+      if (this.connected) log('Ошибка чтения: ' + e.message, 'err');
+    } finally {
+      try { reader.releaseLock(); } catch {}
+    }
+  }
+
+  _feed(b){
+    switch (this._st) {
+      case 0: if (b === 0x24) this._st = 1; break;
+      case 1: this._st = (b === 0x4D) ? 2 : 0; break;
+      case 2:
+        if (b === 0x3E) { this._st = 3; this._pay = []; }
+        else this._st = 0;
+        break;
+      case 3:
+        this._size = b;
+        if (b > 200) { this._reset(); break; }
+        this._crc = b; this._st = 4;
+        break;
+      case 4:
+        this._cmd = b; this._crc ^= b;
+        this._st = this._size > 0 ? 5 : 6;
+        break;
+      case 5:
+        this._pay.push(b); this._crc ^= b;
+        if (this._pay.length === this._size) this._st = 6;
+        break;
+      case 6:
+        if (b === this._crc) this._dispatch(this._cmd, Uint8Array.from(this._pay));
+        this._reset();
+        break;
+    }
+  }
+
+  _dispatch(cmd, payload){
+    const q = this.pending.get(cmd);
+    if (q) {
+      clearTimeout(q.timer);
+      this.pending.delete(cmd);
+      q.resolve(payload);
+    }
+  }
+
+  async _write(cmd, payload){
+    const n = payload.length;
+    const buf = new Uint8Array(6 + n);
+    buf[0]=0x24; buf[1]=0x4D; buf[2]=0x3C; buf[3]=n; buf[4]=cmd;
+    let crc = n ^ cmd;
+    for (let i=0; i<n; i++){ buf[5+i] = payload[i]; crc ^= payload[i]; }
+    buf[5+n] = crc;
+    await this.writer.write(buf);
+  }
+
+  request(cmd, payload = new Uint8Array(), timeout = 900){
+    if (!this.connected) return Promise.reject(new Error('Нет подключения'));
+    return new Promise((resolve, reject) => {
+      const timer = setTimeout(() => {
+        this.pending.delete(cmd);
+        reject(new Error('Тайм-аут MSP ' + cmd));
+      }, timeout);
+      this.pending.set(cmd, { resolve, reject, timer });
+      this._write(cmd, payload).catch(e => {
+        clearTimeout(timer); this.pending.delete(cmd); reject(e);
+      });
+    });
+  }
+
+  async close(){
+    this.connected = false;
+    for (const q of this.pending.values()){
+      clearTimeout(q.timer);
+      try { q.reject(new Error('Отключено')); } catch {}
+    }
+    this.pending.clear();
+    try { if (this.reader) await this.reader.cancel(); } catch {}
+    try { if (this.writer){ await this.writer.close(); this.writer.releaseLock(); } } catch {}
+    try { if (this.port) await this.port.close(); } catch {}
+  }
+}
+
+const msp = new MSP();
+
+// ===== TELEMETRY =====
+function readIdentity(cmd, p){
+  if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
+  if (cmd === 2 && p.length >= 4) txt('d-variant', ascii(p, 0, p.length));
+  if (cmd === 3 && p.length >= 3) txt('d-version', `${p[0]}.${p[1]}.${p[2]}`);
+  if (cmd === 4 && p.length >= 6) txt('d-board', ascii(p,0,4) + ' rev ' + u16(p,4));
+}
+
+function readAttitude(p){
+  if (p.length < 6) return;
+  S.roll = i16(p,0);
+  S.pitch = i16(p,2);
+  S.yaw = i16(p,4);
+  if (S.yaw < 0) S.yaw += 360;
+  S.hasAtt = true;
+}
+
+// ===== POLLING =====
+let polling = false, stopPoll = false, tick = 0;
+
+async function startPolling(){
+  if (polling) return;
+  polling = true; stopPoll = false; tick = 0;
+  while (msp.connected && !stopPoll){
+    try {
+      readAttitude(await msp.request(108));
+    } catch (e) { log(e.message, 'warn'); }
+    tick++;
+    await sleep(Number($('rate').value));
+  }
+  polling = false;
+}
+
+// ===== CONNECTION =====
+function setLink(on){
+  $('led').classList.toggle('on', on);
+  txt('linkState', on ? 'Онлайн' : 'Офлайн');
+  $('connect').disabled = on;
+  $('disconnect').disabled = !on;
+  if ($('enterDfu')) $('enterDfu').disabled = !on;
+}
+
+$('connect').addEventListener('click', async () => {
+  $('connect').disabled = true;
+  try {
+    await msp.open();
+    setLink(true);
+    const info = msp.port.getInfo();
+    const vid = info.usbVendorId ? info.usbVendorId.toString(16).padStart(4,'0').toUpperCase() : '????';
+    const pid = info.usbProductId ? info.usbProductId.toString(16).padStart(4,'0').toUpperCase() : '????';
+    txt('d-port', `${vid}:${pid}`);
+    log('Подключено', 'ok');
+    for (const cmd of [1,2,3,4]){
+      try { readIdentity(cmd, await msp.request(cmd, new Uint8Array(), 1200)); }
+      catch (e) { log('Команда ' + cmd + ': ' + e.message, 'warn'); }
+    }
+    startPolling();
+  } catch (e) {
+    log('Ошибка: ' + e.message, 'err');
+    try { await msp.close(); } catch {}
+    setLink(false);
+  }
+});
+
+$('disconnect').addEventListener('click', async () => {
+  stopPoll = true;
+  try { await msp.close(); } catch {}
+  setLink(false);
+  log('Отключено');
+});
+
+// ===== NAVIGATION =====
+document.querySelectorAll('.nav-item').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+    document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+    btn.classList.add('active');
+    $(btn.dataset.panel).classList.add('active');
+  });
+});
+
+// ===== READOUTS =====
+function updateReadouts(){
+  const f1 = v => (v>0?'+':'') + v.toFixed(1) + '°';
+  txt('o-roll', S.hasAtt ? f1(S.roll) : '—');
+  txt('o-pitch', S.hasAtt ? f1(S.pitch) : '—');
+  txt('o-yaw', S.hasAtt ? String(Math.round(S.yaw)).padStart(3,'0')+'°' : '—');
+}
+
+log('Готов к работе');
+
+// ===== ЗАГРУЗКА ПРОШИВОК =====
+let firmwareData = null;
+let dfuDevice = null;
+let dfuInterface = null;
+
+async function loadFirmwares(){
+  try {
+    const response = await fetch('firmwares.json');
+    if (!response.ok) throw new Error('firmwares.json не найден');
+    
+    const data = await response.json();
+    const targetSelect = $('target');
+    targetSelect.innerHTML = '<option value="">Выберите таргет</option>';
+    
+    Object.keys(data).forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key;
+      opt.textContent = data[key].name;
+      targetSelect.appendChild(opt);
+    });
+    
+    targetSelect.addEventListener('change', () => {
+      const target = targetSelect.value;
+      if (!target) {
+        $('firmwareListContainer').style.display = 'none';
+        return;
+      }
+      
+      const list = $('firmwareList');
+      list.innerHTML = '';
+      
+      data[target].firmwares.forEach((fw, idx) => {
+        const item = document.createElement('div');
+        item.className = 'firmware-item';
+        item.innerHTML = `
+          <input type="radio" name="firmware" id="fw-${idx}">
+          <div>
+            <div class="firmware-version">v${fw.version}</div>
+            <div class="firmware-meta">${fw.date} · ${fw.notes || ''}</div>
+          </div>
+        `;
+        
+        item.addEventListener('click', async () => {
+          list.querySelectorAll('.firmware-item').forEach(el => el.classList.remove('selected'));
+          item.classList.add('selected');
+          item.querySelector('input').checked = true;
+          
+          flashLog(`Загрузка ${fw.file}...`);
+          try {
+            const fwResponse = await fetch(`firmwares/${fw.file}`);
+            const buffer = await fwResponse.arrayBuffer();
+            firmwareData = new Uint8Array(buffer);
+            flashLog(`Загружено: ${(firmwareData.length / 1024).toFixed(1)} KB`, 'ok');
+            $('startFlash').disabled = !(dfuDevice && firmwareData);
+          } catch (e) {
+            flashLog('Ошибка: ' + e.message, 'err');
+          }
+        });
+        
+        list.appendChild(item);
+      });
+      
+      $('firmwareListContainer').style.display = 'block';
+    });
+    
+    flashLog('Список прошивок загружен', 'ok');
+  } catch (e) {
+    flashLog('Ошибка загрузки firmwares.json: ' + e.message, 'err');
+  }
+}
+
+$('firmwareFile').addEventListener('change', async (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  
+  const buffer = await file.arrayBuffer();
+  firmwareData = new Uint8Array(buffer);
+  flashLog(`Файл: ${file.name}, ${(firmwareData.length / 1024).toFixed(1)} KB`, 'ok');
+  $('startFlash').disabled = !(dfuDevice && firmwareData);
+});
+
+// ===== DFU FLASHING =====
+$('enterDfu').addEventListener('click', async () => {
+  if (!confirm('Перейти в DFU?')) return;
+  try {
+    flashLog('Переход в DFU...');
+    await msp.request(68, new Uint8Array([0x20, 0xDF]));
+    stopPoll = true;
+    setTimeout(async () => {
+      try { await msp.close(); } catch {}
+      setLink(false);
+      flashLog('Выберите DFU-устройство', 'ok');
+      $('connectDfu').disabled = false;
+    }, 2000);
+  } catch (e) {
+    flashLog('Ошибка: ' + e.message, 'err');
+  }
+});
+
+$('connectDfu').addEventListener('click', async () => {
+  if (!('usb' in navigator)) {
+    flashLog('WebUSB не поддерживается', 'err');
+    return;
+  }
   
   try {
-    const response = await fetch(fw.file);
-    if (!response.ok) throw new Error('Файл не найден');
-    const buffer = await response.arrayBuffer();
-    firmwareData = new Uint8Array(buffer);
+    flashLog('Выберите DFU...');
+    dfuDevice = await navigator.usb.requestDevice({
+      filters: [{ vendorId: 0x0483, productId: 0xDF11 }]
+    });
     
-    let crc = 0xFFFFFFFF;
-    for (let i = 0; i < firmwareData.length; i++) {
-      crc ^= firmwareData[i];
-      for (let j = 0; j < 8; j++) {
-        crc = (crc >>> 1) ^ (crc & 1 ? 0xEDB88320 : 0);
-      }
-    }
-    crc = (crc ^ 0xFFFFFFFF).toString(16).toUpperCase().padStart(8, '0');
+    await dfuDevice.open();
+    await dfuDevice.selectConfiguration(1);
+    await dfuDevice.claimInterface(0);
+    dfuInterface = 0;
     
-    flashLog(`Загружено: ${(firmwareData.length / 1024).toFixed(1)} KB, CRC32: 0x${crc}`, 'ok');
+    flashLog('DFU подключено', 'ok');
     $('startFlash').disabled = !(dfuDevice && firmwareData);
   } catch (e) {
-    flashLog('Ошибка загрузки файла:
+    flashLog('Ошибка: ' + e.message, 'err');
+  }
+});
+
+async function dfuDownload(blockNum, data){
+  await dfuDevice.controlTransfer({
+    requestType: 'class',
+    recipient: 'interface',
+    request: 0x01,
+    value: blockNum,
+    index: dfuInterface
+  }, data);
+}
+
+$('startFlash').addEventListener('click', async () => {
+  if (!firmwareData || !dfuDevice) return;
+  if (!confirm('Начать прошивку?')) return;
+  
+  $('startFlash').disabled = true;
+  $('cancelFlash').disabled = false;
+  
+  try {
+    flashLog('Начало прошивки...');
+    
+    const FLASH_BASE = 0x08000000;
+    const addrCmd = new Uint8Array([0x21, FLASH_BASE & 0xFF, (FLASH_BASE >> 8) & 0xFF, (FLASH_BASE >> 16) & 0xFF, (FLASH_BASE >> 24) & 0xFF]);
+    await dfuDownload(0, addrCmd);
+    await sleep(100);
+    await dfuDownload(0, new Uint8Array(0));
+    
+    flashLog('Стирание...');
+    const sectors = [0x08000000, 0x08004000, 0x08008000, 0x0800C000, 0x08010000, 0x08020000, 0x08040000, 0x08060000, 0x08080000, 0x080A0000, 0x080C0000, 0x080E0000];
+    
+    for (let i = 0; i < sectors.length; i++) {
+      const addr = sectors[i];
+      const eraseCmd = new Uint8Array([0x41, addr & 0xFF, (addr >> 8) & 0xFF, (addr >> 16) & 0xFF, (addr >> 24) & 0xFF]);
+      await dfuDownload(0, eraseCmd);
+      await sleep(100);
+      await dfuDownload(0, new Uint8Array(0));
+      await sleep(400);
+      
+      const progress = ((i + 1) / sectors.length * 20).toFixed(0);
+      $('progressFill').style.width = progress + '%';
+      $('progressFill').textContent = progress + '%';
+    }
+    
+    flashLog('Запись...');
+    const blockSize = 2048;
+    const totalBlocks = Math.ceil(firmwareData.length / blockSize);
+    
+    for (let i = 0; i < totalBlocks; i++) {
+      const start = i * blockSize;
+      const end = Math.min(start + blockSize, firmwareData.length);
+      const block = firmwareData.slice(start, end);
+      
+      await dfuDownload(i + 2, block);
+      await sleep(30);
+      
+      const progress = (20 + (i + 1) / totalBlocks * 80).toFixed(0);
+      $('progressFill').style.width = progress + '%';
+      $('progressFill').textContent = progress + '%';
+    }
+    
+    await dfuDownload(0, new Uint8Array(0));
+    await sleep(500);
+    
+    $('progressFill').style.width = '100%';
+    $('progressFill').textContent = '100%';
+    flashLog('Прошивка завершена!', 'ok');
+    
+  } catch (e) {
+    flashLog('Ошибка: ' + e.message, 'err');
+  } finally {
+    $('startFlash').disabled = false;
+    $('cancelFlash').disabled = true;
+  }
+});
+
+// ===== MAIN LOOP =====
+let lastFrame = 0;
+
+function frame(t){
+  requestAnimationFrame(frame);
+  
+  if (t - lastFrame > 33) {
+    drawCosmos(t);
+    updateAircraft();
+    updateReadouts();
+    lastFrame = t;
+  }
+}
+
+requestAnimationFrame(frame);
+loadFirmwares();
+
+</script>
+</body>
+</html>
