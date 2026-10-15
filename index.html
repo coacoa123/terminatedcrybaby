@@ -2,10 +2,10 @@
 <html lang="ru">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iNav Configurator · Пасека Edition</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>iNav Configurator</title>
 <style>
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
 :root {
   --void: #04060e;
@@ -14,14 +14,14 @@
   --am: #fbbf24;
   --red: #fb7185;
   --ok: #4ade80;
-  --glass: rgba(12, 17, 34, 0.75);
-  --glass-border: rgba(140, 170, 255, 0.16);
-  --text: #dbe4ff;
-  --dim: #8493ba;
+  --glass: rgba(12, 17, 34, 0.85);
+  --glass-border: rgba(140, 170, 255, 0.2);
+  --text: #ffffff;
+  --dim: #cbd5e1;
 }
 
 body {
-  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
   background: var(--void);
   color: var(--text);
   min-height: 100vh;
@@ -38,6 +38,132 @@ body {
   pointer-events: none;
 }
 
+/* ===== ЭКРАН АВТОРИЗАЦИИ ===== */
+.auth-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  background: rgba(4, 6, 14, 0.95);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  animation: fadeIn 0.4s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+.auth-box {
+  background: var(--glass);
+  border: 1px solid var(--glass-border);
+  border-radius: 20px;
+  padding: 40px 32px;
+  max-width: 420px;
+  width: 100%;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5), 0 0 40px rgba(103, 232, 249, 0.1);
+}
+
+.auth-logo {
+  font-size: 56px;
+  margin-bottom: 20px;
+  filter: drop-shadow(0 0 25px rgba(251, 191, 36, 0.8));
+  animation: pulse 2s infinite ease-in-out;
+}
+
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.1); }
+}
+
+.auth-title {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--am);
+  margin-bottom: 8px;
+  text-shadow: 0 0 20px rgba(251, 191, 36, 0.6);
+  letter-spacing: 1px;
+}
+
+.auth-subtitle {
+  font-size: 13px;
+  color: var(--dim);
+  margin-bottom: 28px;
+  letter-spacing: 1px;
+}
+
+.auth-field {
+  position: relative;
+  margin-bottom: 20px;
+}
+
+.auth-field input {
+  width: 100%;
+  padding: 14px 18px;
+  background: rgba(0, 0, 0, 0.4);
+  border: 1px solid var(--glass-border);
+  border-radius: 10px;
+  color: var(--text);
+  font: inherit;
+  font-size: 16px;
+  text-align: center;
+  letter-spacing: 2px;
+  transition: all 0.2s;
+}
+
+.auth-field input:focus {
+  outline: none;
+  border-color: var(--cyan);
+  box-shadow: 0 0 0 3px rgba(103, 232, 249, 0.2);
+}
+
+.auth-btn {
+  width: 100%;
+  padding: 14px;
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.2), rgba(167, 139, 250, 0.2));
+  border: 1px solid var(--cyan);
+  border-radius: 10px;
+  color: var(--cyan);
+  font: inherit;
+  font-size: 16px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  letter-spacing: 1px;
+}
+
+.auth-btn:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.3), rgba(167, 139, 250, 0.3));
+  box-shadow: 0 0 20px rgba(103, 232, 249, 0.4);
+}
+
+.auth-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.auth-error {
+  color: var(--red);
+  font-size: 14px;
+  margin-top: 16px;
+  min-height: 20px;
+  text-shadow: 0 0 10px rgba(251, 113, 133, 0.4);
+}
+
+.auth-hint {
+  margin-top: 20px;
+  font-size: 12px;
+  color: var(--dim);
+  font-style: italic;
+  line-height: 1.5;
+}
+
+/* ===== ОСНОВНОЙ ИНТЕРФЕЙС ===== */
 .app {
   position: relative;
   z-index: 1;
@@ -46,44 +172,42 @@ body {
   flex-direction: column;
 }
 
-/* ===== HEADER ===== */
+.app.locked {
+  display: none;
+}
+
 .header {
   background: var(--glass);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--glass-border);
-  padding: 14px 24px;
+  padding: 16px 20px;
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
 }
 
 .header h1 {
-  font-size: 18px;
-  font-weight: 600;
+  font-size: 20px;
+  font-weight: 700;
   color: var(--am);
-  text-shadow: 0 0 18px rgba(251, 191, 36, 0.5);
-  letter-spacing: 1px;
-}
-
-.header .subtitle {
-  font-size: 11px;
-  color: var(--dim);
-  letter-spacing: 2px;
-  text-transform: uppercase;
+  text-shadow: 0 0 15px rgba(251, 191, 36, 0.6);
+  letter-spacing: 0.5px;
 }
 
 .header .status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
+  gap: 10px;
+  font-size: 15px;
   color: var(--dim);
+  font-weight: 500;
 }
 
 .header .led {
-  width: 9px;
-  height: 9px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: var(--red);
   box-shadow: 0 0 10px var(--red);
@@ -97,55 +221,65 @@ body {
 .header .controls {
   margin-left: auto;
   display: flex;
-  gap: 10px;
+  gap: 12px;
+  align-items: center;
 }
 
-/* ===== BUTTONS ===== */
-button, select {
+button, select, input[type="file"]::file-selector-button {
   font: inherit;
-  padding: 10px 20px;
+  font-weight: 600;
+  padding: 12px 20px;
   border: 1px solid var(--glass-border);
   background: var(--glass);
   color: var(--text);
-  border-radius: 6px;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 15px;
   transition: all 0.2s;
   backdrop-filter: blur(8px);
+  min-height: 48px;
+  touch-action: manipulation;
 }
 
 button:hover:not(:disabled) {
   border-color: var(--cyan);
-  box-shadow: 0 0 12px rgba(103, 232, 249, 0.2);
+  box-shadow: 0 0 15px rgba(103, 232, 249, 0.3);
 }
 
 button:disabled {
-  opacity: 0.35;
+  opacity: 0.4;
   cursor: not-allowed;
 }
 
 button.primary {
-  background: linear-gradient(135deg, rgba(103, 232, 249, 0.15), rgba(167, 139, 250, 0.15));
+  background: linear-gradient(135deg, rgba(103, 232, 249, 0.2), rgba(167, 139, 250, 0.2));
   border-color: var(--cyan);
   color: var(--cyan);
 }
 
 button.danger {
-  background: linear-gradient(135deg, rgba(251, 113, 133, 0.15), rgba(251, 113, 133, 0.25));
+  background: linear-gradient(135deg, rgba(251, 113, 133, 0.2), rgba(251, 113, 133, 0.3));
   border-color: var(--red);
   color: var(--red);
 }
 
-/* ===== LAYOUT ===== */
+button.ghost {
+  background: transparent;
+  border-color: var(--glass-border);
+  color: var(--dim);
+  padding: 10px 16px;
+  font-size: 13px;
+}
+
 .layout {
   display: grid;
-  grid-template-columns: 200px 1fr;
+  grid-template-columns: 220px 1fr;
   flex: 1;
 }
 
 .sidebar {
   background: var(--glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border-right: 1px solid var(--glass-border);
   padding: 20px 0;
 }
@@ -154,73 +288,67 @@ button.danger {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 12px 20px;
+  padding: 14px 24px;
   background: none;
   border: none;
-  border-left: 3px solid transparent;
+  border-left: 4px solid transparent;
   color: var(--dim);
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
   backdrop-filter: none;
+  min-height: auto;
 }
 
 .nav-item:hover {
-  background: rgba(103, 232, 249, 0.05);
+  background: rgba(103, 232, 249, 0.08);
   color: var(--text);
 }
 
 .nav-item.active {
-  background: rgba(103, 232, 249, 0.08);
+  background: rgba(103, 232, 249, 0.12);
   color: var(--cyan);
   border-left-color: var(--cyan);
+  font-weight: 700;
 }
 
-.main {
-  padding: 24px;
-}
+.main { padding: 24px; }
+.panel { display: none; }
+.panel.active { display: block; }
 
-.panel {
-  display: none;
-}
-
-.panel.active {
-  display: block;
-}
-
-/* ===== CARDS ===== */
 .card {
   background: var(--glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border: 1px solid var(--glass-border);
-  border-radius: 12px;
-  padding: 20px;
-  margin-bottom: 20px;
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
 }
 
 .card h2 {
-  font-size: 13px;
-  font-weight: 600;
-  color: var(--dim);
-  margin-bottom: 16px;
-  padding-bottom: 10px;
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
   border-bottom: 1px solid var(--glass-border);
   text-transform: uppercase;
-  letter-spacing: 1.5px;
+  letter-spacing: 1px;
+  text-shadow: 0 0 10px rgba(103, 232, 249, 0.3);
 }
 
-/* ===== 3D AIRCRAFT ===== */
 .aircraft-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 400px;
+  height: 350px;
   perspective: 1000px;
   margin-bottom: 20px;
 }
 
 .aircraft {
-  width: 200px;
-  height: 200px;
+  width: 180px;
+  height: 180px;
   position: relative;
   transform-style: preserve-3d;
   transition: transform 0.1s ease-out;
@@ -229,124 +357,126 @@ button.danger {
 .aircraft svg {
   width: 100%;
   height: 100%;
-  filter: drop-shadow(0 0 20px rgba(103, 232, 249, 0.4));
+  filter: drop-shadow(0 0 25px rgba(103, 232, 249, 0.5));
 }
 
-/* ===== TABLES ===== */
+.table-wrapper {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
 table {
   width: 100%;
   border-collapse: collapse;
+  min-width: 300px;
 }
 
 table th, table td {
-  padding: 10px 12px;
+  padding: 14px 16px;
   text-align: left;
   border-bottom: 1px solid var(--glass-border);
+  font-size: 15px;
 }
 
 table th {
-  font-size: 11px;
-  font-weight: 600;
+  font-size: 13px;
+  font-weight: 700;
   color: var(--dim);
   text-transform: uppercase;
-  background: rgba(103, 232, 249, 0.05);
+  background: rgba(103, 232, 249, 0.08);
 }
 
 .form-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 12px 0;
+  gap: 16px;
+  margin: 16px 0;
 }
 
 .form-row label {
-  flex: 0 0 200px;
-  font-size: 13px;
+  flex: 0 0 220px;
+  font-size: 15px;
   color: var(--dim);
+  font-weight: 500;
 }
 
-.form-row select {
+.form-row select, .form-row input {
   flex: 1;
   max-width: 300px;
-  padding: 8px 10px;
+  padding: 12px 16px;
   border: 1px solid var(--glass-border);
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   color: var(--text);
-  border-radius: 4px;
+  border-radius: 8px;
   font: inherit;
+  font-size: 16px;
 }
 
 .action-bar {
   display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 16px;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
   border-top: 1px solid var(--glass-border);
+  flex-wrap: wrap;
 }
 
 .log {
-  background: rgba(0, 0, 0, 0.4);
+  background: rgba(0, 0, 0, 0.5);
   border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  padding: 12px;
-  height: 200px;
+  border-radius: 8px;
+  padding: 16px;
+  height: 220px;
   overflow-y: auto;
-  font: 12px/1.6 ui-monospace, monospace;
+  font: 14px/1.7 ui-monospace, monospace;
 }
 
 .log-entry {
-  padding: 2px 0 2px 8px;
-  border-left: 2px solid var(--vi);
+  padding: 4px 0 4px 12px;
+  border-left: 3px solid var(--vi);
+  margin-bottom: 4px;
 }
 
-.log-entry.ok {
-  border-color: var(--ok);
-  color: var(--ok);
-}
-
-.log-entry.err {
-  border-color: var(--red);
-  color: var(--red);
-}
-
-.log-entry.warn {
-  border-color: var(--am);
-  color: var(--am);
-}
+.log-entry.ok { border-color: var(--ok); color: var(--ok); }
+.log-entry.err { border-color: var(--red); color: var(--red); }
+.log-entry.warn { border-color: var(--am); color: var(--am); }
 
 .warning {
-  background: rgba(251, 191, 36, 0.08);
-  border: 1px solid rgba(251, 191, 36, 0.3);
-  border-radius: 8px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  font-size: 12px;
+  background: rgba(251, 191, 36, 0.1);
+  border: 1px solid rgba(251, 191, 36, 0.4);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 15px;
   color: var(--am);
+  font-weight: 500;
+  line-height: 1.5;
 }
 
 .warning.critical {
-  background: rgba(251, 113, 133, 0.08);
-  border-color: rgba(251, 113, 133, 0.3);
+  background: rgba(251, 113, 133, 0.1);
+  border-color: rgba(251, 113, 133, 0.4);
   color: var(--red);
 }
 
 .wisdom {
-  font-size: 11px;
+  font-size: 14px;
   color: var(--dim);
   font-style: italic;
-  margin-top: 8px;
-  padding-left: 12px;
-  border-left: 2px solid var(--vi);
+  margin-top: 10px;
+  padding-left: 16px;
+  border-left: 3px solid var(--vi);
+  line-height: 1.4;
 }
 
 .progress-bar {
   width: 100%;
-  height: 24px;
-  background: rgba(0, 0, 0, 0.3);
+  height: 32px;
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--glass-border);
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
-  margin: 12px 0;
+  margin: 16px 0;
 }
 
 .progress-fill {
@@ -357,69 +487,219 @@ table th {
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 12px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
 }
 
 .firmware-list {
-  background: rgba(0, 0, 0, 0.3);
+  background: rgba(0, 0, 0, 0.4);
   border: 1px solid var(--glass-border);
-  border-radius: 6px;
-  padding: 12px;
-  max-height: 300px;
+  border-radius: 8px;
+  padding: 16px;
+  max-height: 350px;
   overflow-y: auto;
 }
 
 .firmware-item {
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 10px;
+  gap: 16px;
+  padding: 14px;
   border: 1px solid transparent;
-  border-radius: 4px;
+  border-radius: 8px;
   cursor: pointer;
-  margin-bottom: 6px;
+  margin-bottom: 10px;
+  transition: all 0.2s;
 }
 
 .firmware-item:hover {
-  background: rgba(103, 232, 249, 0.05);
+  background: rgba(103, 232, 249, 0.08);
   border-color: var(--glass-border);
 }
 
 .firmware-item.selected {
-  background: rgba(103, 232, 249, 0.1);
+  background: rgba(103, 232, 249, 0.15);
   border-color: var(--cyan);
 }
 
 .firmware-item input[type="radio"] {
-  width: 16px;
-  height: 16px;
+  width: 20px;
+  height: 20px;
   accent-color: var(--cyan);
 }
 
 .firmware-version {
-  font-size: 14px;
-  font-weight: 600;
+  font-size: 16px;
+  font-weight: 700;
   color: var(--cyan);
 }
 
 .firmware-meta {
-  font-size: 11px;
+  font-size: 13px;
   color: var(--dim);
+  margin-top: 4px;
 }
 
-/* ===== FOOTER ===== */
 .footer {
   position: relative;
   z-index: 1;
   background: var(--glass);
-  backdrop-filter: blur(12px);
+  backdrop-filter: blur(16px);
   border-top: 1px solid var(--glass-border);
-  padding: 10px 24px;
+  padding: 16px 24px;
   text-align: center;
-  font-size: 10px;
+  font-size: 12px;
   color: var(--dim);
   letter-spacing: 1px;
+}
+
+/* ===== ЯРКИЕ ПЧЁЛЫ С АНИМАЦИЕЙ КРЫЛЬЕВ ===== */
+.cosmic-bee {
+  position: fixed;
+  z-index: 2;
+  pointer-events: none;
+  filter: drop-shadow(0 0 15px currentColor) drop-shadow(0 0 30px currentColor);
+}
+
+/* Пчела 1 - золотая */
+.bee-1 {
+  color: #ffd700;
+  top: 10%;
+  left: 10%;
+  animation: spiralIn1 14s infinite ease-in-out;
+}
+
+/* Пчела 2 - фиолетовая */
+.bee-2 {
+  color: #a78bfa;
+  top: 10%;
+  right: 10%;
+  animation: spiralIn2 16s infinite ease-in-out 2s;
+}
+
+/* Пчела 3 - янтарная */
+.bee-3 {
+  color: #fbbf24;
+  bottom: 10%;
+  left: 10%;
+  animation: spiralIn3 15s infinite ease-in-out 4s;
+}
+
+/* Пчела 4 - розовая */
+.bee-4 {
+  color: #fb7185;
+  bottom: 10%;
+  right: 10%;
+  animation: spiralIn4 17s infinite ease-in-out 6s;
+}
+
+@keyframes spiralIn1 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1.5); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(35vw, 10vh) rotate(360deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translate(75vw, 15vh) rotate(720deg) scale(0.1); opacity: 0; }
+}
+
+@keyframes spiralIn2 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1.5); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(-25vw, 10vh) rotate(-360deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translate(-15vw, 15vh) rotate(-720deg) scale(0.1); opacity: 0; }
+}
+
+@keyframes spiralIn3 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1.5); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(35vw, -40vh) rotate(360deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translate(75vw, -65vh) rotate(720deg) scale(0.1); opacity: 0; }
+}
+
+@keyframes spiralIn4 {
+  0% { transform: translate(0, 0) rotate(0deg) scale(1.5); opacity: 0; }
+  10% { opacity: 1; }
+  50% { transform: translate(-25vw, -40vh) rotate(-360deg) scale(1); }
+  90% { opacity: 1; }
+  100% { transform: translate(-15vw, -65vh) rotate(-720deg) scale(0.1); opacity: 0; }
+}
+
+/* Анимация крыльев */
+@keyframes wingFlap {
+  0%, 100% { transform: scaleY(1) rotate(var(--wing-angle, 0deg)); }
+  50% { transform: scaleY(0.3) rotate(var(--wing-angle, 0deg)); }
+}
+
+.bee-wing {
+  animation: wingFlap 0.08s infinite ease-in-out;
+  transform-origin: center bottom;
+}
+
+/* ===== МОБИЛЬНАЯ ВЕРСИЯ ===== */
+@media (max-width: 768px) {
+  .layout { grid-template-columns: 1fr; }
+  
+  .sidebar {
+    position: sticky;
+    top: 0;
+    z-index: 50;
+    border-right: none;
+    border-bottom: 1px solid var(--glass-border);
+    display: flex;
+    overflow-x: auto;
+    padding: 12px 16px;
+    gap: 12px;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+  .sidebar::-webkit-scrollbar { display: none; }
+
+  .nav-item {
+    white-space: nowrap;
+    border-left: none;
+    border-bottom: 3px solid transparent;
+    padding: 12px 20px;
+    border-radius: 10px;
+    font-size: 15px;
+    min-height: 48px;
+    display: flex;
+    align-items: center;
+  }
+
+  .nav-item.active {
+    border-left: none;
+    border-bottom-color: var(--cyan);
+    background: rgba(103, 232, 249, 0.15);
+  }
+
+  .main { padding: 16px; }
+  .card { padding: 20px 16px; }
+
+  .form-row {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 8px;
+  }
+
+  .form-row label { flex: none; font-size: 14px; }
+  .form-row select, .form-row input { max-width: 100%; width: 100%; }
+  .action-bar { flex-direction: column; }
+  .action-bar button { width: 100%; }
+
+  .header .controls {
+    width: 100%;
+    justify-content: space-between;
+    margin-top: 8px;
+  }
+  
+  .header .controls select { flex: 1; margin-right: 12px; }
+  .aircraft-container { height: 280px; }
+  .aircraft { width: 150px; height: 150px; }
+  
+  .auth-box { padding: 32px 20px; }
+  .auth-title { font-size: 20px; }
 }
 </style>
 </head>
@@ -427,12 +707,98 @@ table th {
 
 <canvas id="cosmos"></canvas>
 
-<div class="app">
+<!-- ЭКРАН АВТОРИЗАЦИИ -->
+<div class="auth-overlay" id="authOverlay">
+  <div class="auth-box">
+    <div class="auth-logo">🐝</div>
+    <div class="auth-title">iNav Configurator</div>
+    <div class="auth-subtitle">Введите пароль для доступа</div>
+    <form id="authForm">
+      <div class="auth-field">
+        <input type="password" id="authPassword" placeholder="••••••••" autocomplete="off" autofocus>
+      </div>
+      <button type="submit" class="auth-btn" id="authBtn">Войти в систему</button>
+      <div class="auth-error" id="authError"></div>
+    </form>
+    <div class="auth-hint">«Кто не работает, тот не ест» — вводи пароль и работай</div>
+  </div>
+</div>
+
+<!-- ЯРКИЕ ПЧЁЛЫ С ДЕТАЛИЗАЦИЕЙ -->
+<div class="cosmic-bee bee-1">
+  <svg width="60" height="60" viewBox="0 0 60 60">
+    <!-- Тело -->
+    <ellipse cx="30" cy="35" rx="12" ry="16" fill="#ffd700" opacity="0.95"/>
+    <!-- Полоски -->
+    <ellipse cx="30" cy="28" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="35" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="42" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <!-- Голова -->
+    <circle cx="30" cy="18" r="8" fill="#ffd700" opacity="0.95"/>
+    <!-- Глаза -->
+    <circle cx="27" cy="16" r="2" fill="#000"/>
+    <circle cx="33" cy="16" r="2" fill="#000"/>
+    <!-- Усики -->
+    <line x1="27" y1="12" x2="24" y2="8" stroke="#000" stroke-width="1"/>
+    <line x1="33" y1="12" x2="36" y2="8" stroke="#000" stroke-width="1"/>
+    <!-- Крылья (анимированные) -->
+    <ellipse class="bee-wing" cx="18" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: -20deg"/>
+    <ellipse class="bee-wing" cx="42" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: 20deg"/>
+  </svg>
+</div>
+
+<div class="cosmic-bee bee-2">
+  <svg width="55" height="55" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="35" rx="12" ry="16" fill="#a78bfa" opacity="0.95"/>
+    <ellipse cx="30" cy="28" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="35" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="42" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <circle cx="30" cy="18" r="8" fill="#a78bfa" opacity="0.95"/>
+    <circle cx="27" cy="16" r="2" fill="#000"/>
+    <circle cx="33" cy="16" r="2" fill="#000"/>
+    <line x1="27" y1="12" x2="24" y2="8" stroke="#000" stroke-width="1"/>
+    <line x1="33" y1="12" x2="36" y2="8" stroke="#000" stroke-width="1"/>
+    <ellipse class="bee-wing" cx="18" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: -20deg"/>
+    <ellipse class="bee-wing" cx="42" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: 20deg"/>
+  </svg>
+</div>
+
+<div class="cosmic-bee bee-3">
+  <svg width="58" height="58" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="35" rx="12" ry="16" fill="#fbbf24" opacity="0.95"/>
+    <ellipse cx="30" cy="28" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="35" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="42" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <circle cx="30" cy="18" r="8" fill="#fbbf24" opacity="0.95"/>
+    <circle cx="27" cy="16" r="2" fill="#000"/>
+    <circle cx="33" cy="16" r="2" fill="#000"/>
+    <line x1="27" y1="12" x2="24" y2="8" stroke="#000" stroke-width="1"/>
+    <line x1="33" y1="12" x2="36" y2="8" stroke="#000" stroke-width="1"/>
+    <ellipse class="bee-wing" cx="18" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: -20deg"/>
+    <ellipse class="bee-wing" cx="42" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: 20deg"/>
+  </svg>
+</div>
+
+<div class="cosmic-bee bee-4">
+  <svg width="52" height="52" viewBox="0 0 60 60">
+    <ellipse cx="30" cy="35" rx="12" ry="16" fill="#fb7185" opacity="0.95"/>
+    <ellipse cx="30" cy="28" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="35" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <ellipse cx="30" cy="42" rx="11" ry="3" fill="#000" opacity="0.7"/>
+    <circle cx="30" cy="18" r="8" fill="#fb7185" opacity="0.95"/>
+    <circle cx="27" cy="16" r="2" fill="#000"/>
+    <circle cx="33" cy="16" r="2" fill="#000"/>
+    <line x1="27" y1="12" x2="24" y2="8" stroke="#000" stroke-width="1"/>
+    <line x1="33" y1="12" x2="36" y2="8" stroke="#000" stroke-width="1"/>
+    <ellipse class="bee-wing" cx="18" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: -20deg"/>
+    <ellipse class="bee-wing" cx="42" cy="25" rx="10" ry="6" fill="currentColor" opacity="0.6" style="--wing-angle: 20deg"/>
+  </svg>
+</div>
+
+<!-- ОСНОВНОЙ ИНТЕРФЕЙС -->
+<div class="app locked" id="mainApp">
   <header class="header">
-    <div>
-      <h1>iNav Configurator</h1>
-      <div class="subtitle">Пасека Edition</div>
-    </div>
+    <h1>iNav Configurator</h1>
     <div class="status">
       <span class="led" id="led"></span>
       <span id="linkState">Офлайн</span>
@@ -445,6 +811,7 @@ table th {
       </select>
       <button class="primary" id="connect">Подключить</button>
       <button id="disconnect" disabled>Отключить</button>
+      <button class="ghost" id="logout">Выйти</button>
     </div>
   </header>
 
@@ -455,10 +822,9 @@ table th {
     </nav>
 
     <main class="main">
-      <!-- ОБЗОР -->
       <section class="panel active" id="panel-overview">
         <div class="warning">
-          Снимите пропеллеры перед подключением по USB.
+          ⚠️ Снимите пропеллеры перед подключением по USB.
           <div class="wisdom">«Нормально делай, нормально будет»</div>
         </div>
 
@@ -468,9 +834,9 @@ table th {
             <div class="aircraft" id="aircraft">
               <svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
                 <ellipse cx="100" cy="100" rx="15" ry="60" fill="#67e8f9" opacity="0.8"/>
-                <ellipse cx="100" cy="100" rx="12" ry="58" fill="none" stroke="#a78bfa" stroke-width="1"/>
+                <ellipse cx="100" cy="100" rx="12" ry="58" fill="none" stroke="#a78bfa" stroke-width="1.5"/>
                 <rect x="30" y="95" width="140" height="10" rx="2" fill="#a78bfa" opacity="0.7"/>
-                <rect x="30" y="95" width="140" height="10" rx="2" fill="none" stroke="#67e8f9" stroke-width="1"/>
+                <rect x="30" y="95" width="140" height="10" rx="2" fill="none" stroke="#67e8f9" stroke-width="1.5"/>
                 <rect x="85" y="150" width="30" height="8" rx="1" fill="#fbbf24" opacity="0.7"/>
                 <rect x="95" y="145" width="10" height="15" rx="1" fill="#fbbf24" opacity="0.7"/>
                 <circle cx="100" cy="45" r="8" fill="#fb7185" opacity="0.8"/>
@@ -480,38 +846,39 @@ table th {
               </svg>
             </div>
           </div>
-          <div style="display:flex;justify-content:center;gap:40px;margin-top:20px">
-            <div style="text-align:center">
-              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Крен</div>
-              <div style="font:600 24px ui-monospace,monospace;color:var(--cyan)" id="o-roll">—</div>
+          <div style="display:flex;justify-content:center;gap:30px;margin-top:20px;flex-wrap:wrap">
+            <div style="text-align:center;min-width:80px">
+              <div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:600">Крен</div>
+              <div style="font:700 28px ui-monospace,monospace;color:var(--cyan);text-shadow:0 0 10px rgba(103,232,249,0.4)" id="o-roll">—</div>
             </div>
-            <div style="text-align:center">
-              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Тангаж</div>
-              <div style="font:600 24px ui-monospace,monospace;color:var(--am)" id="o-pitch">—</div>
+            <div style="text-align:center;min-width:80px">
+              <div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:600">Тангаж</div>
+              <div style="font:700 28px ui-monospace,monospace;color:var(--am);text-shadow:0 0 10px rgba(251,191,36,0.4)" id="o-pitch">—</div>
             </div>
-            <div style="text-align:center">
-              <div style="font-size:11px;color:var(--dim);text-transform:uppercase;letter-spacing:1px">Курс</div>
-              <div style="font:600 24px ui-monospace,monospace;color:var(--vi)" id="o-yaw">—</div>
+            <div style="text-align:center;min-width:80px">
+              <div style="font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:1px;font-weight:600">Курс</div>
+              <div style="font:700 28px ui-monospace,monospace;color:var(--vi);text-shadow:0 0 10px rgba(167,139,250,0.4)" id="o-yaw">—</div>
             </div>
           </div>
         </div>
 
         <div class="card">
           <h2>Информация о полётнике</h2>
-          <table>
-            <tr><td>Порт (VID:PID)</td><td id="d-port">—</td></tr>
-            <tr><td>Семейство прошивки</td><td id="d-variant">—</td></tr>
-            <tr><td>Версия прошивки</td><td id="d-version">—</td></tr>
-            <tr><td>MSP API</td><td id="d-api">—</td></tr>
-            <tr><td>Плата</td><td id="d-board">—</td></tr>
-          </table>
+          <div class="table-wrapper">
+            <table>
+              <tr><td>Порт (VID:PID)</td><td id="d-port" style="color:var(--cyan);font-weight:600">—</td></tr>
+              <tr><td>Семейство прошивки</td><td id="d-variant">—</td></tr>
+              <tr><td>Версия прошивки</td><td id="d-version">—</td></tr>
+              <tr><td>MSP API</td><td id="d-api">—</td></tr>
+              <tr><td>Плата</td><td id="d-board">—</td></tr>
+            </table>
+          </div>
         </div>
       </section>
 
-      <!-- ПРОШИВКА -->
       <section class="panel" id="panel-flash">
         <div class="warning critical">
-          Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
+          ⚠️ Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
           <div class="wisdom">«Семь раз отмерь, один раз отрежь»</div>
         </div>
 
@@ -530,7 +897,7 @@ table th {
             <label>Или загрузите свой файл</label>
             <input type="file" id="firmwareFile" accept=".bin" style="flex:1">
           </div>
-          <div class="wisdom">«Ебанул жидким — косарь в кассу клади» — выбирай прошивку под свой таргет, а не под настроение</div>
+          <div class="wisdom">«Ебанул жидким — косарь в кассу клади» — выбирай прошивку под свой таргет, а не под настроение.</div>
         </div>
 
         <div class="card">
@@ -538,7 +905,7 @@ table th {
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
             <button id="enterDfu" disabled>Войти в DFU</button>
           </div>
-          <div class="wisdom">«Не спеши, а то споткнёшься» — убедись, что полётник подключён и работает</div>
+          <div class="wisdom">«Не спеши, а то споткнёшься» — убедись, что полётник подключён и работает.</div>
         </div>
 
         <div class="card">
@@ -546,7 +913,7 @@ table th {
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
             <button id="connectDfu" disabled>Выбрать DFU-устройство</button>
           </div>
-          <div class="wisdom">«Думай головой, а не задницей» — выбирай устройство с VID 0483 (STM32)</div>
+          <div class="wisdom">«Думай головой, а не задницей» — выбирай устройство с VID 0483 (STM32).</div>
         </div>
 
         <div class="card">
@@ -558,15 +925,15 @@ table th {
             <button class="danger" id="startFlash" disabled>Начать прошивку</button>
             <button id="cancelFlash" disabled>Отмена</button>
           </div>
-          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс, иначе получишь кирпич</div>
-          <div class="log" id="flashLog" style="margin-top:12px;height:220px"></div>
+          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс, иначе получишь кирпич.</div>
+          <div class="log" id="flashLog" style="margin-top:16px;height:220px"></div>
         </div>
       </section>
     </main>
   </div>
 
   <footer class="footer">
-    © 2026 iNav Configurator · Пасека Edition · Сделано с 🐝 и ☕
+    © 2026 iNav Configurator · Сделано с 🐝 и ☕
   </footer>
 </div>
 
@@ -607,6 +974,70 @@ function flashLog(msg, type=''){
   box.scrollTop = box.scrollHeight;
 }
 
+// ===== АВТОРИЗАЦИЯ =====
+const ENCODED_PASSWORD = 'MDkwNTE5NDU=';
+
+function checkAuth() {
+  if (sessionStorage.getItem('auth') === 'ok') {
+    unlockApp();
+  }
+}
+
+function unlockApp() {
+  $('authOverlay').style.display = 'none';
+  $('mainApp').classList.remove('locked');
+}
+
+function lockApp() {
+  sessionStorage.removeItem('auth');
+  $('authOverlay').style.display = 'flex';
+  $('mainApp').classList.add('locked');
+  $('authPassword').value = '';
+  $('authError').textContent = '';
+}
+
+$('authForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const password = $('authPassword').value;
+  const btn = $('authBtn');
+  const err = $('authError');
+  
+  if (!password) {
+    err.textContent = 'Введите пароль';
+    return;
+  }
+  
+  btn.disabled = true;
+  btn.textContent = 'Проверка...';
+  err.textContent = '';
+  
+  try {
+    await sleep(300);
+    
+    if (btoa(password) === ENCODED_PASSWORD) {
+      sessionStorage.setItem('auth', 'ok');
+      unlockApp();
+    } else {
+      err.textContent = 'Неверный пароль. Попробуйте ещё раз.';
+      $('authPassword').value = '';
+      $('authPassword').focus();
+    }
+  } catch (e) {
+    err.textContent = 'Ошибка проверки: ' + e.message;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Войти в систему';
+  }
+});
+
+$('logout').addEventListener('click', () => {
+  if (confirm('Выйти из системы?')) {
+    lockApp();
+  }
+});
+
+checkAuth();
+
 // ===== КОСМОС С ЧЁРНОЙ ДЫРОЙ =====
 const cosmos = $('cosmos'), cg = cosmos.getContext('2d');
 let W = 0, H = 0, hole = {x:0, y:0, r:80};
@@ -617,9 +1048,9 @@ function resizeCosmos(){
   cosmos.width = W; cosmos.height = H;
   hole = { x: W*0.85, y: H*0.25, r: Math.min(W,H)*0.08 };
   
-  stars = Array.from({length: 120}, () => ({
+  stars = Array.from({length: 150}, () => ({
     x: Math.random()*W, y: Math.random()*H,
-    r: Math.random()*1.2 + 0.3, p: Math.random()*Math.PI*2
+    r: Math.random()*1.5 + 0.5, p: Math.random()*Math.PI*2
   }));
   
   const spawn = p => {
@@ -628,7 +1059,7 @@ function resizeCosmos(){
     p.s = 0.5 + Math.random()*0.6;
   };
   
-  infall = Array.from({length: 100}, () => {
+  infall = Array.from({length: 120}, () => {
     const p = {};
     spawn(p);
     p.spawn = spawn;
@@ -641,8 +1072,8 @@ function drawCosmos(t){
   cg.fillRect(0, 0, W, H);
   
   for (const s of stars) {
-    cg.globalAlpha = 0.3 + 0.35*(0.5 + 0.5*Math.sin(t*0.001 + s.p));
-    cg.fillStyle = '#cfe0ff';
+    cg.globalAlpha = 0.3 + 0.4*(0.5 + 0.5*Math.sin(t*0.001 + s.p));
+    cg.fillStyle = '#e0f2fe';
     cg.beginPath();
     cg.arc(s.x, s.y, s.r, 0, Math.PI*2);
     cg.fill();
@@ -651,29 +1082,29 @@ function drawCosmos(t){
   
   const {x: hx, y: hy, r: R} = hole;
   
-  const halo = cg.createRadialGradient(hx, hy, R*0.8, hx, hy, R*3.5);
-  halo.addColorStop(0, 'rgba(251,191,36,0.25)');
-  halo.addColorStop(0.4, 'rgba(167,139,250,0.15)');
+  const halo = cg.createRadialGradient(hx, hy, R*0.8, hx, hy, R*4);
+  halo.addColorStop(0, 'rgba(251,191,36,0.3)');
+  halo.addColorStop(0.4, 'rgba(167,139,250,0.2)');
   halo.addColorStop(1, 'rgba(4,6,14,0)');
   cg.fillStyle = halo;
   cg.beginPath();
-  cg.arc(hx, hy, R*3.5, 0, Math.PI*2);
+  cg.arc(hx, hy, R*4, 0, Math.PI*2);
   cg.fill();
   
   for (const p of infall) {
     const rel = p.r / R;
-    p.a += 0.02 * (1 + 1.5/rel) * p.s;
-    p.r -= 0.15 * (1 + 5/rel);
+    p.a += 0.025 * (1 + 1.5/rel) * p.s;
+    p.r -= 0.2 * (1 + 5/rel);
     if (p.r < R*1.05) p.spawn(p);
     
     const hue = 35 + Math.min(rel-1, 1) * 230;
-    const alpha = (1 - Math.min(rel-1, 1)) * 0.8 + 0.15;
+    const alpha = (1 - Math.min(rel-1, 1)) * 0.9 + 0.1;
     const px = hx + Math.cos(p.a) * p.r;
     const py = hy + Math.sin(p.a) * p.r * 0.4;
     
-    cg.fillStyle = `hsla(${hue},95%,65%,${alpha})`;
+    cg.fillStyle = `hsla(${hue},95%,70%,${alpha})`;
     cg.beginPath();
-    cg.arc(px, py, 1.2 + (1-Math.min(rel-1, 1))*1.5, 0, Math.PI*2);
+    cg.arc(px, py, 1.5 + (1-Math.min(rel-1, 1))*2, 0, Math.PI*2);
     cg.fill();
   }
   
@@ -683,10 +1114,10 @@ function drawCosmos(t){
   cg.fill();
   
   cg.save();
-  cg.shadowColor = 'rgba(255,200,120,0.9)';
-  cg.shadowBlur = 20;
-  cg.strokeStyle = 'rgba(255,214,150,0.9)';
-  cg.lineWidth = 2;
+  cg.shadowColor = 'rgba(255,220,150,1)';
+  cg.shadowBlur = 25;
+  cg.strokeStyle = 'rgba(255,230,180,0.9)';
+  cg.lineWidth = 2.5;
   cg.beginPath();
   cg.arc(hx, hy, R, 0, Math.PI*2);
   cg.stroke();
@@ -697,12 +1128,7 @@ window.addEventListener('resize', resizeCosmos);
 resizeCosmos();
 
 // ===== 3D САМОЛЁТ =====
-const S = {
-  roll: 0, pitch: 0, yaw: 0,
-  alt: 0, vario: 0, volt: 0, amp: 0, mah: 0, rssi: 0,
-  fix: 0, sats: 0, lat: 0, lon: 0,
-  hasAtt: false, hasAlt: false, hasAnalog: false, hasGps: false
-};
+const S = { roll: 0, pitch: 0, yaw: 0, hasAtt: false };
 
 function updateAircraft(){
   const aircraft = $('aircraft');
@@ -826,7 +1252,6 @@ class MSP {
 
 const msp = new MSP();
 
-// ===== TELEMETRY =====
 function readIdentity(cmd, p){
   if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
   if (cmd === 2 && p.length >= 4) txt('d-variant', ascii(p, 0, p.length));
@@ -843,7 +1268,6 @@ function readAttitude(p){
   S.hasAtt = true;
 }
 
-// ===== POLLING =====
 let polling = false, stopPoll = false, tick = 0;
 
 async function startPolling(){
@@ -859,7 +1283,6 @@ async function startPolling(){
   polling = false;
 }
 
-// ===== CONNECTION =====
 function setLink(on){
   $('led').classList.toggle('on', on);
   txt('linkState', on ? 'Онлайн' : 'Офлайн');
@@ -897,7 +1320,6 @@ $('disconnect').addEventListener('click', async () => {
   log('Отключено');
 });
 
-// ===== NAVIGATION =====
 document.querySelectorAll('.nav-item').forEach(btn => {
   btn.addEventListener('click', () => {
     document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
@@ -907,15 +1329,12 @@ document.querySelectorAll('.nav-item').forEach(btn => {
   });
 });
 
-// ===== READOUTS =====
 function updateReadouts(){
   const f1 = v => (v>0?'+':'') + v.toFixed(1) + '°';
   txt('o-roll', S.hasAtt ? f1(S.roll) : '—');
   txt('o-pitch', S.hasAtt ? f1(S.pitch) : '—');
   txt('o-yaw', S.hasAtt ? String(Math.round(S.yaw)).padStart(3,'0')+'°' : '—');
 }
-
-log('Готов к работе');
 
 // ===== ЗАГРУЗКА ПРОШИВОК =====
 let firmwareData = null;
@@ -998,7 +1417,6 @@ $('firmwareFile').addEventListener('change', async (e) => {
   $('startFlash').disabled = !(dfuDevice && firmwareData);
 });
 
-// ===== DFU FLASHING =====
 $('enterDfu').addEventListener('click', async () => {
   if (!confirm('Перейти в DFU?')) return;
   try {
