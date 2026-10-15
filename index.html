@@ -3,335 +3,491 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>iNav Web Configurator</title>
+<title>iNav Configurator · Пасека</title>
 <style>
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-body {
-  font: 14px/1.5 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: #f5f5f5;
-  color: #333;
+:root {
+  --honey: #f4a742;
+  --honey-dark: #d98a2b;
+  --grass: #6ba84f;
+  --grass-dark: #4a7a35;
+  --sky: #87ceeb;
+  --wood: #8b5a2b;
+  --wood-dark: #5c3a1e;
+  --cream: #fff8e7;
+  --text: #2c3e50;
+  --text-light: #5a6c7d;
+  --danger: #c0392b;
+  --danger-dark: #922b21;
 }
 
+body {
+  font: 16px/1.6 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  color: var(--text);
+  min-height: 100vh;
+  position: relative;
+  overflow-x: hidden;
+  background: linear-gradient(to bottom, 
+    var(--sky) 0%, 
+    #b8e0f0 25%,
+    #d4ebc8 40%,
+    #a8d88a 55%,
+    #7cb85c 75%,
+    #5a9a3e 100%);
+}
+
+/* ===== ФОН-ПАСЕКА (SVG) ===== */
+.bg-scene {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+
+.bg-scene svg {
+  width: 100%;
+  height: 100%;
+}
+
+/* Анимация пчёл */
+.bee {
+  animation: fly 20s infinite linear;
+}
+
+.bee:nth-child(2) { animation-duration: 25s; animation-delay: -5s; }
+.bee:nth-child(3) { animation-duration: 18s; animation-delay: -10s; }
+.bee:nth-child(4) { animation-duration: 22s; animation-delay: -15s; }
+
+@keyframes fly {
+  0%   { transform: translate(0, 0) rotate(0deg); }
+  25%  { transform: translate(150px, -30px) rotate(5deg); }
+  50%  { transform: translate(300px, 20px) rotate(-5deg); }
+  75%  { transform: translate(450px, -20px) rotate(3deg); }
+  100% { transform: translate(600px, 0) rotate(0deg); }
+}
+
+/* ===== HEADER ===== */
 .header {
-  background: #fff;
-  border-bottom: 1px solid #ddd;
-  padding: 12px 20px;
+  position: relative;
+  z-index: 10;
+  background: rgba(255, 248, 231, 0.92);
+  backdrop-filter: blur(10px);
+  border-bottom: 3px solid var(--honey);
+  padding: 16px 24px;
   display: flex;
   align-items: center;
-  gap: 20px;
+  gap: 24px;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
 }
 
 .header h1 {
-  font-size: 16px;
-  font-weight: 600;
-  color: #333;
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.header h1::before {
+  content: "🐝";
+  font-size: 28px;
 }
 
 .header .status {
   display: flex;
   align-items: center;
-  gap: 8px;
-  font-size: 13px;
-  color: #666;
+  gap: 10px;
+  font-size: 15px;
+  color: var(--text-light);
+  font-weight: 500;
 }
 
 .header .led {
-  width: 8px;
-  height: 8px;
+  width: 12px;
+  height: 12px;
   border-radius: 50%;
   background: #ccc;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .header .led.on {
-  background: #4caf50;
+  background: var(--grass);
+  box-shadow: 0 0 8px var(--grass), 0 0 0 2px rgba(0,0,0,0.1);
 }
 
 .header .controls {
   margin-left: auto;
   display: flex;
-  gap: 10px;
+  gap: 12px;
 }
 
+/* ===== КНОПКИ (КРУПНЫЕ) ===== */
 button, select {
   font: inherit;
-  padding: 6px 14px;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 4px;
+  font-weight: 600;
+  padding: 14px 28px;
+  border: 2px solid transparent;
+  border-radius: 10px;
   cursor: pointer;
-  font-size: 13px;
+  font-size: 16px;
+  transition: all 0.2s;
+  min-height: 50px;
+}
+
+button {
+  background: var(--cream);
+  color: var(--text);
+  border-color: #d0c4a8;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.06);
 }
 
 button:hover:not(:disabled) {
-  background: #f0f0f0;
-  border-color: #999;
+  background: #fff;
+  border-color: var(--honey);
+  box-shadow: 0 4px 12px rgba(244, 167, 66, 0.25);
+  transform: translateY(-1px);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 button:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 
 button.primary {
-  background: #007bff;
+  background: var(--honey);
   color: #fff;
-  border-color: #007bff;
+  border-color: var(--honey-dark);
 }
 
 button.primary:hover:not(:disabled) {
-  background: #0056b3;
+  background: var(--honey-dark);
+  box-shadow: 0 4px 12px rgba(217, 138, 43, 0.4);
 }
 
 button.danger {
-  background: #dc3545;
+  background: var(--danger);
   color: #fff;
-  border-color: #dc3545;
+  border-color: var(--danger-dark);
 }
 
 button.danger:hover:not(:disabled) {
-  background: #c82333;
+  background: var(--danger-dark);
 }
 
 button.success {
-  background: #28a745;
+  background: var(--grass);
   color: #fff;
-  border-color: #28a745;
+  border-color: var(--grass-dark);
 }
 
 button.success:hover:not(:disabled) {
-  background: #218838;
+  background: var(--grass-dark);
 }
 
-.layout {
-  display: grid;
-  grid-template-columns: 180px 1fr;
-  min-height: calc(100vh - 50px);
-}
-
-.sidebar {
+select {
   background: #fff;
-  border-right: 1px solid #ddd;
-  padding: 20px 0;
+  border-color: #d0c4a8;
+  padding: 12px 16px;
+  font-weight: 500;
+}
+
+/* ===== LAYOUT ===== */
+.layout {
+  position: relative;
+  z-index: 5;
+  display: grid;
+  grid-template-columns: 220px 1fr;
+  min-height: calc(100vh - 85px);
+  gap: 0;
+}
+
+/* ===== SIDEBAR ===== */
+.sidebar {
+  background: rgba(255, 248, 231, 0.92);
+  backdrop-filter: blur(10px);
+  border-right: 3px solid var(--honey);
+  padding: 24px 0;
 }
 
 .nav-item {
   display: block;
   width: 100%;
   text-align: left;
-  padding: 10px 20px;
+  padding: 16px 24px;
   background: none;
   border: none;
-  border-left: 3px solid transparent;
-  color: #666;
-  font-size: 13px;
+  border-left: 4px solid transparent;
+  color: var(--text-light);
+  font-size: 16px;
+  font-weight: 500;
   cursor: pointer;
+  border-radius: 0;
+  box-shadow: none;
+  min-height: auto;
 }
 
 .nav-item:hover {
-  background: #f9f9f9;
-  color: #333;
+  background: rgba(244, 167, 66, 0.1);
+  color: var(--text);
 }
 
 .nav-item.active {
-  background: #e7f3ff;
-  color: #007bff;
-  border-left-color: #007bff;
-  font-weight: 500;
+  background: rgba(244, 167, 66, 0.15);
+  color: var(--honey-dark);
+  border-left-color: var(--honey);
+  font-weight: 700;
 }
 
+/* ===== MAIN ===== */
 .main {
-  padding: 20px;
+  padding: 28px;
+  overflow-y: auto;
 }
 
 .panel {
   display: none;
+  animation: fadeIn 0.3s ease;
 }
 
 .panel.active {
   display: block;
 }
 
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+
+/* ===== CARDS ===== */
 .card {
-  background: #fff;
-  border: 1px solid #ddd;
-  border-radius: 4px;
-  padding: 20px;
-  margin-bottom: 20px;
+  background: rgba(255, 248, 231, 0.95);
+  backdrop-filter: blur(10px);
+  border: 2px solid #e8d9b8;
+  border-radius: 14px;
+  padding: 24px;
+  margin-bottom: 24px;
+  box-shadow: 0 4px 16px rgba(0,0,0,0.06);
 }
 
 .card h2 {
-  font-size: 14px;
-  font-weight: 600;
-  color: #333;
-  margin-bottom: 16px;
-  padding-bottom: 10px;
-  border-bottom: 1px solid #eee;
+  font-size: 18px;
+  font-weight: 700;
+  color: var(--wood-dark);
+  margin-bottom: 20px;
+  padding-bottom: 12px;
+  border-bottom: 2px solid #e8d9b8;
 }
 
+/* ===== TELEMETRY ===== */
 .telemetry-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 15px;
-  margin-bottom: 20px;
+  gap: 16px;
+  margin-bottom: 24px;
 }
 
 .telemetry-item {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 12px;
+  background: rgba(255, 248, 231, 0.95);
+  border: 2px solid #e8d9b8;
+  border-radius: 12px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.04);
 }
 
 .telemetry-item label {
   display: block;
-  font-size: 11px;
-  color: #666;
+  font-size: 12px;
+  color: var(--text-light);
   text-transform: uppercase;
-  letter-spacing: 0.5px;
-  margin-bottom: 4px;
+  letter-spacing: 1px;
+  margin-bottom: 6px;
+  font-weight: 600;
 }
 
 .telemetry-item .value {
-  font: 600 24px ui-monospace, monospace;
-  color: #333;
+  font: 700 32px ui-monospace, monospace;
+  color: var(--wood-dark);
 }
 
 .telemetry-item .unit {
-  font-size: 12px;
-  color: #999;
+  font-size: 14px;
+  color: var(--text-light);
   margin-left: 4px;
+  font-weight: 500;
 }
 
+/* ===== TABLES ===== */
 table {
   width: 100%;
   border-collapse: collapse;
 }
 
 table th, table td {
-  padding: 8px 12px;
+  padding: 12px 14px;
   text-align: left;
-  border-bottom: 1px solid #eee;
+  border-bottom: 1px solid #e8d9b8;
+  font-size: 15px;
 }
 
 table th {
-  font-size: 12px;
-  font-weight: 600;
-  color: #666;
+  font-size: 13px;
+  font-weight: 700;
+  color: var(--text-light);
   text-transform: uppercase;
-  background: #f9f9f9;
+  background: rgba(244, 167, 66, 0.08);
 }
 
 table input {
-  width: 80px;
-  padding: 4px 8px;
-  border: 1px solid #ccc;
-  border-radius: 3px;
+  width: 100px;
+  padding: 10px 12px;
+  border: 2px solid #d0c4a8;
+  border-radius: 8px;
   font: inherit;
-  font-size: 13px;
+  font-size: 16px;
+  font-weight: 600;
+  background: #fff;
 }
 
 table input:focus {
   outline: none;
-  border-color: #007bff;
+  border-color: var(--honey);
+  box-shadow: 0 0 0 3px rgba(244, 167, 66, 0.2);
 }
 
+/* ===== FORMS ===== */
 .form-row {
   display: flex;
   align-items: center;
-  gap: 12px;
-  margin: 12px 0;
+  gap: 16px;
+  margin: 16px 0;
 }
 
 .form-row label {
-  flex: 0 0 200px;
-  font-size: 13px;
-  color: #666;
+  flex: 0 0 240px;
+  font-size: 15px;
+  color: var(--text);
+  font-weight: 500;
 }
 
 .form-row input, .form-row select {
   flex: 1;
-  max-width: 150px;
+  max-width: 200px;
+  padding: 10px 14px;
+  border: 2px solid #d0c4a8;
+  border-radius: 8px;
+  font: inherit;
+  font-size: 16px;
+  background: #fff;
+}
+
+.form-row input:focus, .form-row select:focus {
+  outline: none;
+  border-color: var(--honey);
+  box-shadow: 0 0 0 3px rgba(244, 167, 66, 0.2);
 }
 
 .form-row .unit {
-  color: #999;
-  font-size: 12px;
+  color: var(--text-light);
+  font-size: 14px;
+  font-weight: 500;
 }
 
+/* ===== FEATURES ===== */
 .features-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
-  gap: 10px;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 12px;
 }
 
 .feature-item {
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 8px 12px;
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 3px;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #fff;
+  border: 2px solid #e8d9b8;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.feature-item:hover {
+  border-color: var(--honey);
+  background: rgba(244, 167, 66, 0.05);
 }
 
 .feature-item input {
-  width: 16px;
-  height: 16px;
-}
-
-.feature-item label {
-  font-size: 13px;
+  width: 20px;
+  height: 20px;
+  accent-color: var(--honey);
   cursor: pointer;
 }
 
-.action-bar {
-  display: flex;
-  gap: 10px;
-  margin-top: 16px;
-  padding-top: 16px;
-  border-top: 1px solid #eee;
+.feature-item label {
+  font-size: 15px;
+  cursor: pointer;
+  font-weight: 500;
 }
 
+/* ===== ACTION BAR ===== */
+.action-bar {
+  display: flex;
+  gap: 12px;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 2px solid #e8d9b8;
+  flex-wrap: wrap;
+}
+
+/* ===== LOG ===== */
 .log {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 3px;
-  padding: 12px;
-  height: 200px;
+  background: #2c3e50;
+  color: #ecf0f1;
+  border-radius: 10px;
+  padding: 16px;
+  height: 220px;
   overflow-y: auto;
-  font: 12px/1.6 ui-monospace, monospace;
+  font: 13px/1.7 ui-monospace, monospace;
+  box-shadow: inset 0 2px 8px rgba(0,0,0,0.2);
 }
 
 .log-entry {
-  padding: 2px 0;
-  border-left: 2px solid #ccc;
-  padding-left: 8px;
+  padding: 3px 0 3px 12px;
+  border-left: 3px solid #7f8c8d;
 }
 
 .log-entry.ok {
-  border-color: #4caf50;
-  color: #2e7d32;
+  border-color: #27ae60;
+  color: #82e0aa;
 }
 
 .log-entry.err {
-  border-color: #f44336;
-  color: #c62828;
+  border-color: #e74c3c;
+  color: #f5b7b1;
 }
 
 .log-entry.warn {
-  border-color: #ff9800;
-  color: #ef6c00;
+  border-color: #f39c12;
+  color: #fad7a0;
 }
 
+/* ===== WARNING ===== */
 .warning {
   background: #fff3cd;
-  border: 1px solid #ffc107;
-  border-radius: 4px;
-  padding: 12px 16px;
-  margin-bottom: 20px;
-  font-size: 13px;
+  border: 2px solid #ffc107;
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  font-size: 15px;
   color: #856404;
+  font-weight: 500;
 }
 
 .warning.critical {
@@ -340,12 +496,14 @@ table input:focus {
   color: #721c24;
 }
 
+/* ===== STATUS ===== */
 .status-pill {
   display: inline-block;
-  padding: 3px 10px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 500;
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 13px;
+  font-weight: 600;
+  margin-left: 8px;
 }
 
 .status-pill.loaded {
@@ -358,80 +516,178 @@ table input:focus {
   color: #856404;
 }
 
+/* ===== PROGRESS ===== */
 .progress-bar {
   width: 100%;
-  height: 24px;
+  height: 32px;
   background: #e0e0e0;
-  border-radius: 4px;
+  border-radius: 8px;
   overflow: hidden;
-  margin: 12px 0;
+  margin: 16px 0;
+  border: 2px solid #d0c4a8;
 }
 
 .progress-fill {
   height: 100%;
-  background: #007bff;
+  background: linear-gradient(90deg, var(--honey), var(--grass));
   transition: width 0.3s;
   display: flex;
   align-items: center;
   justify-content: center;
   color: #fff;
-  font-size: 12px;
-  font-weight: 600;
-}
-
-.file-input {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  margin: 12px 0;
-}
-
-.file-input input[type="file"] {
-  flex: 1;
+  font-size: 14px;
+  font-weight: 700;
+  text-shadow: 0 1px 2px rgba(0,0,0,0.3);
 }
 
 .file-info {
-  background: #f9f9f9;
-  border: 1px solid #e0e0e0;
-  border-radius: 4px;
-  padding: 12px;
-  margin: 12px 0;
-  font-size: 13px;
+  background: #fff;
+  border: 2px solid #e8d9b8;
+  border-radius: 10px;
+  padding: 16px;
+  margin: 16px 0;
+  font-size: 15px;
 }
 
 .file-info div {
-  margin: 4px 0;
+  margin: 6px 0;
 }
 
 .file-info label {
-  color: #666;
+  color: var(--text-light);
   display: inline-block;
-  width: 120px;
+  width: 150px;
+  font-weight: 600;
 }
 
-@media (max-width: 768px) {
+/* ===== RESPONSIVE ===== */
+@media (max-width: 900px) {
   .layout {
     grid-template-columns: 1fr;
   }
   .sidebar {
     border-right: none;
-    border-bottom: 1px solid #ddd;
+    border-bottom: 3px solid var(--honey);
   }
   .nav-item {
     border-left: none;
-    border-bottom: 2px solid transparent;
+    border-bottom: 3px solid transparent;
   }
   .nav-item.active {
     border-left: none;
-    border-bottom-color: #007bff;
+    border-bottom-color: var(--honey);
   }
 }
 </style>
 </head>
 <body>
 
+<!-- ФОН-ПАСЕКА -->
+<div class="bg-scene">
+  <svg viewBox="0 0 1920 1080" preserveAspectRatio="xMidYMid slice">
+    <!-- Солнце -->
+    <circle cx="1700" cy="150" r="80" fill="#ffd966" opacity="0.7"/>
+    <circle cx="1700" cy="150" r="60" fill="#ffeaa7" opacity="0.9"/>
+    
+    <!-- Облака -->
+    <g opacity="0.6" fill="#fff">
+      <ellipse cx="300" cy="120" rx="80" ry="25"/>
+      <ellipse cx="350" cy="110" rx="60" ry="20"/>
+      <ellipse cx="800" cy="180" rx="100" ry="30"/>
+      <ellipse cx="1300" cy="100" rx="70" ry="22"/>
+    </g>
+    
+    <!-- Дальние холмы -->
+    <path d="M0,500 Q400,400 800,480 T1920,500 L1920,1080 L0,1080 Z" fill="#8bc34a" opacity="0.5"/>
+    <path d="M0,580 Q500,500 1000,560 T1920,580 L1920,1080 L0,1080 Z" fill="#7cb342" opacity="0.7"/>
+    
+    <!-- Передний план (луг) -->
+    <path d="M0,680 Q600,620 1200,660 T1920,680 L1920,1080 L0,1080 Z" fill="#689f38"/>
+    
+    <!-- Ульи -->
+    <g transform="translate(200, 700)">
+      <!-- Улей 1 -->
+      <rect x="0" y="20" width="80" height="100" fill="#8b5a2b" stroke="#5c3a1e" stroke-width="2"/>
+      <rect x="-5" y="10" width="90" height="15" fill="#a0703a"/>
+      <polygon points="40,-15 -10,10 90,10" fill="#a0703a" stroke="#5c3a1e" stroke-width="2"/>
+      <circle cx="40" cy="70" r="8" fill="#2c3e50"/>
+      <rect x="35" y="120" width="10" height="20" fill="#5c3a1e"/>
+    </g>
+    
+    <g transform="translate(1600, 720)">
+      <!-- Улей 2 -->
+      <rect x="0" y="20" width="90" height="110" fill="#8b5a2b" stroke="#5c3a1e" stroke-width="2"/>
+      <rect x="-5" y="10" width="100" height="15" fill="#a0703a"/>
+      <polygon points="45,-20 -10,10 100,10" fill="#a0703a" stroke="#5c3a1e" stroke-width="2"/>
+      <circle cx="45" cy="75" r="9" fill="#2c3e50"/>
+      <rect x="40" y="130" width="10" height="22" fill="#5c3a1e"/>
+    </g>
+    
+    <!-- Цветы -->
+    <g fill="#ff6b9d">
+      <circle cx="400" cy="800" r="6"/><circle cx="410" cy="795" r="6"/><circle cx="405" cy="808" r="6"/>
+      <circle cx="600" cy="850" r="5"/><circle cx="610" cy="845" r="5"/>
+      <circle cx="1000" cy="820" r="6"/><circle cx="1010" cy="815" r="6"/>
+      <circle cx="1400" cy="870" r="5"/><circle cx="1410" cy="865" r="5"/>
+    </g>
+    <g fill="#ffd93d">
+      <circle cx="500" cy="830" r="5"/><circle cx="510" cy="825" r="5"/>
+      <circle cx="800" cy="860" r="6"/><circle cx="810" cy="855" r="6"/>
+      <circle cx="1200" cy="840" r="5"/><circle cx="1210" cy="835" r="5"/>
+    </g>
+    
+    <!-- Трава (штрихи) -->
+    <g stroke="#4a7a35" stroke-width="2" opacity="0.6">
+      <line x1="100" y1="900" x2="105" y2="880"/>
+      <line x1="250" y1="920" x2="255" y2="900"/>
+      <line x1="450" y1="910" x2="455" y2="890"/>
+      <line x1="700" y1="930" x2="705" y2="910"/>
+      <line x1="950" y1="905" x2="955" y2="885"/>
+      <line x1="1150" y1="925" x2="1155" y2="905"/>
+      <line x1="1350" y1="915" x2="1355" y2="895"/>
+      <line x1="1550" y1="935" x2="1555" y2="915"/>
+      <line x1="1750" y1="910" x2="1755" y2="890"/>
+    </g>
+    
+    <!-- Пчёлы (анимированные) -->
+    <g class="bee" transform="translate(300, 400)">
+      <ellipse cx="0" cy="0" rx="12" ry="8" fill="#ffd93d" stroke="#2c3e50" stroke-width="1.5"/>
+      <line x1="-6" y1="-4" x2="-6" y2="4" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="0" y1="-6" x2="0" y2="6" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="6" y1="-4" x2="6" y2="4" stroke="#2c3e50" stroke-width="2"/>
+      <ellipse cx="-4" cy="-8" rx="6" ry="3" fill="#fff" opacity="0.7"/>
+      <ellipse cx="4" cy="-8" rx="6" ry="3" fill="#fff" opacity="0.7"/>
+    </g>
+    <g class="bee" transform="translate(700, 350)">
+      <ellipse cx="0" cy="0" rx="10" ry="7" fill="#ffd93d" stroke="#2c3e50" stroke-width="1.5"/>
+      <line x1="-5" y1="-3" x2="-5" y2="3" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="5" y1="-3" x2="5" y2="3" stroke="#2c3e50" stroke-width="2"/>
+      <ellipse cx="-3" cy="-7" rx="5" ry="2.5" fill="#fff" opacity="0.7"/>
+      <ellipse cx="3" cy="-7" rx="5" ry="2.5" fill="#fff" opacity="0.7"/>
+    </g>
+    <g class="bee" transform="translate(1100, 450)">
+      <ellipse cx="0" cy="0" rx="11" ry="7.5" fill="#ffd93d" stroke="#2c3e50" stroke-width="1.5"/>
+      <line x1="-5" y1="-3.5" x2="-5" y2="3.5" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="0" y1="-5.5" x2="0" y2="5.5" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="5" y1="-3.5" x2="5" y2="3.5" stroke="#2c3e50" stroke-width="2"/>
+      <ellipse cx="-3.5" cy="-7.5" rx="5.5" ry="2.8" fill="#fff" opacity="0.7"/>
+      <ellipse cx="3.5" cy="-7.5" rx="5.5" ry="2.8" fill="#fff" opacity="0.7"/>
+    </g>
+    <g class="bee" transform="translate(1500, 380)">
+      <ellipse cx="0" cy="0" rx="10" ry="7" fill="#ffd93d" stroke="#2c3e50" stroke-width="1.5"/>
+      <line x1="-5" y1="-3" x2="-5" y2="3" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="0" y1="-5" x2="0" y2="5" stroke="#2c3e50" stroke-width="2"/>
+      <line x1="5" y1="-3" x2="5" y2="3" stroke="#2c3e50" stroke-width="2"/>
+      <ellipse cx="-3" cy="-7" rx="5" ry="2.5" fill="#fff" opacity="0.7"/>
+      <ellipse cx="3" cy="-7" rx="5" ry="2.5" fill="#fff" opacity="0.7"/>
+    </g>
+  </svg>
+</div>
+
+<!-- HEADER -->
 <header class="header">
-  <h1>iNav Web Configurator</h1>
+  <h1>iNav Configurator</h1>
   <div class="status">
     <span class="led" id="led"></span>
     <span id="linkState">Офлайн</span>
@@ -442,24 +698,25 @@ table input:focus {
       <option value="100" selected>10 Гц</option>
       <option value="50">20 Гц</option>
     </select>
-    <button class="primary" id="connect">Подключить</button>
+    <button class="primary" id="connect">🔌 Подключить</button>
     <button id="disconnect" disabled>Отключить</button>
   </div>
 </header>
 
+<!-- LAYOUT -->
 <div class="layout">
   <nav class="sidebar">
-    <button class="nav-item active" data-panel="panel-overview">Обзор</button>
-    <button class="nav-item" data-panel="panel-telemetry">Телеметрия</button>
-    <button class="nav-item" data-panel="panel-settings">Настройки</button>
-    <button class="nav-item" data-panel="panel-flash">Прошивка</button>
+    <button class="nav-item active" data-panel="panel-overview">📊 Обзор</button>
+    <button class="nav-item" data-panel="panel-telemetry">📡 Телеметрия</button>
+    <button class="nav-item" data-panel="panel-settings">⚙️ Настройки</button>
+    <button class="nav-item" data-panel="panel-flash">💾 Прошивка</button>
   </nav>
 
   <main class="main">
-    <!-- ===== ОБЗОР ===== -->
+    <!-- ОБЗОР -->
     <section class="panel active" id="panel-overview">
       <div class="warning">
-        Снимите пропеллеры перед подключением по USB.
+        🐝 Снимите пропеллеры перед подключением по USB.
       </div>
 
       <div class="telemetry-grid">
@@ -501,7 +758,7 @@ table input:focus {
       </div>
     </section>
 
-    <!-- ===== ТЕЛЕМЕТРИЯ ===== -->
+    <!-- ТЕЛЕМЕТРИЯ -->
     <section class="panel" id="panel-telemetry">
       <div class="card">
         <h2>Питание</h2>
@@ -527,19 +784,19 @@ table input:focus {
 
       <div class="card">
         <h2>Журнал</h2>
-        <button id="clearLog" style="margin-bottom:10px">Очистить</button>
+        <button id="clearLog" style="margin-bottom:12px">🗑️ Очистить</button>
         <div class="log" id="log"></div>
       </div>
     </section>
 
-    <!-- ===== НАСТРОЙКИ ===== -->
+    <!-- НАСТРОЙКИ -->
     <section class="panel" id="panel-settings">
       <div class="warning critical">
-        Изменение настроек влияет на поведение дрона. Сохраняйте изменения только если понимаете, что делаете.
+        ⚠️ Изменение настроек влияет на поведение дрона. Сохраняйте изменения только если понимаете, что делаете.
       </div>
 
       <div id="settingsStatus" style="margin-bottom:20px">
-        <span style="color:#666">Статус:</span>
+        <span style="color:var(--text-light)">Статус:</span>
         <span id="cfgStatus" class="status-pill">не загружено</span>
       </div>
 
@@ -571,8 +828,8 @@ table input:focus {
           </tbody>
         </table>
         <div class="action-bar">
-          <button class="primary" id="loadPid">Загрузить</button>
-          <button id="writePid" disabled>Применить</button>
+          <button class="primary" id="loadPid">📥 Загрузить</button>
+          <button id="writePid" disabled>💾 Применить</button>
         </div>
       </div>
 
@@ -599,8 +856,8 @@ table input:focus {
           <span class="unit">mAh</span>
         </div>
         <div class="action-bar">
-          <button class="primary" id="loadBat">Загрузить</button>
-          <button id="writeBat" disabled>Применить</button>
+          <button class="primary" id="loadBat">📥 Загрузить</button>
+          <button id="writeBat" disabled>💾 Применить</button>
         </div>
       </div>
 
@@ -627,8 +884,8 @@ table input:focus {
           <span class="unit">мс</span>
         </div>
         <div class="action-bar">
-          <button class="primary" id="loadFs">Загрузить</button>
-          <button id="writeFs" disabled>Применить</button>
+          <button class="primary" id="loadFs">📥 Загрузить</button>
+          <button id="writeFs" disabled>💾 Применить</button>
         </div>
       </div>
 
@@ -636,8 +893,8 @@ table input:focus {
         <h2>Активные функции</h2>
         <div class="features-grid" id="featureGrid"></div>
         <div class="action-bar">
-          <button class="primary" id="loadFeat">Загрузить</button>
-          <button id="writeFeat" disabled>Применить</button>
+          <button class="primary" id="loadFeat">📥 Загрузить</button>
+          <button id="writeFeat" disabled>💾 Применить</button>
         </div>
       </div>
 
@@ -645,27 +902,25 @@ table input:focus {
         <h2>Тип дрона</h2>
         <div class="form-row">
           <label>Текущий микшер</label>
-          <b id="mixer-name" style="color:#007bff">—</b>
+          <b id="mixer-name" style="color:var(--honey-dark)">—</b>
         </div>
       </div>
 
       <div class="card">
         <h2>Глобальные действия</h2>
         <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="eepromSave" disabled>Сохранить в EEPROM</button>
-          <button class="danger" id="reboot" disabled>Перезагрузить</button>
+          <button id="eepromSave" disabled>💾 Сохранить в EEPROM</button>
+          <button class="danger" id="reboot" disabled>🔄 Перезагрузить</button>
         </div>
       </div>
     </section>
 
-    <!-- ===== ПРОШИВКА (НОВОЕ!) ===== -->
+    <!-- ПРОШИВКА -->
     <section class="panel" id="panel-flash">
       <div class="warning critical">
         ⚠️ <b>ВНИМАНИЕ:</b> Прошивка полётника — опасная операция. Неправильная прошивка может превратить плату в "кирпич".
-        Убедитесь, что выбрали правильный файл для вашего таргета.
       </div>
 
-      <!-- Шаг 1: Выбор файла -->
       <div class="card">
         <h2>Шаг 1: Выберите файл прошивки</h2>
         <div class="form-row">
@@ -675,8 +930,9 @@ table input:focus {
             <option value="CADDXF405WING">Caddx F405 Wing</option>
           </select>
         </div>
-        <div class="file-input">
-          <input type="file" id="firmwareFile" accept=".bin,.hex">
+        <div class="form-row">
+          <label>Файл прошивки (.bin)</label>
+          <input type="file" id="firmwareFile" accept=".bin" style="flex:1;max-width:300px">
         </div>
         <div class="file-info" id="fileInfo" style="display:none">
           <div><label>Имя файла:</label><span id="fileName">—</span></div>
@@ -685,41 +941,38 @@ table input:focus {
         </div>
       </div>
 
-      <!-- Шаг 2: Вход в DFU -->
       <div class="card">
         <h2>Шаг 2: Переведите полётник в режим DFU</h2>
-        <p style="margin-bottom:12px;color:#666;font-size:13px">
+        <p style="margin-bottom:12px;color:var(--text-light);font-size:14px">
           Полётник должен быть подключён по USB и работать с прошивкой iNav.
         </p>
         <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="enterDfu" disabled>Войти в режим DFU</button>
+          <button id="enterDfu" disabled>🔄 Войти в режим DFU</button>
         </div>
-        <p style="margin-top:12px;color:#666;font-size:12px">
+        <p style="margin-top:12px;color:var(--text-light);font-size:13px">
           После нажатия полётник перезагрузится в DFU-режим. Устройство исчезнет из списка COM-портов
           и появится как DFU-устройство (VID: 0483, PID: DF11).
         </p>
       </div>
 
-      <!-- Шаг 3: Подключение к DFU -->
       <div class="card">
         <h2>Шаг 3: Подключитесь к DFU-устройству</h2>
         <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button id="connectDfu" disabled>Выбрать DFU-устройство</button>
+          <button id="connectDfu" disabled>🔌 Выбрать DFU-устройство</button>
         </div>
-        <p style="margin-top:12px;color:#666;font-size:12px">
-          Браузер покажет диалог выбора USB-устройств. Выберите устройство с именем "STM32 Bootloader" или VID: 0483.
+        <p style="margin-top:12px;color:var(--text-light);font-size:13px">
+          Браузер покажет диалог выбора USB-устройств. Выберите устройство с именем "STM32 Bootloader".
         </p>
       </div>
 
-      <!-- Шаг 4: Прошивка -->
       <div class="card">
         <h2>Шаг 4: Загрузка прошивки</h2>
         <div class="progress-bar">
           <div class="progress-fill" id="progressFill" style="width:0%">0%</div>
         </div>
         <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-          <button class="danger" id="startFlash" disabled>Начать прошивку</button>
-          <button id="cancelFlash" disabled>Отмена</button>
+          <button class="danger" id="startFlash" disabled>⚡ Начать прошивку</button>
+          <button id="cancelFlash" disabled>❌ Отмена</button>
         </div>
         <div class="log" id="flashLog" style="margin-top:16px;height:250px"></div>
       </div>
@@ -1217,30 +1470,16 @@ $('reboot').addEventListener('click', reboot);
 buildFeatureGrid();
 log('Готов к работе');
 
-// ===== FLASHING (НОВОЕ!) =====
+// ===== FLASHING (DFU через WebUSB) =====
 
 let dfuDevice = null;
+let dfuInterface = null;
 let firmwareData = null;
 let flashing = false;
 let cancelFlash = false;
 
-// STM32F405 Flash layout
 const FLASH_BASE = 0x08000000;
-const FLASH_SIZE = 1024 * 1024; // 1 MB
-const SECTORS = [
-  { addr: 0x08000000, size: 16 * 1024 },
-  { addr: 0x08004000, size: 16 * 1024 },
-  { addr: 0x08008000, size: 16 * 1024 },
-  { addr: 0x0800C000, size: 16 * 1024 },
-  { addr: 0x08010000, size: 64 * 1024 },
-  { addr: 0x08020000, size: 128 * 1024 },
-  { addr: 0x08040000, size: 128 * 1024 },
-  { addr: 0x08060000, size: 128 * 1024 },
-  { addr: 0x08080000, size: 128 * 1024 },
-  { addr: 0x080A0000, size: 128 * 1024 },
-  { addr: 0x080C0000, size: 128 * 1024 },
-  { addr: 0x080E0000, size: 128 * 1024 },
-];
+const FLASH_SIZE = 1024 * 1024;
 
 // File selection
 $('firmwareFile').addEventListener('change', async (e) => {
@@ -1254,7 +1493,6 @@ $('firmwareFile').addEventListener('change', async (e) => {
   const buffer = await file.arrayBuffer();
   firmwareData = new Uint8Array(buffer);
 
-  // Calculate checksum (CRC32)
   let crc = 0xFFFFFFFF;
   for (let i = 0; i < firmwareData.length; i++) {
     crc ^= firmwareData[i];
@@ -1269,12 +1507,12 @@ $('firmwareFile').addEventListener('change', async (e) => {
   flashLog(`Размер: ${firmwareData.length} байт, CRC32: 0x${crc}`, 'ok');
 
   if (firmwareData.length > FLASH_SIZE) {
-    flashLog('ОШИБКА: Файл слишком большой для flash!', 'err');
+    flashLog('ОШИБКА: Файл слишком большой!', 'err');
     firmwareData = null;
     return;
   }
 
-  $('connectDfu').disabled = false;
+  $('startFlash').disabled = !(dfuDevice && firmwareData);
 });
 
 // Enter DFU mode
@@ -1283,7 +1521,6 @@ $('enterDfu').addEventListener('click', async () => {
 
   try {
     flashLog('Отправка команды перехода в DFU...');
-    // MSP_SET_REBOOT with magic number 0xDF20 for DFU mode
     await msp.request(68, new Uint8Array([0x20, 0xDF]));
     flashLog('Команда отправлена. Ожидание перезагрузки...', 'warn');
     stopPoll = true;
@@ -1299,21 +1536,180 @@ $('enterDfu').addEventListener('click', async () => {
   }
 });
 
-// Connect to DFU device via WebUSB
+// Connect to DFU device
 $('connectDfu').addEventListener('click', async () => {
   if (!('usb' in navigator)) {
-    flashLog('WebUSB API не поддерживается в этом браузере', 'err');
+    flashLog('WebUSB API не поддерживается', 'err');
     return;
   }
 
   try {
     flashLog('Выберите DFU-устройство...');
     dfuDevice = await navigator.usb.requestDevice({
-      filters: [{ vendorId: 0x0483, productId: 0xDF11 }] // STM32 DFU
+      filters: [{ vendorId: 0x0483, productId: 0xDF11 }]
     });
 
     await dfuDevice.open();
     flashLog('Устройство открыто', 'ok');
 
     await dfuDevice.selectConfiguration(1);
-    await
+    await dfuDevice.claimInterface(0);
+    dfuInterface = 0;
+
+    flashLog('DFU-устройство подключено', 'ok');
+    $('startFlash').disabled = !(dfuDevice && firmwareData);
+  } catch (e) {
+    flashLog('Ошибка подключения: ' + e.message, 'err');
+  }
+});
+
+// DFU commands
+async function dfuGetStatus(){
+  const result = await dfuDevice.controlTransfer({
+    requestType: 'class',
+    recipient: 'interface',
+    request: 0x03, // GETSTATUS
+    value: 0,
+    index: dfuInterface
+  }, 6);
+  return new Uint8Array(result.data.buffer);
+}
+
+async function dfuClrStatus(){
+  await dfuDevice.controlTransfer({
+    requestType: 'class',
+    recipient: 'interface',
+    request: 0x04, // CLRSTATUS
+    value: 0,
+    index: dfuInterface
+  }, 0);
+}
+
+async function dfuDownload(blockNum, data){
+  await dfuDevice.controlTransfer({
+    requestType: 'class',
+    recipient: 'interface',
+    request: 0x01, // DNLOAD
+    value: blockNum,
+    index: dfuInterface
+  }, data);
+}
+
+async function dfuAbort(){
+  await dfuDevice.controlTransfer({
+    requestType: 'class',
+    recipient: 'interface',
+    request: 0x06, // ABORT
+    value: 0,
+    index: dfuInterface
+  }, 0);
+}
+
+// Flash firmware
+$('startFlash').addEventListener('click', async () => {
+  if (!firmwareData || !dfuDevice) return;
+  if (!confirm('Начать прошивку? Это займёт 1-2 минуты.')) return;
+
+  flashing = true;
+  cancelFlash = false;
+  $('startFlash').disabled = true;
+  $('cancelFlash').disabled = false;
+
+  try {
+    flashLog('Начало прошивки...');
+
+    // Set address pointer to flash base
+    flashLog('Установка адреса flash...');
+    const addrCmd = new Uint8Array([0x21, 
+      FLASH_BASE & 0xFF,
+      (FLASH_BASE >> 8) & 0xFF,
+      (FLASH_BASE >> 16) & 0xFF,
+      (FLASH_BASE >> 24) & 0xFF
+    ]);
+    await dfuDownload(0, addrCmd);
+    await sleep(100);
+    let status = await dfuGetStatus();
+    if (status[4] !== 2) { // dfuDNLOAD-SYNC
+      throw new Error('Не удалось установить адрес');
+    }
+    await dfuDownload(0, new Uint8Array(0)); // Zero-length to complete
+    await sleep(100);
+
+    // Erase sectors
+    flashLog('Стирание секторов flash...');
+    const sectors = [0x08000000, 0x08004000, 0x08008000, 0x0800C000, 0x08010000,
+                     0x08020000, 0x08040000, 0x08060000, 0x08080000, 0x080A0000,
+                     0x080C0000, 0x080E0000];
+    
+    for (let i = 0; i < sectors.length; i++) {
+      if (cancelFlash) throw new Error('Отменено пользователем');
+      const addr = sectors[i];
+      const eraseCmd = new Uint8Array([0x41,
+        addr & 0xFF,
+        (addr >> 8) & 0xFF,
+        (addr >> 16) & 0xFF,
+        (addr >> 24) & 0xFF
+      ]);
+      await dfuDownload(0, eraseCmd);
+      await sleep(100);
+      status = await dfuGetStatus();
+      await dfuDownload(0, new Uint8Array(0));
+      await sleep(500);
+      
+      const progress = ((i + 1) / sectors.length * 20).toFixed(0);
+      $('progressFill').style.width = progress + '%';
+      $('progressFill').textContent = progress + '%';
+    }
+
+    // Write firmware
+    flashLog('Запись прошивки...');
+    const blockSize = 2048;
+    const totalBlocks = Math.ceil(firmwareData.length / blockSize);
+    
+    for (let i = 0; i < totalBlocks; i++) {
+      if (cancelFlash) throw new Error('Отменено пользователем');
+      
+      const start = i * blockSize;
+      const end = Math.min(start + blockSize, firmwareData.length);
+      const block = firmwareData.slice(start, end);
+      
+      await dfuDownload(i + 2, block); // blockNum starts at 2 (0,1 used for commands)
+      await sleep(50);
+      
+      const progress = (20 + (i + 1) / totalBlocks * 80).toFixed(0);
+      $('progressFill').style.width = progress + '%';
+      $('progressFill').textContent = progress + '%';
+    }
+
+    // Finalize
+    flashLog('Завершение...');
+    await dfuDownload(0, new Uint8Array(0));
+    await sleep(500);
+
+    // Leave DFU mode
+    flashLog('Перезагрузка полётника...');
+    await dfuAbort();
+    await sleep(1000);
+
+    $('progressFill').style.width = '100%';
+    $('progressFill').textContent = '100%';
+    flashLog('✅ Прошивка завершена успешно!', 'ok');
+    flashLog('Полётник перезагрузится автоматически.', 'ok');
+
+  } catch (e) {
+    flashLog('❌ Ошибка: ' + e.message, 'err');
+  } finally {
+    flashing = false;
+    $('startFlash').disabled = false;
+    $('cancelFlash').disabled = true;
+  }
+});
+
+$('cancelFlash').addEventListener('click', () => {
+  cancelFlash = true;
+  flashLog('Отмена...', 'warn');
+});
+
+</script>
+</body>
+</html>
