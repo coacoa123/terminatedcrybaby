@@ -33,7 +33,6 @@ body {
 
 #cosmos { position: fixed; inset: 0; z-index: 0; pointer-events: none; }
 
-/* ===== АВТОРИЗАЦИЯ ===== */
 .auth-overlay {
   position: fixed; inset: 0; z-index: 1000;
   background: rgba(4, 6, 14, 0.95);
@@ -54,66 +53,33 @@ body {
   text-align: center;
   box-shadow: 0 20px 60px rgba(0,0,0,0.5), 0 0 40px rgba(103,232,249,0.1);
 }
-
-.auth-logo {
-  font-size: 56px; margin-bottom: 20px;
-  filter: drop-shadow(0 0 25px rgba(251,191,36,0.8));
-  animation: pulse 2s infinite ease-in-out;
-}
+.auth-logo { font-size: 56px; margin-bottom: 20px; filter: drop-shadow(0 0 25px rgba(251,191,36,0.8)); animation: pulse 2s infinite ease-in-out; }
 @keyframes pulse { 0%,100% { transform: scale(1); } 50% { transform: scale(1.1); } }
-
-.auth-title {
-  font-size: 24px; font-weight: 700; color: var(--am);
-  margin-bottom: 8px;
-  text-shadow: 0 0 20px rgba(251,191,36,0.6);
-  letter-spacing: 1px;
-}
+.auth-title { font-size: 24px; font-weight: 700; color: var(--am); margin-bottom: 8px; text-shadow: 0 0 20px rgba(251,191,36,0.6); letter-spacing: 1px; }
 .auth-subtitle { font-size: 13px; color: var(--dim); margin-bottom: 28px; letter-spacing: 1px; }
-
 .auth-field { position: relative; margin-bottom: 16px; }
 .auth-field input {
   width: 100%; padding: 14px 18px;
   background: rgba(0,0,0,0.4);
   border: 1px solid var(--glass-border);
   border-radius: 10px;
-  color: var(--text);
-  font: inherit; font-size: 16px;
-  text-align: center; letter-spacing: 2px;
-  transition: all 0.2s;
+  color: var(--text); font: inherit; font-size: 16px;
+  text-align: center; letter-spacing: 2px; transition: all 0.2s;
 }
-.auth-field input:focus {
-  outline: none; border-color: var(--cyan);
-  box-shadow: 0 0 0 3px rgba(103,232,249,0.2);
-}
-.auth-field label {
-  display: block; text-align: left; font-size: 13px;
-  color: var(--dim); margin-bottom: 6px; font-weight: 500;
-}
-
+.auth-field input:focus { outline: none; border-color: var(--cyan); box-shadow: 0 0 0 3px rgba(103,232,249,0.2); }
+.auth-field label { display: block; text-align: left; font-size: 13px; color: var(--dim); margin-bottom: 6px; font-weight: 500; }
 .auth-btn {
   width: 100%; padding: 14px;
   background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(167,139,250,0.2));
-  border: 1px solid var(--cyan);
-  border-radius: 10px;
-  color: var(--cyan);
-  font: inherit; font-size: 16px; font-weight: 700;
-  cursor: pointer; transition: all 0.2s;
-  letter-spacing: 1px; margin-top: 8px;
+  border: 1px solid var(--cyan); border-radius: 10px;
+  color: var(--cyan); font: inherit; font-size: 16px; font-weight: 700;
+  cursor: pointer; transition: all 0.2s; letter-spacing: 1px; margin-top: 8px;
 }
-.auth-btn:hover:not(:disabled) {
-  background: linear-gradient(135deg, rgba(103,232,249,0.3), rgba(167,139,250,0.3));
-  box-shadow: 0 0 20px rgba(103,232,249,0.4);
-}
+.auth-btn:hover:not(:disabled) { background: linear-gradient(135deg, rgba(103,232,249,0.3), rgba(167,139,250,0.3)); box-shadow: 0 0 20px rgba(103,232,249,0.4); }
 .auth-btn:disabled { opacity: 0.5; cursor: not-allowed; }
-
-.auth-error {
-  color: var(--red); font-size: 14px; margin-top: 16px;
-  min-height: 20px;
-  text-shadow: 0 0 10px rgba(251,113,133,0.4);
-}
+.auth-error { color: var(--red); font-size: 14px; margin-top: 16px; min-height: 20px; }
 .auth-hint { margin-top: 20px; font-size: 12px; color: var(--dim); font-style: italic; line-height: 1.5; }
 
-/* ===== APP ===== */
 .app { position: relative; z-index: 1; min-height: 100vh; display: flex; flex-direction: column; }
 .app.locked { display: none; }
 
@@ -125,23 +91,10 @@ body {
   padding: 16px 20px;
   display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
 }
-.header h1 {
-  font-size: 20px; font-weight: 700; color: var(--am);
-  text-shadow: 0 0 15px rgba(251,191,36,0.6);
-  letter-spacing: 0.5px;
-}
-.header .user-info {
-  display: flex; align-items: center; gap: 8px;
-  font-size: 14px; color: var(--cyan); font-weight: 600;
-}
-.header .status {
-  display: flex; align-items: center; gap: 10px;
-  font-size: 15px; color: var(--dim); font-weight: 500;
-}
-.header .led {
-  width: 12px; height: 12px; border-radius: 50%;
-  background: var(--red); box-shadow: 0 0 10px var(--red);
-}
+.header h1 { font-size: 20px; font-weight: 700; color: var(--am); text-shadow: 0 0 15px rgba(251,191,36,0.6); letter-spacing: 0.5px; }
+.header .user-info { display: flex; align-items: center; gap: 8px; font-size: 14px; color: var(--cyan); font-weight: 600; }
+.header .status { display: flex; align-items: center; gap: 10px; font-size: 15px; color: var(--dim); font-weight: 500; }
+.header .led { width: 12px; height: 12px; border-radius: 50%; background: var(--red); box-shadow: 0 0 10px var(--red); }
 .header .led.on { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
 .header .controls { margin-left: auto; display: flex; gap: 12px; align-items: center; }
 
@@ -155,80 +108,29 @@ button, select, input[type="file"]::file-selector-button {
   backdrop-filter: blur(8px);
   min-height: 48px; touch-action: manipulation;
 }
-button:hover:not(:disabled) {
-  border-color: var(--cyan);
-  box-shadow: 0 0 15px rgba(103,232,249,0.3);
-}
+button:hover:not(:disabled) { border-color: var(--cyan); box-shadow: 0 0 15px rgba(103,232,249,0.3); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
-button.primary {
-  background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(167,139,250,0.2));
-  border-color: var(--cyan); color: var(--cyan);
-}
-button.danger {
-  background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.3));
-  border-color: var(--red); color: var(--red);
-}
-button.ghost {
-  background: transparent; border-color: var(--glass-border);
-  color: var(--dim); padding: 10px 16px; font-size: 13px;
-}
+button.primary { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(167,139,250,0.2)); border-color: var(--cyan); color: var(--cyan); }
+button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.3)); border-color: var(--red); color: var(--red); }
+button.ghost { background: transparent; border-color: var(--glass-border); color: var(--dim); padding: 10px 16px; font-size: 13px; }
 
 .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
-
-.sidebar {
-  background: var(--glass);
-  backdrop-filter: blur(16px);
-  border-right: 1px solid var(--glass-border);
-  padding: 20px 0;
-}
-.nav-item {
-  display: block; width: 100%; text-align: left;
-  padding: 14px 24px;
-  background: none; border: none;
-  border-left: 4px solid transparent;
-  color: var(--dim); font-size: 16px; font-weight: 500;
-  cursor: pointer; backdrop-filter: none; min-height: auto;
-}
+.sidebar { background: var(--glass); backdrop-filter: blur(16px); border-right: 1px solid var(--glass-border); padding: 20px 0; }
+.nav-item { display: block; width: 100%; text-align: left; padding: 14px 24px; background: none; border: none; border-left: 4px solid transparent; color: var(--dim); font-size: 16px; font-weight: 500; cursor: pointer; backdrop-filter: none; min-height: auto; }
 .nav-item:hover { background: rgba(103,232,249,0.08); color: var(--text); }
-.nav-item.active {
-  background: rgba(103,232,249,0.12);
-  color: var(--cyan); border-left-color: var(--cyan); font-weight: 700;
-}
+.nav-item.active { background: rgba(103,232,249,0.12); color: var(--cyan); border-left-color: var(--cyan); font-weight: 700; }
 
 .main { padding: 24px; }
 .panel { display: none; }
 .panel.active { display: block; }
 
-.card {
-  background: var(--glass);
-  backdrop-filter: blur(16px);
-  border: 1px solid var(--glass-border);
-  border-radius: 16px;
-  padding: 24px; margin-bottom: 24px;
-}
-.card h2 {
-  font-size: 16px; font-weight: 700; color: var(--cyan);
-  margin-bottom: 20px; padding-bottom: 12px;
-  border-bottom: 1px solid var(--glass-border);
-  text-transform: uppercase; letter-spacing: 1px;
-  text-shadow: 0 0 10px rgba(103,232,249,0.3);
-}
+.card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.card h2 { font-size: 16px; font-weight: 700; color: var(--cyan); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(103,232,249,0.3); }
 
-/* ===== БЛОК ПЛАТЫ ===== */
-.board-detected {
-  background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(103,232,249,0.15));
-  border: 2px solid var(--ok);
-  border-radius: 16px;
-  padding: 24px; margin-bottom: 24px; text-align: center;
-  box-shadow: 0 0 30px rgba(74,222,128,0.2);
-  animation: boardAppear 0.5s ease;
-}
-@keyframes boardAppear {
-  from { opacity: 0; transform: translateY(-10px); }
-  to { opacity: 1; transform: translateY(0); }
-}
+.board-detected { background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(103,232,249,0.15)); border: 2px solid var(--ok); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 0 30px rgba(74,222,128,0.2); animation: boardAppear 0.5s ease; }
+@keyframes boardAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
 .board-detected-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
-.board-detected-icon { font-size: 32px; filter: drop-shadow(0 0 10px rgba(74,222,128,0.6)); }
+.board-detected-icon { font-size: 32px; }
 .board-detected-label { font-size: 14px; color: var(--ok); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
 .board-detected-name { font-size: 28px; font-weight: 700; color: var(--cyan); margin-bottom: 8px; text-shadow: 0 0 15px rgba(103,232,249,0.5); }
 .board-detected-details { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(74,222,128,0.3); }
@@ -238,27 +140,14 @@ button.ghost {
 .board-override { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(74,222,128,0.3); }
 .board-override-label { font-size: 12px; color: var(--dim); margin-bottom: 8px; }
 
-.board-unknown {
-  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,113,133,0.15));
-  border: 2px solid var(--am);
-  border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center;
-  box-shadow: 0 0 30px rgba(251,191,36,0.2);
-}
+.board-unknown { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,113,133,0.15)); border: 2px solid var(--am); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 0 30px rgba(251,191,36,0.2); }
 .board-unknown-icon { font-size: 32px; margin-bottom: 12px; }
 .board-unknown-label { font-size: 14px; color: var(--am); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
 .board-unknown-id { font-size: 24px; font-weight: 700; color: var(--text); font-family: ui-monospace, monospace; margin-bottom: 12px; }
 .board-unknown-hint { font-size: 13px; color: var(--dim); line-height: 1.5; }
 
-.aircraft-container {
-  display: flex; justify-content: center; align-items: center;
-  height: 350px; perspective: 1000px; margin-bottom: 20px;
-}
-.aircraft {
-  width: 180px; height: 180px;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform 0.1s ease-out;
-}
+.aircraft-container { display: flex; justify-content: center; align-items: center; height: 350px; perspective: 1000px; margin-bottom: 20px; }
+.aircraft { width: 180px; height: 180px; position: relative; transform-style: preserve-3d; transition: transform 0.1s ease-out; }
 .aircraft svg { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(103,232,249,0.5)); }
 
 .table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
@@ -268,101 +157,37 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
 .form-row { display: flex; align-items: center; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
 .form-row label { flex: 0 0 220px; font-size: 15px; color: var(--dim); font-weight: 500; }
-.form-row select, .form-row input[type="file"] {
-  flex: 1; min-width: 200px;
-  padding: 12px 16px;
-  border: 1px solid var(--glass-border);
-  background: rgba(0,0,0,0.4); color: var(--text);
-  border-radius: 8px; font: inherit; font-size: 16px;
-}
+.form-row select, .form-row input[type="file"] { flex: 1; min-width: 200px; padding: 12px 16px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text); border-radius: 8px; font: inherit; font-size: 16px; }
 
 .action-bar { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
 
-.log {
-  background: rgba(0,0,0,0.5);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px;
-  padding: 16px; height: 260px;
-  overflow-y: auto;
-  font: 14px/1.7 ui-monospace, monospace;
-}
+.log { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 8px; padding: 16px; height: 260px; overflow-y: auto; font: 14px/1.7 ui-monospace, monospace; }
 .log-entry { padding: 4px 0 4px 12px; border-left: 3px solid var(--vi); margin-bottom: 4px; }
 .log-entry.ok { border-color: var(--ok); color: var(--ok); }
 .log-entry.err { border-color: var(--red); color: var(--red); }
 .log-entry.warn { border-color: var(--am); color: var(--am); }
 
-.warning {
-  background: rgba(251,191,36,0.1);
-  border: 1px solid rgba(251,191,36,0.4);
-  border-radius: 10px;
-  padding: 16px 20px; margin-bottom: 24px;
-  font-size: 15px; color: var(--am);
-  font-weight: 500; line-height: 1.5;
-}
+.warning { background: rgba(251,191,36,0.1); border: 1px solid rgba(251,191,36,0.4); border-radius: 10px; padding: 16px 20px; margin-bottom: 24px; font-size: 15px; color: var(--am); font-weight: 500; line-height: 1.5; }
 .warning.critical { background: rgba(251,113,133,0.1); border-color: rgba(251,113,133,0.4); color: var(--red); }
 .wisdom { font-size: 14px; color: var(--dim); font-style: italic; margin-top: 10px; padding-left: 16px; border-left: 3px solid var(--vi); line-height: 1.4; }
 
-/* ===== БЕЙДЖИ ГОТОВНОСТИ ===== */
-.ready-badges {
-  display: flex; gap: 12px; flex-wrap: wrap;
-  margin: 16px 0;
-}
-.badge {
-  padding: 10px 18px;
-  border-radius: 10px;
-  font-size: 14px;
-  font-weight: 700;
-  border: 2px solid;
-  letter-spacing: 0.5px;
-}
-.badge.off {
-  background: rgba(139,163,199,0.1);
-  border-color: rgba(139,163,199,0.4);
-  color: var(--dim);
-}
-.badge.on {
-  background: rgba(74,222,128,0.15);
-  border-color: var(--ok);
-  color: var(--ok);
-  box-shadow: 0 0 15px rgba(74,222,128,0.3);
-}
+.ready-badges { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
+.badge { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid; letter-spacing: 0.5px; }
+.badge.off { background: rgba(139,163,199,0.1); border-color: rgba(139,163,199,0.4); color: var(--dim); }
+.badge.on { background: rgba(74,222,128,0.15); border-color: var(--ok); color: var(--ok); box-shadow: 0 0 15px rgba(74,222,128,0.3); }
 
-.progress-bar {
-  width: 100%; height: 32px;
-  background: rgba(0,0,0,0.4);
-  border: 1px solid var(--glass-border);
-  border-radius: 8px; overflow: hidden; margin: 16px 0;
-}
-.progress-fill {
-  height: 100%;
-  background: linear-gradient(90deg, var(--cyan), var(--vi));
-  transition: width 0.3s;
-  display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 14px; font-weight: 700;
-  text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-}
+.progress-bar { width: 100%; height: 32px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--vi)); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
-/* ===== ИНФО О ФАЙЛЕ ===== */
-.file-info-card {
-  margin: 16px 0; padding: 16px;
-  background: rgba(74,222,128,0.08);
-  border: 1px solid var(--ok);
-  border-radius: 10px;
-  font-size: 14px; line-height: 1.6;
-}
+.file-info-card { margin: 16px 0; padding: 16px; background: rgba(74,222,128,0.08); border: 1px solid var(--ok); border-radius: 10px; font-size: 14px; line-height: 1.6; }
 .file-info-card .file-title { color: var(--ok); font-weight: 700; font-size: 15px; margin-bottom: 10px; }
 .file-info-card .file-row { display: flex; justify-content: space-between; padding: 4px 0; border-bottom: 1px solid rgba(74,222,128,0.15); }
 .file-info-card .file-row:last-child { border-bottom: none; }
 .file-info-card .file-label { color: var(--dim); }
 .file-info-card .file-value { color: var(--text); font-family: ui-monospace, monospace; font-weight: 600; }
 
-/* ===== ПРОШИВКИ ===== */
 .firmware-list { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; padding: 16px; max-height: 500px; overflow-y: auto; }
-.firmware-item {
-  display: grid; grid-template-columns: 120px 1fr auto; gap: 16px;
-  padding: 16px; border: 1px solid transparent; border-radius: 8px;
-  cursor: pointer; margin-bottom: 12px; transition: all 0.2s; align-items: center;
-}
+.firmware-item { display: grid; grid-template-columns: 120px 1fr auto; gap: 16px; padding: 16px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; align-items: center; }
 .firmware-item:hover { background: rgba(103,232,249,0.08); border-color: var(--glass-border); }
 .firmware-item.selected { background: rgba(103,232,249,0.15); border-color: var(--cyan); box-shadow: 0 0 20px rgba(103,232,249,0.2); }
 .firmware-preview { width: 120px; height: 90px; border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
@@ -381,78 +206,29 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .target-name { font-size: 20px; font-weight: 700; color: var(--cyan); margin-bottom: 8px; }
 .target-desc { font-size: 13px; color: var(--dim); line-height: 1.5; }
 
-.dfu-instruction {
-  background: rgba(103,232,249,0.08);
-  border: 1px solid var(--cyan);
-  border-radius: 10px;
-  padding: 16px 20px; margin: 16px 0;
-  font-size: 14px; color: var(--text); line-height: 1.6;
-}
+.dfu-instruction { background: rgba(103,232,249,0.08); border: 1px solid var(--cyan); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 14px; color: var(--text); line-height: 1.6; }
 .dfu-instruction strong { color: var(--cyan); font-weight: 700; }
 .dfu-instruction ol { margin: 12px 0; padding-left: 24px; }
 .dfu-instruction li { margin: 8px 0; }
 .dfu-instruction code { background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 4px; font-family: ui-monospace, monospace; font-size: 13px; color: var(--am); }
 
-.footer {
-  position: relative; z-index: 1;
-  background: var(--glass);
-  backdrop-filter: blur(16px);
-  border-top: 1px solid var(--glass-border);
-  padding: 16px 24px; text-align: center;
-  font-size: 12px; color: var(--dim); letter-spacing: 1px;
-}
+.footer { position: relative; z-index: 1; background: var(--glass); backdrop-filter: blur(16px); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
 
-/* ===== ПЧЁЛЫ ===== */
 .cosmic-bee { position: fixed; z-index: 2; pointer-events: none; filter: drop-shadow(0 0 15px currentColor) drop-shadow(0 0 30px currentColor); }
 .bee-1 { color: #ffd700; top: 10%; left: 10%; animation: spiralIn1 14s infinite ease-in-out; }
 .bee-2 { color: #a78bfa; top: 10%; right: 10%; animation: spiralIn2 16s infinite ease-in-out 2s; }
 .bee-3 { color: #fbbf24; bottom: 10%; left: 10%; animation: spiralIn3 15s infinite ease-in-out 4s; }
 .bee-4 { color: #fb7185; bottom: 10%; right: 10%; animation: spiralIn4 17s infinite ease-in-out 6s; }
-
-@keyframes spiralIn1 {
-  0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; }
-  10% { opacity: 1; }
-  50% { transform: translate(35vw,10vh) rotate(360deg) scale(1); }
-  90% { opacity: 1; }
-  100% { transform: translate(75vw,15vh) rotate(720deg) scale(0.1); opacity: 0; }
-}
-@keyframes spiralIn2 {
-  0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; }
-  10% { opacity: 1; }
-  50% { transform: translate(-25vw,10vh) rotate(-360deg) scale(1); }
-  90% { opacity: 1; }
-  100% { transform: translate(-15vw,15vh) rotate(-720deg) scale(0.1); opacity: 0; }
-}
-@keyframes spiralIn3 {
-  0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; }
-  10% { opacity: 1; }
-  50% { transform: translate(35vw,-40vh) rotate(360deg) scale(1); }
-  90% { opacity: 1; }
-  100% { transform: translate(75vw,-65vh) rotate(720deg) scale(0.1); opacity: 0; }
-}
-@keyframes spiralIn4 {
-  0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; }
-  10% { opacity: 1; }
-  50% { transform: translate(-25vw,-40vh) rotate(-360deg) scale(1); }
-  90% { opacity: 1; }
-  100% { transform: translate(-15vw,-65vh) rotate(-720deg) scale(0.1); opacity: 0; }
-}
-@keyframes wingFlap {
-  0%, 100% { transform: scaleY(1) rotate(var(--wing-angle, 0deg)); }
-  50% { transform: scaleY(0.3) rotate(var(--wing-angle, 0deg)); }
-}
+@keyframes spiralIn1 { 0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(35vw,10vh) rotate(360deg) scale(1); } 90% { opacity: 1; } 100% { transform: translate(75vw,15vh) rotate(720deg) scale(0.1); opacity: 0; } }
+@keyframes spiralIn2 { 0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(-25vw,10vh) rotate(-360deg) scale(1); } 90% { opacity: 1; } 100% { transform: translate(-15vw,15vh) rotate(-720deg) scale(0.1); opacity: 0; } }
+@keyframes spiralIn3 { 0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(35vw,-40vh) rotate(360deg) scale(1); } 90% { opacity: 1; } 100% { transform: translate(75vw,-65vh) rotate(720deg) scale(0.1); opacity: 0; } }
+@keyframes spiralIn4 { 0% { transform: translate(0,0) rotate(0deg) scale(1.5); opacity: 0; } 10% { opacity: 1; } 50% { transform: translate(-25vw,-40vh) rotate(-360deg) scale(1); } 90% { opacity: 1; } 100% { transform: translate(-15vw,-65vh) rotate(-720deg) scale(0.1); opacity: 0; } }
+@keyframes wingFlap { 0%, 100% { transform: scaleY(1) rotate(var(--wing-angle, 0deg)); } 50% { transform: scaleY(0.3) rotate(var(--wing-angle, 0deg)); } }
 .bee-wing { animation: wingFlap 0.08s infinite ease-in-out; transform-origin: center bottom; }
 
-/* ===== МОБИЛЬНАЯ ===== */
 @media (max-width: 768px) {
   .layout { grid-template-columns: 1fr; }
-  .sidebar {
-    position: sticky; top: 0; z-index: 50;
-    border-right: none; border-bottom: 1px solid var(--glass-border);
-    display: flex; overflow-x: auto;
-    padding: 12px 16px; gap: 12px;
-    -webkit-overflow-scrolling: touch; scrollbar-width: none;
-  }
+  .sidebar { position: sticky; top: 0; z-index: 50; border-right: none; border-bottom: 1px solid var(--glass-border); display: flex; overflow-x: auto; padding: 12px 16px; gap: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .sidebar::-webkit-scrollbar { display: none; }
   .nav-item { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; padding: 12px 20px; border-radius: 10px; font-size: 15px; min-height: 48px; display: flex; align-items: center; }
   .nav-item.active { border-left: none; border-bottom-color: var(--cyan); background: rgba(103,232,249,0.15); }
@@ -588,6 +364,12 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
       <section class="panel" id="panel-flash">
         <div class="warning critical">⚠️ Прошивка полётника — опасная операция.<div class="wisdom">«Семь раз отмерь, один раз отрежь»</div></div>
 
+        <div id="browserWarn" class="warning critical" style="display:none">
+          ⚠️ <strong>Яндекс Браузер не поддерживает DFU-прошивку</strong> (нет команды controlTransfer).<br>
+          Телеметрия и настройки здесь работают, но для прошивки откройте эту страницу в <strong>Edge</strong> — он уже установлен в Windows, ничего ставить не нужно.<br>
+          <button id="copyUrl" class="ghost" style="margin-top:10px">📋 Скопировать адрес сайта</button>
+        </div>
+
         <div class="card">
           <h2>Шаг 1: Выберите прошивку</h2>
           <div class="form-row">
@@ -613,22 +395,21 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
         </div>
 
         <div class="card">
-          <h2>Шаг 2: Режим DFU</h2>
+          <h2>Шаг 2: Переход в DFU (одна кнопка)</h2>
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-            <button id="enterDfu" disabled>Войти в DFU</button>
+            <button id="enterDfu" disabled>⚡ Войти в DFU и подключиться</button>
           </div>
-          <div class="wisdom">«Не спеши, а то споткнёшься» — если автоматика не сработает, зажми BOOT и воткни USB.</div>
+          <div class="wisdom">«Не спеши, а то споткнёшься» — сайт сам отправит команду и сам подключится. Первый раз может попросить выбрать устройство — это политика браузера, дальше будет автоматически.</div>
         </div>
 
         <div class="card">
-          <h2>Шаг 3: Подключение к DFU</h2>
+          <h2>Шаг 3: Подключение к DFU (если авто не сработало)</h2>
           <div class="dfu-instruction">
-            <strong>📋 Инструкция:</strong>
+            <strong>📋 Если автоподключение не удалось:</strong>
             <ol>
-              <li>Драйвер WinUSB для <code>STM32 BOOTLOADER</code> (VID: 0483, PID: DF11) должен быть установлен через Zadig</li>
               <li>Нажмите "Выбрать DFU-устройство"</li>
               <li>Выберите <strong>STM32 BOOTLOADER</strong></li>
-              <li>Если не появляется — "Повторить поиск" или проверьте Zadig</li>
+              <li>Если устройства нет в списке — плата не в DFU: отключите USB, зажмите BOOT, подключите USB</li>
             </ol>
           </div>
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
@@ -754,8 +535,7 @@ async function sendTelegramNotification(session) {
       body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
     });
     if (response.ok) console.log('✅ Telegram уведомление отправлено');
-    else console.error('❌ Telegram ошибка:', await response.text());
-  } catch (e) { console.error('❌ Telegram сеть:', e); }
+  } catch (e) { console.error('❌ Telegram:', e); }
 }
 
 function checkAuth() {
@@ -851,6 +631,23 @@ $('exportSessions').addEventListener('click', () => {
   URL.revokeObjectURL(url);
 });
 if (sessionStorage.getItem('auth') === 'ok') loadSessions();
+
+/* ============ ПРЕДУПРЕЖДЕНИЕ О БРАУЗЕРЕ ============ */
+function isYandexBrowser() {
+  return /YaBrowser|Yowser/i.test(navigator.userAgent);
+}
+function updateBrowserWarning() {
+  const warn = $('browserWarn');
+  if (warn) warn.style.display = isYandexBrowser() ? 'block' : 'none';
+}
+$('copyUrl').addEventListener('click', async () => {
+  try {
+    await navigator.clipboard.writeText(location.href);
+    flashLog('📋 Адрес скопирован — вставьте его в Edge', 'ok');
+  } catch (e) {
+    prompt('Скопируйте адрес вручную:', location.href);
+  }
+});
 
 /* ============ КОСМОС ============ */
 const cosmos = $('cosmos'), cg = cosmos.getContext('2d');
@@ -1046,6 +843,7 @@ function manualBoardOverride() {
   document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
   document.querySelector('[data-panel="panel-flash"]').classList.add('active');
   $('panel-flash').classList.add('active');
+  updateBrowserWarning();
   setTimeout(() => $('target').focus(), 300);
 }
 
@@ -1112,6 +910,7 @@ document.querySelectorAll('.nav-item').forEach(btn => {
     btn.classList.add('active');
     $(btn.dataset.panel).classList.add('active');
     if (btn.dataset.panel === 'panel-sessions') loadSessions();
+    if (btn.dataset.panel === 'panel-flash') updateBrowserWarning();
   });
 });
 
@@ -1122,10 +921,11 @@ function updateReadouts(){
   txt('o-yaw', S.hasAtt ? String(Math.round(S.yaw)).padStart(3,'0')+'°' : '—');
 }
 
-/* ============ ПРОШИВКИ: ФАЙЛЫ ============ */
+/* ============ ФАЙЛЫ ПРОШИВОК ============ */
 let firmwareData = null;
 let dfuDevice = null;
 let dfuInterface = 0;
+let cancelFlash = false;
 
 function setBadge(id, on, textOn, textOff) {
   const el = $(id);
@@ -1135,7 +935,7 @@ function setBadge(id, on, textOn, textOff) {
 
 function checkFlashReady() {
   const hasFile = !!(firmwareData && firmwareData.length > 0);
-  const hasDfu = !!(dfuDevice && typeof dfuDevice.controlTransfer === 'function');
+  const hasDfu = !!(dfuDevice && typeof dfuDevice.controlTransfer === 'function' && dfuDevice.opened);
   setBadge('badgeFile', hasFile, '📄 Файл: готов', '📄 Файл: не выбран');
   setBadge('badgeDfu', hasDfu, '🔌 DFU: подключено', '🔌 DFU: не подключено');
   $('startFlash').disabled = !(hasFile && hasDfu);
@@ -1227,7 +1027,7 @@ $('firmwareFile').addEventListener('change', async (e) => {
     flashLog(`✅ Файл в памяти: ${(firmwareData.length/1024).toFixed(1)} KB`, 'ok');
     showFileInfo(file.name, firmwareData.length);
     checkFlashReady();
-    if (!dfuDevice) flashLog('⚠️ Теперь подключите DFU-устройство', 'warn');
+    if (!dfuDevice) flashLog('⚠️ Теперь нажмите "Войти в DFU и подключиться"', 'warn');
   } catch (err) {
     flashLog('❌ Ошибка чтения: ' + err.message, 'err');
     firmwareData = null;
@@ -1236,18 +1036,13 @@ $('firmwareFile').addEventListener('change', async (e) => {
   }
 });
 
-/* ============ DFU: НОВЫЙ ДВИЖОК С МАШИНОЙ СОСТОЯНИЙ ============ */
-const DFU_STATE = {
-  APP_IDLE:0, APP_DETACH:1, IDLE:2,
-  DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5,
-  MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8,
-  UPLOAD_IDLE:9, ERROR:10
-};
+/* ============ DFU ДВИЖОК ============ */
+const DFU_STATE = { APP_IDLE:0, APP_DETACH:1, IDLE:2, DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5, MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8, UPLOAD_IDLE:9, ERROR:10 };
 const STATE_NAMES = ['appIDLE','appDETACH','dfuIDLE','dfuDNLOAD-SYNC','dfuDNBUSY','dfuDNLOAD-IDLE','dfuMANIFEST-SYNC','dfuMANIFEST','dfuMANIFEST-WAIT-RESET','dfuUPLOAD-IDLE','dfuERROR'];
 
 function dfuAssert(){
   if (!dfuDevice || typeof dfuDevice.controlTransfer !== 'function') {
-    throw new Error('DFU-соединение недействительно (браузер не дал доступ к controlTransfer). Нажмите "Повторить поиск" или откройте сайт в Chrome/Edge.');
+    throw new Error('DFU-соединение недействительно. В Яндекс Браузере прошивка невозможна — откройте сайт в Edge/Chrome.');
   }
 }
 
@@ -1264,12 +1059,7 @@ async function dfuControlIn(request, value, length){
 
 async function dfuGetStatus(){
   const d = await dfuControlIn(0x03, 0, 6);
-  return {
-    status: d[0],
-    pollTimeout: d[1] | (d[2]<<8) | (d[3]<<16),
-    state: d[4],
-    iString: d[5]
-  };
+  return { status: d[0], pollTimeout: d[1] | (d[2]<<8) | (d[3]<<16), state: d[4], iString: d[5] };
 }
 
 async function dfuClearStatus(){ await dfuControlOut(0x04, 0, new Uint8Array(0)); }
@@ -1286,7 +1076,7 @@ async function dfuWaitState(okStates, timeoutMs){
     }
     await sleep(Math.min(Math.max(st.pollTimeout || 50, 20), 1000));
   }
-  throw new Error('Тайм-аут ожидания состояния DFU');
+  throw new Error('Тайм-аут ожидания DFU');
 }
 
 async function dfuDownloadAndWait(blockNum, data, timeoutMs = 10000){
@@ -1294,42 +1084,67 @@ async function dfuDownloadAndWait(blockNum, data, timeoutMs = 10000){
   await dfuWaitState([DFU_STATE.DNLOAD_IDLE, DFU_STATE.IDLE, DFU_STATE.MANIFEST_WAIT_RESET, DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST], timeoutMs);
 }
 
-/* ============ DFU: ПОДКЛЮЧЕНИЕ ============ */
+async function openDfuDevice(d) {
+  dfuDevice = d;
+  if (typeof dfuDevice.controlTransfer !== 'function') {
+    dfuDevice = null;
+    throw new Error('Браузер не предоставил controlTransfer (Яндекс Браузер не поддерживает прошивку)');
+  }
+  await dfuDevice.open();
+  await dfuDevice.selectConfiguration(1);
+  await dfuDevice.claimInterface(0);
+  dfuInterface = 0;
+  const st = await dfuGetStatus();
+  flashLog(`✓ DFU состояние: ${STATE_NAMES[st.state] || st.state}`, 'ok');
+}
+
+/* Автоподключение без диалога (если разрешение уже давали ранее) */
+async function tryAutoDfuConnect() {
+  if (!('usb' in navigator)) return false;
+  try {
+    const devs = await navigator.usb.getDevices();
+    const d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
+    if (!d) return false;
+    await openDfuDevice(d);
+    return true;
+  } catch (e) {
+    flashLog('⚠️ Автоподключение: ' + e.message, 'warn');
+    return false;
+  }
+}
+
+/* ============ ОДНА КНОПКА: DFU + ПОДКЛЮЧЕНИЕ ============ */
 $('enterDfu').addEventListener('click', async () => {
   if (!msp.connected) { flashLog('❌ Сначала подключитесь к полётнику', 'err'); return; }
-  const auto = confirm('Автоматический переход в DFU?\n\nOK — автоматически\nОтмена — вручную (кнопка BOOT)');
-  if (!auto) {
-    flashLog('📋 Ручной режим:', 'warn');
-    flashLog('1. Отключите USB', 'warn');
-    flashLog('2. Зажмите BOOT на плате', 'warn');
-    flashLog('3. Подключите USB, держа BOOT', 'warn');
-    flashLog('4. Отпустите BOOT через 2 сек', 'warn');
-    flashLog('5. Нажмите "Выбрать DFU-устройство"', 'warn');
+  if (isYandexBrowser()) {
+    flashLog('❌ Яндекс Браузер не поддерживает прошивку', 'err');
+    flashLog('💡 Скопируйте адрес и откройте в Edge', 'warn');
     return;
   }
+
+  flashLog('⚡ Отправка команды reboot в DFU...', 'warn');
   try {
-    flashLog('🔄 Автопереход в DFU...', 'warn');
-    try {
-      await msp.request(68, new Uint8Array([0x20, 0xDF]));
-      flashLog('✓ Команда MSP_SET_REBOOT отправлена', 'ok');
-    } catch (e1) {
-      flashLog('⚠️ MSP_SET_REBOOT не ответил: ' + e1.message, 'warn');
-    }
-    stopPoll = true;
-    flashLog('⏳ Ожидание 5 сек...', 'warn');
-    await sleep(5000);
-    try { await msp.close(); } catch {}
-    setLink(false);
-    const devices = await navigator.usb.getDevices();
-    const found = devices.find(d => d.vendorId === 0x0483 && d.productId === 0xDF11);
-    if (found) {
-      flashLog('✅ DFU активен!', 'ok');
-      $('dfuStatus').textContent = '✅ DFU обнаружен (0x0483:0xDF11)';
-    } else {
-      flashLog('⚠️ DFU не найден — используйте кнопку BOOT', 'warn');
-      $('dfuStatus').textContent = '⚠️ DFU не найден. Ручной способ: BOOT + USB';
-    }
-  } catch (e) { flashLog('❌ ' + e.message, 'err'); }
+    // fire-and-forget: плата может не успеть ответить
+    msp._write(68, new Uint8Array([0x20, 0xDF])).catch(() => {});
+  } catch (e) { /* игнорируем */ }
+
+  stopPoll = true;
+  flashLog('⏳ Ждём перезагрузку платы (6 сек)...', 'warn');
+  await sleep(6000);
+  try { await msp.close(); } catch {}
+  setLink(false);
+
+  flashLog('🔌 Пробуем подключиться к DFU автоматически...', 'warn');
+  const ok = await tryAutoDfuConnect();
+  if (ok) {
+    flashLog('✅ DFU подключено АВТОМАТИЧЕСКИ!', 'ok');
+    $('dfuStatus').innerHTML = '✅ DFU подключено автоматически';
+    checkFlashReady();
+  } else {
+    flashLog('⚠️ Нужен один клик: браузер требует явного выбора устройства', 'warn');
+    flashLog('👉 Нажмите "Выбрать DFU-устройство" (в следующий раз будет авто)', 'warn');
+    $('dfuStatus').textContent = '👉 Нажмите "Выбрать DFU-устройство"';
+  }
 });
 
 async function connectToDfu() {
@@ -1337,42 +1152,19 @@ async function connectToDfu() {
   try {
     flashLog('🔍 Поиск DFU...', 'warn');
     $('dfuStatus').textContent = '🔍 Поиск...';
-    dfuDevice = await navigator.usb.requestDevice({
+    const d = await navigator.usb.requestDevice({
       filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
     });
-    const vid = '0x' + dfuDevice.vendorId.toString(16).toUpperCase().padStart(4,'0');
-    const pid = '0x' + dfuDevice.productId.toString(16).toUpperCase().padStart(4,'0');
-    const pname = dfuDevice.productName || 'STM32 BOOTLOADER';
-    flashLog(`✓ Выбрано: ${pname} (${vid}:${pid})`, 'ok');
-
-    if (typeof dfuDevice.controlTransfer !== 'function') {
-      flashLog('❌ Браузер не предоставил controlTransfer!', 'err');
-      flashLog('💡 Откройте сайт в Chrome или Edge', 'warn');
-      $('dfuStatus').textContent = '❌ Браузер не поддерживает DFU-команды';
-      dfuDevice = null;
-      checkFlashReady();
-      return;
-    }
-    if (dfuDevice.productId !== 0xDF11) {
-      flashLog(`⚠️ PID ${pid} — это не DFU (нужен DF11)`, 'warn');
-    }
-
-    await dfuDevice.open();
-    flashLog('✓ open()', 'ok');
-    await dfuDevice.selectConfiguration(1);
-    flashLog('✓ selectConfiguration(1)', 'ok');
-    await dfuDevice.claimInterface(0);
-    dfuInterface = 0;
-    flashLog('✓ claimInterface(0)', 'ok');
-
-    const st = await dfuGetStatus();
-    flashLog(`✓ DFU состояние: ${STATE_NAMES[st.state] || st.state}`, 'ok');
-
-    $('dfuStatus').innerHTML = `✅ DFU: ${pname} (${vid}:${pid})`;
+    const vid = '0x' + d.vendorId.toString(16).toUpperCase().padStart(4,'0');
+    const pid = '0x' + d.productId.toString(16).toUpperCase().padStart(4,'0');
+    flashLog(`✓ Выбрано: ${d.productName || 'STM32 BOOTLOADER'} (${vid}:${pid})`, 'ok');
+    await openDfuDevice(d);
+    $('dfuStatus').innerHTML = `✅ DFU: ${d.productName || 'STM32 BOOTLOADER'} (${vid}:${pid})`;
     checkFlashReady();
   } catch (e) {
-    if (e.name === 'NotFoundError') { flashLog('❌ Устройств не найдено', 'err'); $('dfuStatus').textContent = '❌ Устройств не найдено'; }
-    else if (e.message && e.message.includes('Access denied')) { flashLog('❌ Access denied — закройте Zadig/STM32Cube', 'err'); $('dfuStatus').textContent = '❌ Access denied'; }
+    if (e.name === 'NotFoundError') { flashLog('❌ Устройств не найдено (плата не в DFU?)', 'err'); $('dfuStatus').textContent = '❌ Устройств не найдено'; }
+    else if (String(e.message).includes('controlTransfer')) { flashLog('❌ ' + e.message, 'err'); flashLog('💡 Откройте сайт в Edge или Chrome', 'warn'); $('dfuStatus').textContent = '❌ Браузер не поддерживает DFU-команды'; }
+    else if (String(e.message).includes('Access denied')) { flashLog('❌ Access denied — закройте Zadig/STM32Cube', 'err'); $('dfuStatus').textContent = '❌ Access denied'; }
     else { flashLog('❌ ' + e.message, 'err'); $('dfuStatus').textContent = '❌ ' + e.message; }
     dfuDevice = null;
     checkFlashReady();
@@ -1381,27 +1173,18 @@ async function connectToDfu() {
 $('connectDfu').addEventListener('click', connectToDfu);
 $('retryDfu').addEventListener('click', connectToDfu);
 
-/* ============ ДИАГНОСТИКА USB ============ */
+/* ============ ДИАГНОСТИКА ============ */
 $('diagUsb').addEventListener('click', async () => {
   if (!('usb' in navigator)) { flashLog('❌ WebUSB недоступен', 'err'); return; }
   flashLog('🔬 === ДИАГНОСТИКА USB ===', 'warn');
-  flashLog(`Браузер: ${navigator.userAgent.substring(0, 80)}`, 'warn');
+  flashLog(`Браузер: ${navigator.userAgent.substring(0, 90)}`, 'warn');
+  flashLog(`Яндекс Браузер: ${isYandexBrowser() ? 'ДА (прошивка невозможна)' : 'нет'}`, 'warn');
   try {
     const devs = await navigator.usb.getDevices();
     flashLog(`Разрешённых устройств: ${devs.length}`, 'warn');
-    devs.forEach(d => {
-      flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened}`, 'warn');
-    });
+    devs.forEach(d => flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened} controlTransfer=${typeof d.controlTransfer}`, 'warn'));
   } catch (e) { flashLog('getDevices ошибка: ' + e.message, 'err'); }
-  if (dfuDevice) {
-    flashLog(`dfuDevice.controlTransfer: ${typeof dfuDevice.controlTransfer}`, 'warn');
-    flashLog(`dfuDevice.open: ${typeof dfuDevice.open}`, 'warn');
-    flashLog(`dfuDevice.claimInterface: ${typeof dfuDevice.claimInterface}`, 'warn');
-    flashLog(`dfuDevice.opened: ${dfuDevice.opened}`, 'warn');
-  } else {
-    flashLog('dfuDevice: null (не подключено)', 'warn');
-  }
-  flashLog('🔬 === КОНЕЦ ДИАГНОСТИКИ ===', 'warn');
+  flashLog('🔬 === КОНЕЦ ===', 'warn');
 });
 
 /* ============ ПРОШИВКА ============ */
@@ -1418,19 +1201,16 @@ $('startFlash').addEventListener('click', async () => {
     flashLog('🚀 Начало прошивки...', 'ok');
     flashLog(`📊 Размер: ${(firmwareData.length/1024).toFixed(1)} KB`, 'ok');
 
-    // Синхронизация
     const st0 = await dfuGetStatus();
     flashLog(`Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
-    if (st0.state === DFU_STATE.ERROR) { await dfuClearStatus(); }
+    if (st0.state === DFU_STATE.ERROR) await dfuClearStatus();
 
-    // 1) Адрес записи
     flashLog('📍 Установка адреса 0x08000000...', 'warn');
     const FLASH_BASE = 0x08000000;
     await dfuDownloadAndWait(0, new Uint8Array([0x21, FLASH_BASE & 0xFF, (FLASH_BASE>>8)&0xFF, (FLASH_BASE>>16)&0xFF, (FLASH_BASE>>24)&0xFF]));
     await dfuDownloadAndWait(0, new Uint8Array(0));
     flashLog('✓ Адрес установлен', 'ok');
 
-    // 2) Стирание секторов
     flashLog('🧹 Стирание flash...', 'warn');
     const sectors = [0x08000000,0x08004000,0x08008000,0x0800C000,0x08010000,0x08020000,0x08040000,0x08060000,0x08080000,0x080A0000,0x080C0000,0x080E0000];
     for (let i = 0; i < sectors.length; i++) {
@@ -1444,7 +1224,6 @@ $('startFlash').addEventListener('click', async () => {
     }
     flashLog('✓ Стирание завершено', 'ok');
 
-    // 3) Запись блоков
     flashLog('✍️ Запись прошивки...', 'warn');
     const blockSize = 2048;
     const total = Math.ceil(firmwareData.length / blockSize);
@@ -1460,24 +1239,21 @@ $('startFlash').addEventListener('click', async () => {
     }
     flashLog('✓ Запись завершена', 'ok');
 
-    // 4) Манифест (выход из DFU)
     flashLog('🏁 Манифест и выход...', 'warn');
     await dfuDownloadAndWait(0, new Uint8Array(0), 15000);
     $('progressFill').style.width = '100%';
     $('progressFill').textContent = '100%';
     flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА!', 'ok');
-    flashLog('🔄 Отключите USB и подключите снова — полётник запустится', 'ok');
+    flashLog('🔄 Переподключите USB — полётник запустится', 'ok');
 
   } catch (e) {
     flashLog('❌ Ошибка прошивки: ' + e.message, 'err');
-    flashLog('💡 Если ошибка повторяется — попробуйте Chrome/Edge', 'warn');
   } finally {
     $('cancelFlash').disabled = true;
     checkFlashReady();
   }
 });
 
-let cancelFlash = false;
 $('cancelFlash').addEventListener('click', () => {
   cancelFlash = true;
   flashLog('⏹ Отмена запрошена...', 'warn');
@@ -1497,6 +1273,7 @@ function frame(t){
 requestAnimationFrame(frame);
 loadFirmwares();
 checkFlashReady();
+updateBrowserWarning();
 
 </script>
 </body>
