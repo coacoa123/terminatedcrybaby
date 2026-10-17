@@ -483,7 +483,7 @@ function flashLog(msg, type=''){
   box.scrollTop = box.scrollHeight;
 }
 
-/* ============ CRC32 для проверки целостности прошивки ============ */
+/* ============ CRC32 ============ */
 function crc32(bytes) {
   let crc = 0xFFFFFFFF;
   for (let i = 0; i < bytes.length; i++) {
@@ -1042,15 +1042,17 @@ $('firmwareFile').addEventListener('change', async (e) => {
   }
 });
 
-/* ============ DFU ДВИЖОК ============ */
+/* ============ DFU ДВИЖОК (ИСПРАВЛЕННЫЙ) ============ */
 const DFU_STATE = { APP_IDLE:0, APP_DETACH:1, IDLE:2, DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5, MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8, UPLOAD_IDLE:9, ERROR:10 };
 const STATE_NAMES = ['appIDLE','appDETACH','dfuIDLE','dfuDNLOAD-SYNC','dfuDNBUSY','dfuDNLOAD-IDLE','dfuMANIFEST-SYNC','dfuMANIFEST','dfuMANIFEST-WAIT-RESET','dfuUPLOAD-IDLE','dfuERROR'];
+const IDLE_STATES = [DFU_STATE.IDLE, DFU_STATE.DNLOAD_IDLE];
+const MANIFEST_STATES = [DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST, DFU_STATE.MANIFEST_WAIT_RESET];
 
 function dfuAssert(){
   if (!dfuDevice ||
       typeof dfuDevice.controlTransferOut !== 'function' ||
       typeof dfuDevice.controlTransferIn !== 'function') {
-    throw new Error('WebUSB DFU-методы недоступны (нужны controlTransferIn/Out)');
+    throw new Error('DFU-соединение недействительно');
   }
 }
 
@@ -1079,24 +1081,43 @@ async function dfuGetStatus(){
 
 async function dfuClearStatus(){ await dfuControlOut(0x04, 0, new Uint8Array(0)); }
 
-async function dfuWaitState(okStates, timeoutMs){
+/* Синхронизация: лечим dfuERROR циклом CLRSTATUS */
+async function dfuSync(){
+  let st = await dfuGetStatus();
+  for (let i = 0; i < 3 && (st.state === DFU_STATE.ERROR || st.status !== 0); i++) {
+    flashLog(`⚠️ Состояние ${STATE_NAMES[st.state] || st.state} — очищаю статус...`, 'warn');
+    await dfuClearStatus();
+    await sleep(50);
+    st = await dfuGetStatus();
+  }
+  if (st.state === DFU_STATE.ERROR || st.status !== 0) {
+    throw new Error(`DFU застрял в ошибке (${STATE_NAMES[st.state] || st.state}, status=${st.status})`);
+  }
+  return st;
+}
+
+/* Ожидание готовности: ТОЛЬКО idle-состояния (manifest не считается!) */
+async function dfuWaitIdle(timeoutMs){
   const t0 = Date.now();
   while (Date.now() - t0 < timeoutMs) {
     const st = await dfuGetStatus();
-    const name = STATE_NAMES[st.state] || ('state'+st.state);
-    if (okStates.includes(st.state)) return st;
+    if (IDLE_STATES.includes(st.state)) return st;
+    if (MANIFEST_STATES.includes(st.state)) {
+      throw new Error('Плата преждевременно вышла в manifest — последовательность команд нарушена');
+    }
     if (st.state === DFU_STATE.ERROR || st.status !== 0) {
       try { await dfuClearStatus(); } catch {}
-      throw new Error(`DFU ошибка: ${name}, status=${st.status}`);
+      throw new Error(`DFU ошибка: ${STATE_NAMES[st.state] || st.state}, status=${st.status}`);
     }
     await sleep(Math.min(Math.max(st.pollTimeout || 50, 20), 1000));
   }
   throw new Error('Тайм-аут ожидания DFU');
 }
 
-async function dfuDownloadAndWait(blockNum, data, timeoutMs = 10000){
+/* Отправка блока данных и ожидание готовности */
+async function dfuDownloadBlock(blockNum, data, timeoutMs = 10000){
   await dfuControlOut(0x01, blockNum, data);
-  await dfuWaitState([DFU_STATE.DNLOAD_IDLE, DFU_STATE.IDLE, DFU_STATE.MANIFEST_WAIT_RESET, DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST], timeoutMs);
+  await dfuWaitIdle(timeoutMs);
 }
 
 async function openDfuDevice(d) {
@@ -1109,8 +1130,8 @@ async function openDfuDevice(d) {
   await dfuDevice.selectConfiguration(1);
   await dfuDevice.claimInterface(0);
   dfuInterface = 0;
-  const st = await dfuGetStatus();
-  flashLog(`✓ DFU состояние: ${STATE_NAMES[st.state] || st.state}`, 'ok');
+  const st = await dfuSync();
+  flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
 }
 
 async function tryAutoDfuConnect() {
@@ -1189,7 +1210,12 @@ $('diagUsb').addEventListener('click', async () => {
   flashLog('🔬 === КОНЕЦ ===', 'warn');
 });
 
-/* ============ ПРОШИВКА ============ */
+/* ============ ПРОШИВКА (ИСПРАВЛЕННАЯ ПОСЛЕДОВАТЕЛЬНОСТЬ) ============ */
+function dfuLost(e) {
+  const m = String(e && e.message || e);
+  return m.includes('disconnected') || m.includes('transfer error') || m.includes('device was lost');
+}
+
 $('startFlash').addEventListener('click', async () => {
   if (!firmwareData || !firmwareData.length) { flashLog('❌ Нет файла прошивки', 'err'); return; }
   try { dfuAssert(); } catch (e) { flashLog('❌ ' + e.message, 'err'); return; }
@@ -1204,29 +1230,31 @@ $('startFlash').addEventListener('click', async () => {
     flashLog('🚀 Начало прошивки...', 'ok');
     flashLog(`📊 Размер: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
 
-    const st0 = await dfuGetStatus();
-    flashLog(`Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
-    if (st0.state === DFU_STATE.ERROR) await dfuClearStatus();
+    // 0) Синхронизация и лечение dfuERROR
+    const st0 = await dfuSync();
+    flashLog(`✓ Состояние после синхронизации: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
 
+    // 1) Установка адреса (БЕЗ пустого пакета после!)
     flashLog('📍 Установка адреса 0x08000000...', 'warn');
     const FLASH_BASE = 0x08000000;
-    await dfuDownloadAndWait(0, new Uint8Array([0x21, FLASH_BASE & 0xFF, (FLASH_BASE>>8)&0xFF, (FLASH_BASE>>16)&0xFF, (FLASH_BASE>>24)&0xFF]));
-    await dfuDownloadAndWait(0, new Uint8Array(0));
+    await dfuDownloadBlock(0, new Uint8Array([0x21, FLASH_BASE & 0xFF, (FLASH_BASE>>8)&0xFF, (FLASH_BASE>>16)&0xFF, (FLASH_BASE>>24)&0xFF]));
     flashLog('✓ Адрес установлен', 'ok');
 
+    // 2) Стирание секторов (команда → ожидание, БЕЗ пустого пакета!)
     flashLog('🧹 Стирание flash...', 'warn');
     const sectors = [0x08000000,0x08004000,0x08008000,0x0800C000,0x08010000,0x08020000,0x08040000,0x08060000,0x08080000,0x080A0000,0x080C0000,0x080E0000];
     for (let i = 0; i < sectors.length; i++) {
       if (cancelFlash) throw new Error('Отменено пользователем');
       const a = sectors[i];
-      await dfuDownloadAndWait(0, new Uint8Array([0x41, a & 0xFF, (a>>8)&0xFF, (a>>16)&0xFF, (a>>24)&0xFF]), 20000);
-      await dfuDownloadAndWait(0, new Uint8Array(0), 20000);
+      await dfuDownloadBlock(0, new Uint8Array([0x41, a & 0xFF, (a>>8)&0xFF, (a>>16)&0xFF, (a>>24)&0xFF]), 20000);
       const p = ((i+1)/sectors.length*20).toFixed(0);
       $('progressFill').style.width = p + '%';
       $('progressFill').textContent = p + '%';
+      flashLog(`  сектор ${i+1}/${sectors.length} стёрт`, 'warn');
     }
     flashLog('✓ Стирание завершено', 'ok');
 
+    // 3) Запись блоков
     flashLog('✍️ Запись прошивки...', 'warn');
     const blockSize = 2048;
     const total = Math.ceil(firmwareData.length / blockSize);
@@ -1234,28 +1262,49 @@ $('startFlash').addEventListener('click', async () => {
       if (cancelFlash) throw new Error('Отменено пользователем');
       const s = i * blockSize;
       const e = Math.min(s + blockSize, firmwareData.length);
-      await dfuDownloadAndWait(i + 2, firmwareData.slice(s, e));
+      await dfuDownloadBlock(i + 2, firmwareData.slice(s, e));
       const p = (20 + (i+1)/total*75).toFixed(0);
       $('progressFill').style.width = p + '%';
       $('progressFill').textContent = p + '%';
-      if (i % 50 === 0) flashLog(`  блок ${i}/${total}`, 'warn');
+      if (i % 100 === 0) flashLog(`  блок ${i}/${total}`, 'warn');
     }
     flashLog('✓ Запись завершена', 'ok');
 
-    flashLog('🏁 Манифест и выход...', 'warn');
-    await dfuDownloadAndWait(0, new Uint8Array(0), 15000);
+    // 4) ЕДИНСТВЕННЫЙ пустой пакет — выход из DFU (manifest)
+    flashLog('🏁 Завершение: выход из DFU...', 'warn');
+    await dfuControlOut(0x01, 0, new Uint8Array(0));
+    try {
+      await dfuWaitState2(MANIFEST_STATES.concat(IDLE_STATES), 10000);
+    } catch (e) { /* плата могла сразу перезагрузиться — это нормально */ }
+
     $('progressFill').style.width = '100%';
     $('progressFill').textContent = '100%';
     flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА!', 'ok');
-    flashLog('🔄 Переподключите USB — полётник запустится', 'ok');
+    flashLog('🔄 Переподключите USB — полётник запустится с новой прошивкой', 'ok');
 
   } catch (e) {
     flashLog('❌ Ошибка прошивки: ' + e.message, 'err');
+    if (dfuLost(e)) {
+      flashLog('⚠️ Плата отключилась. Переведите её в DFU заново (BOOT+USB) и повторите', 'warn');
+      dfuDevice = null;
+    }
   } finally {
     $('cancelFlash').disabled = true;
     checkFlashReady();
   }
 });
+
+/* Ожидание произвольного набора состояний (для manifest в конце) */
+async function dfuWaitState2(okStates, timeoutMs){
+  const t0 = Date.now();
+  while (Date.now() - t0 < timeoutMs) {
+    const st = await dfuGetStatus();
+    if (okStates.includes(st.state)) return st;
+    if (st.state === DFU_STATE.ERROR) throw new Error('DFU error в финале');
+    await sleep(Math.min(Math.max(st.pollTimeout || 50, 20), 1000));
+  }
+  throw new Error('Тайм-аут финала DFU');
+}
 
 $('cancelFlash').addEventListener('click', () => {
   cancelFlash = true;
