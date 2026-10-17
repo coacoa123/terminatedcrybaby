@@ -1,6 +1,6 @@
 {
   "SPEEDYBEEF405WING": {
-    "name": "SpeedyBee F405 Wing",
+    "name": "inav 9 SpeedyBee F405 Wing",
     "image": "firmwares/SPEEDYBEEF405WING/speedibee_f405_wing.jpg",
     "firmwares": [
       {
@@ -13,7 +13,7 @@
     ]
   },
   "CADDXF405WING": {
-    "name": "Caddx F405 Wing",
+    "name": "inav 9 Caddx F405 Wing",
     "image": "firmwares/CADDXF405WING/caddx_f405_wing.jpg",
     "firmwares": [
       {
