@@ -444,7 +444,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
     </main>
   </div>
 
-  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и ☕</footer>
+  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и </footer>
 </div>
 
 <script>
@@ -973,7 +973,6 @@ async function loadFirmwares(){
       else $('targetImage').style.display='none';
       $('targetInfoContainer').style.display='block';
 
-      // Печатаем ожидаемые пути — для сверки имён
       flashLog(`📂 Таргет: ${td.name}`, 'warn');
       td.firmwares.forEach(fw => flashLog(`   ожидается: firmwares/${target}/${fw.file}`, 'warn'));
 
@@ -1124,7 +1123,6 @@ async function dfuDownloadBlock(blockNum, data, timeoutMs = 10000){
   await dfuWaitIdle(timeoutMs);
 }
 
-/* Чтение wTransferSize из DFU functional descriptor */
 async function dfuGetTransferSize(){
   try {
     dfuAssert();
@@ -1136,6 +1134,7 @@ async function dfuGetTransferSize(){
     const ts = b[7] | (b[8] << 8);
     return ts;
   } catch (e) {
+    flashLog('⚠️ wTransferSize не прочитался (' + e.message + ') — использую безопасный размер', 'warn');
     return 0;
   }
 }
@@ -1170,7 +1169,6 @@ async function tryAutoDfuConnect() {
   }
 }
 
-/* ============ АВТО-DFU с перебором magic ============ */
 $('enterDfu').addEventListener('click', async () => {
   if (!msp.connected) { flashLog('❌ Сначала подключитесь к полётнику', 'err'); return; }
 
@@ -1193,7 +1191,6 @@ $('enterDfu').addEventListener('click', async () => {
       $('dfuStatus').innerHTML = '✅ DFU подключено автоматически';
     } else {
       flashLog(`⚠️ Попытка ${i+1} не дала DFU`, 'warn');
-      // если serial ещё жив, попробуем следующий вариант; если мёртв — выходим
       try {
         await msp.request(108, new Uint8Array(), 700);
       } catch (e) {
@@ -1278,7 +1275,7 @@ $('startFlash').addEventListener('click', async () => {
     const st0 = await dfuSync();
     flashLog(`✓ Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
 
-    // 1) Стирание (адрес ставим ПОСЛЕ стирания)
+    // 1) Стирание
     flashLog('🧹 Стирание flash...', 'warn');
     const sectors = [0x08000000,0x08004000,0x08008000,0x0800C000,0x08010000,0x08020000,0x08040000,0x08060000,0x08080000,0x080A0000,0x080C0000,0x080E0000];
     for (let i = 0; i < sectors.length; i++) {
@@ -1291,48 +1288,58 @@ $('startFlash').addEventListener('click', async () => {
     }
     flashLog('✓ Стирание завершено', 'ok');
 
-    // 2) Установка адреса ПОСЛЕ стирания
+    // 2) Адрес ПОСЛЕ стирания
     flashLog('📍 Установка адреса 0x08000000...', 'warn');
     await dfuDownloadBlock(0, addrCmd);
     flashLog('✓ Адрес установлен', 'ok');
 
-    // 3) Определяем размер блока
+    // 3) Размер блока: из дескриптора, иначе безопасные 1024
     let blockSize = await dfuGetTransferSize();
-    if (!blockSize || blockSize < 64 || blockSize > 4096) blockSize = 2048;
-    flashLog(`📦 Размер блока: ${blockSize}`, 'ok');
+    if (!blockSize || blockSize < 64 || blockSize > 4096) blockSize = 1024;
+    flashLog(`📦 Начальный размер блока: ${blockSize}`, 'ok');
 
-    // 4) Запись с авто-уменьшением блока при ошибке первого блока
+    // 4) Первый блок с авто-уменьшением размера
     flashLog('✍️ Запись прошивки...', 'warn');
-    let started = false;
-    while (!started) {
+    let firstOk = false;
+    while (!firstOk) {
       try {
+        const stb = await dfuGetStatus();
+        flashLog(`   перед блоком: ${STATE_NAMES[stb.state] || stb.state}, status=${STATUS_NAMES[stb.status] || stb.status}`, 'warn');
         await dfuDownloadBlock(2, firmwareData.slice(0, blockSize));
-        started = true;
+        firstOk = true;
       } catch (e) {
         if (dfuLost(e)) throw e;
-        flashLog(`⚠️ Блок ${blockSize} отклонён (${e.message}) — уменьшаю`, 'warn');
+        flashLog(`⚠️ Блок ${blockSize} отклонён: ${e.message}`, 'warn');
         blockSize = Math.floor(blockSize / 2);
-        if (blockSize < 64) throw new Error('Плата отклоняет запись даже малыми блоками');
-        await dfuSync();
-        await dfuDownloadBlock(0, addrCmd); // сброс указателя
+        if (blockSize < 64) throw new Error('Плата отклоняет запись всеми размерами блоков — пришлите лог');
+        try {
+          await dfuSync();
+          await dfuDownloadBlock(0, addrCmd);
+        } catch (e2) {
+          throw new Error('Устройство потеряно после отказа блока: ' + e2.message);
+        }
+        flashLog(`📦 Пробую размер блока: ${blockSize}`, 'warn');
       }
     }
     flashLog(`✓ Первый блок записан (размер ${blockSize})`, 'ok');
+    $('progressFill').style.width = '22%';
+    $('progressFill').textContent = '22%';
 
+    // 5) Остальные блоки
     const total = Math.ceil(firmwareData.length / blockSize);
     for (let i = 1; i < total; i++) {
       if (cancelFlash) throw new Error('Отменено пользователем');
       const s = i * blockSize;
       const e = Math.min(s + blockSize, firmwareData.length);
       await dfuDownloadBlock(i + 2, firmwareData.slice(s, e));
-      const p = (20 + (i+1)/total*75).toFixed(0);
+      const p = (22 + (i+1)/total*73).toFixed(0);
       $('progressFill').style.width = p + '%';
       $('progressFill').textContent = p + '%';
       if (i % 100 === 0) flashLog(`  блок ${i}/${total}`, 'warn');
     }
     flashLog('✓ Запись завершена', 'ok');
 
-    // 5) Единственный пустой пакет — выход
+    // 6) Единственный пустой пакет — выход
     flashLog('🏁 Завершение: выход из DFU...', 'warn');
     await dfuControlOut(0x01, 0, new Uint8Array(0));
     $('progressFill').style.width = '100%';
