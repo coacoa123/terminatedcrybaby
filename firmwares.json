@@ -1,0 +1,28 @@
+{
+  "SPEEDYBEEF405WING": {
+    "name": "SpeedyBee F405 Wing",
+    "image": "firmwares/SPEEDYBEEF405WING/speedibee_f405_wing.jpg",
+    "firmwares": [
+      {
+        "version": "8.0.0",
+        "file": "inav_8.0.0_SPEEDYBEEF405WING.bin",
+        "preview": "firmwares/SPEEDYBEEF405WING/inav_8.0.0_preview.jpg",
+        "date": "2026-01-15",
+        "notes": "Стабильная версия для крыла"
+      }
+    ]
+  },
+  "CADDXF405WING": {
+    "name": "Caddx F405 Wing",
+    "image": "firmwares/CADDXF405WING/caddx_f405_wing.jpg",
+    "firmwares": [
+      {
+        "version": "8.0.0",
+        "file": "inav_8.0.0_CADDXF405WING.bin",
+        "preview": "firmwares/CADDXF405WING/inav_8.0.0_preview.jpg",
+        "date": "2026-01-15",
+        "notes": "Оптимизирована для Caddx Vista"
+      }
+    ]
+  }
+}
