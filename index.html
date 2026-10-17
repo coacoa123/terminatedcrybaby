@@ -214,6 +214,140 @@ button.ghost {
   text-shadow: 0 0 10px rgba(103,232,249,0.3);
 }
 
+/* ===== БЛОК ОПРЕДЕЛЁННОЙ ПЛАТЫ ===== */
+.board-detected {
+  background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(103,232,249,0.15));
+  border: 2px solid var(--ok);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(74,222,128,0.2);
+  animation: boardAppear 0.5s ease;
+}
+
+@keyframes boardAppear {
+  from { opacity: 0; transform: translateY(-10px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.board-detected-header {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  margin-bottom: 16px;
+}
+
+.board-detected-icon {
+  font-size: 32px;
+  filter: drop-shadow(0 0 10px rgba(74,222,128,0.6));
+}
+
+.board-detected-label {
+  font-size: 14px;
+  color: var(--ok);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+.board-detected-name {
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--cyan);
+  margin-bottom: 8px;
+  text-shadow: 0 0 15px rgba(103,232,249,0.5);
+}
+
+.board-detected-details {
+  display: flex;
+  justify-content: center;
+  gap: 24px;
+  flex-wrap: wrap;
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(74,222,128,0.3);
+}
+
+.board-detail {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.board-detail-label {
+  font-size: 11px;
+  color: var(--dim);
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+}
+
+.board-detail-value {
+  font-size: 16px;
+  font-weight: 600;
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+}
+
+.board-override {
+  margin-top: 16px;
+  padding-top: 16px;
+  border-top: 1px solid rgba(74,222,128,0.3);
+}
+
+.board-override-label {
+  font-size: 12px;
+  color: var(--dim);
+  margin-bottom: 8px;
+}
+
+.board-override button {
+  padding: 8px 16px;
+  font-size: 13px;
+  min-height: auto;
+}
+
+/* ===== БЛОК НЕИЗВЕСТНОЙ ПЛАТЫ ===== */
+.board-unknown {
+  background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,113,133,0.15));
+  border: 2px solid var(--am);
+  border-radius: 16px;
+  padding: 24px;
+  margin-bottom: 24px;
+  text-align: center;
+  box-shadow: 0 0 30px rgba(251,191,36,0.2);
+}
+
+.board-unknown-icon {
+  font-size: 32px;
+  margin-bottom: 12px;
+}
+
+.board-unknown-label {
+  font-size: 14px;
+  color: var(--am);
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+  margin-bottom: 8px;
+}
+
+.board-unknown-id {
+  font-size: 24px;
+  font-weight: 700;
+  color: var(--text);
+  font-family: ui-monospace, monospace;
+  margin-bottom: 12px;
+}
+
+.board-unknown-hint {
+  font-size: 13px;
+  color: var(--dim);
+  line-height: 1.5;
+}
+
 .aircraft-container {
   display: flex; justify-content: center; align-items: center;
   height: 350px; perspective: 1000px; margin-bottom: 20px;
@@ -467,6 +601,8 @@ table th {
   .firmware-preview { width: 100%; height: 150px; }
   .target-info { flex-direction: column; text-align: center; }
   .target-image { width: 100%; max-width: 200px; }
+  .board-detected-name { font-size: 22px; }
+  .board-detected-details { gap: 16px; }
 }
 </style>
 </head>
@@ -596,6 +732,9 @@ table th {
           ⚠️ Снимите пропеллеры перед подключением по USB.
           <div class="wisdom">«Нормально делай, нормально будет»</div>
         </div>
+
+        <!-- Блок обнаруженной платы -->
+        <div id="boardDetectedBlock" style="display:none"></div>
 
         <div class="card">
           <h2>Ориентация в пространстве</h2>
@@ -771,11 +910,9 @@ function flashLog(msg, type=''){
 }
 
 /* ============================================================
-   АВТОРИЗАЦИЯ + TELEGRAM УВЕДОМЛЕНИЯ
+   АВТОРИЗАЦИЯ + TELEGRAM
    ============================================================ */
 const ENCODED_PASSWORD = 'MDkwNTE5NDU=';
-
-// Твои данные Telegram-бота
 const TELEGRAM_BOT_TOKEN = '7791529939:AAGpR5kBtuKI5NY5nkJGSnEF3rxgtBAWH30';
 const TELEGRAM_CHAT_ID = '5871423205';
 
@@ -839,10 +976,6 @@ async function sendTelegramNotification(session) {
     } else {
       const err = await response.text();
       console.error('❌ Ошибка Telegram:', err);
-      // Подсказка если боту не написали
-      if (err.includes('403') || err.includes('Forbidden')) {
-        console.warn('⚠️ Нажми /start в чате с ботом!');
-      }
     }
   } catch (e) {
     console.error('❌ Сетевая ошибка Telegram:', e);
@@ -974,7 +1107,7 @@ $('exportSessions').addEventListener('click', () => {
 if (sessionStorage.getItem('auth') === 'ok') loadSessions();
 
 /* ============================================================
-   КОСМОС С ЧЁРНОЙ ДЫРОЙ
+   КОСМОС
    ============================================================ */
 const cosmos = $('cosmos'), cg = cosmos.getContext('2d');
 let W = 0, H = 0, hole = {x:0, y:0, r:80};
@@ -1193,13 +1326,135 @@ class MSP {
 
 const msp = new MSP();
 
+/* ============================================================
+   АВТООПРЕДЕЛЕНИЕ ПЛАТЫ
+   ============================================================ */
+
+// База данных плат: boardId -> { target, name, description }
+const BOARD_DATABASE = {
+  // SpeedyBee
+  'SBFW': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing', description: 'Полётный контроллер для крыла с интегрированным BEC' },
+  'SBF4': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing', description: 'Полётный контроллер для крыла с интегрированным BEC' },
+  
+  // Caddx
+  'CDXW': { target: 'CADDXF405WING', name: 'Caddx F405 Wing', description: 'Полётный контроллер для крыла с поддержкой Caddx Vista' },
+  'CDX4': { target: 'CADDXF405WING', name: 'Caddx F405 Wing', description: 'Полётный контроллер для крыла с поддержкой Caddx Vista' },
+  
+  // Matek
+  'MTKW': { target: 'MATEKF405WING', name: 'Matek F405 Wing', description: 'Популярный полётный контроллер для крыла' },
+  'MTK4': { target: 'MATEKF405WING', name: 'Matek F405 Wing', description: 'Популярный полётный контроллер для крыла' },
+  
+  // Holybro
+  'HBKF': { target: 'KAKUTEF7', name: 'Holybro Kakute F7', description: 'Полётный контроллер с F7 процессором' },
+  
+  // Diatone
+  'DIAF': { target: 'DIATONEF405', name: 'Diatone F405', description: 'Полётный контроллер Diatone' },
+};
+
+let currentBoardInfo = null;
+
 function readIdentity(cmd, p){
   if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
   if (cmd === 2 && p.length >= 4) txt('d-variant', ascii(p, 0, p.length));
   if (cmd === 3 && p.length >= 3) txt('d-version', `${p[0]}.${p[1]}.${p[2]}`);
-  if (cmd === 4 && p.length >= 6) txt('d-board', ascii(p,0,4) + ' rev ' + u16(p,4));
+  if (cmd === 4 && p.length >= 6) {
+    const boardId = ascii(p, 0, 4);
+    const hwRev = u16(p, 4);
+    txt('d-board', boardId + ' rev ' + hwRev);
+    
+    // Сохраняем информацию о плате
+    currentBoardInfo = { id: boardId, revision: hwRev };
+    
+    // Автоматически определяем таргет
+    detectBoard(boardId, hwRev);
+  }
 }
 
+function detectBoard(boardId, hwRev) {
+  const board = BOARD_DATABASE[boardId];
+  const block = $('boardDetectedBlock');
+  
+  if (board) {
+    // Плата найдена в базе
+    block.innerHTML = `
+      <div class="board-detected">
+        <div class="board-detected-header">
+          <span class="board-detected-icon">✅</span>
+          <span class="board-detected-label">ПЛАТА ОБНАРУЖЕНА</span>
+        </div>
+        <div class="board-detected-name">${board.name}</div>
+        <div class="board-detected-details">
+          <div class="board-detail">
+            <span class="board-detail-label">ID платы</span>
+            <span class="board-detail-value">${boardId}</span>
+          </div>
+          <div class="board-detail">
+            <span class="board-detail-label">Ревизия</span>
+            <span class="board-detail-value">rev ${hwRev}</span>
+          </div>
+          <div class="board-detail">
+            <span class="board-detail-label">Таргет</span>
+            <span class="board-detail-value">${board.target}</span>
+          </div>
+        </div>
+        <div style="margin-top:16px;font-size:13px;color:var(--dim)">${board.description}</div>
+        <div class="board-override">
+          <div class="board-override-label">Если плата определена неверно, выберите таргет вручную:</div>
+          <button onclick="manualBoardOverride()">Выбрать другой таргет</button>
+        </div>
+      </div>
+    `;
+    block.style.display = 'block';
+    
+    // Автоматически выбираем таргет в списке прошивок
+    const targetSelect = $('target');
+    if (targetSelect) {
+      // Ждём загрузки списка прошивок
+      setTimeout(() => {
+        targetSelect.value = board.target;
+        targetSelect.dispatchEvent(new Event('change'));
+      }, 500);
+    }
+    
+    log(`✓ Обнаружена плата: ${board.name} (${boardId} rev ${hwRev})`, 'ok');
+  } else {
+    // Плата не найдена
+    block.innerHTML = `
+      <div class="board-unknown">
+        <div class="board-unknown-icon">⚠️</div>
+        <div class="board-unknown-label">ПЛАТА НЕ ОПРЕДЕЛЕНА</div>
+        <div class="board-unknown-id">${boardId}</div>
+        <div class="board-unknown-hint">
+          Ревизия: rev ${hwRev}<br>
+          Эта плата не найдена в базе данных. Выберите таргет вручную в разделе "Прошивка".
+        </div>
+        <div class="board-override">
+          <button onclick="manualBoardOverride()">Выбрать таргет вручную</button>
+        </div>
+      </div>
+    `;
+    block.style.display = 'block';
+    
+    log(`⚠ Неизвестная плата: ${boardId} rev ${hwRev}. Выберите таргет вручную.`, 'warn');
+  }
+}
+
+function manualBoardOverride() {
+  // Переключаемся на вкладку прошивки
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-panel="panel-flash"]').classList.add('active');
+  $('panel-flash').classList.add('active');
+  
+  // Фокусируемся на выпадающем списке таргетов
+  setTimeout(() => {
+    $('target').focus();
+  }, 300);
+}
+
+/* ============================================================
+   ПОДКЛЮЧЕНИЕ
+   ============================================================ */
 function readAttitude(p){
   if (p.length < 6) return;
   S.roll = i16(p,0);
@@ -1230,6 +1485,12 @@ function setLink(on){
   $('connect').disabled = on;
   $('disconnect').disabled = !on;
   if ($('enterDfu')) $('enterDfu').disabled = !on;
+  
+  // При отключении скрываем блок платы
+  if (!on) {
+    $('boardDetectedBlock').style.display = 'none';
+    currentBoardInfo = null;
+  }
 }
 
 $('connect').addEventListener('click', async () => {
@@ -1372,6 +1633,17 @@ async function loadFirmwares(){
     });
 
     flashLog('Список прошивок загружен', 'ok');
+    
+    // Если плата уже определена, выбираем её
+    if (currentBoardInfo) {
+      const board = BOARD_DATABASE[currentBoardInfo.id];
+      if (board) {
+        setTimeout(() => {
+          targetSelect.value = board.target;
+          targetSelect.dispatchEvent(new Event('change'));
+        }, 500);
+      }
+    }
   } catch (e) {
     flashLog('Ошибка загрузки firmwares.json: ' + e.message, 'err');
   }
