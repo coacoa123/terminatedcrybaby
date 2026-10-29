@@ -86,6 +86,7 @@ body {
 .header {
   background: var(--glass);
   backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
   border-bottom: 1px solid var(--glass-border);
   padding: 16px 20px;
   display: flex; flex-wrap: wrap; align-items: center; gap: 16px;
@@ -97,16 +98,17 @@ body {
 .header .led.on { background: var(--ok); box-shadow: 0 0 12px var(--ok); }
 .header .controls { margin-left: auto; display: flex; gap: 12px; align-items: center; }
 
-button, select, input[type="file"]::file-selector-button, input[type="number"] {
+button, select, input[type="file"]::file-selector-button, input[type="number"], input[type="text"] {
   font: inherit; font-weight: 600;
   padding: 12px 20px;
   border: 1px solid var(--glass-border);
   background: var(--glass); color: var(--text);
   border-radius: 8px; cursor: pointer;
   font-size: 15px; transition: all 0.2s;
+  backdrop-filter: blur(8px);
   min-height: 48px; touch-action: manipulation;
 }
-input[type="number"] { cursor: text; }
+input[type="number"], input[type="text"] { cursor: text; }
 button:hover:not(:disabled) { border-color: var(--cyan); box-shadow: 0 0 15px rgba(103,232,249,0.3); }
 button:disabled { opacity: 0.4; cursor: not-allowed; }
 button.primary { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(167,139,250,0.2)); border-color: var(--cyan); color: var(--cyan); }
@@ -114,8 +116,8 @@ button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(
 button.ghost { background: transparent; border-color: var(--glass-border); color: var(--dim); padding: 10px 16px; font-size: 13px; }
 
 .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
-.sidebar { background: var(--glass); border-right: 1px solid var(--glass-border); padding: 20px 0; }
-.nav-item { display: block; width: 100%; text-align: left; padding: 14px 24px; background: none; border: none; border-left: 4px solid transparent; color: var(--dim); font-size: 16px; font-weight: 500; cursor: pointer; min-height: auto; }
+.sidebar { background: var(--glass); backdrop-filter: blur(16px); border-right: 1px solid var(--glass-border); padding: 20px 0; }
+.nav-item { display: block; width: 100%; text-align: left; padding: 14px 24px; background: none; border: none; border-left: 4px solid transparent; color: var(--dim); font-size: 16px; font-weight: 500; cursor: pointer; backdrop-filter: none; min-height: auto; }
 .nav-item:hover { background: rgba(103,232,249,0.08); color: var(--text); }
 .nav-item.active { background: rgba(103,232,249,0.12); color: var(--cyan); border-left-color: var(--cyan); font-weight: 700; }
 
@@ -123,33 +125,41 @@ button.ghost { background: transparent; border-color: var(--glass-border); color
 .panel { display: none; }
 .panel.active { display: block; }
 
-.card { background: var(--glass); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
-.card h2 { font-size: 16px; font-weight: 700; color: var(--cyan); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px; }
+.card { background: var(--glass); backdrop-filter: blur(16px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 24px; margin-bottom: 24px; }
+.card h2 { font-size: 16px; font-weight: 700; color: var(--cyan); margin-bottom: 20px; padding-bottom: 12px; border-bottom: 1px solid var(--glass-border); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 10px rgba(103,232,249,0.3); }
 
-.board-detected { background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(103,232,249,0.15)); border: 2px solid var(--ok); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 0 30px rgba(74,222,128,0.2); }
-.board-detected-name { font-size: 26px; font-weight: 700; color: var(--cyan); margin-bottom: 8px; }
+.board-detected { background: linear-gradient(135deg, rgba(74,222,128,0.15), rgba(103,232,249,0.15)); border: 2px solid var(--ok); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 0 30px rgba(74,222,128,0.2); animation: boardAppear 0.5s ease; }
+@keyframes boardAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.board-detected-header { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 16px; }
+.board-detected-icon { font-size: 32px; }
+.board-detected-label { font-size: 14px; color: var(--ok); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; }
+.board-detected-name { font-size: 26px; font-weight: 700; color: var(--cyan); margin-bottom: 8px; text-shadow: 0 0 15px rgba(103,232,249,0.5); }
 .board-detected-sub { font-size: 14px; color: var(--dim); margin-bottom: 8px; }
 .board-detected-details { display: flex; justify-content: center; gap: 24px; flex-wrap: wrap; margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(74,222,128,0.3); }
 .board-detail { display: flex; flex-direction: column; gap: 4px; }
 .board-detail-label { font-size: 11px; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; font-weight: 600; }
 .board-detail-value { font-size: 16px; font-weight: 600; color: var(--text); font-family: ui-monospace, monospace; }
+.board-override { margin-top: 16px; padding-top: 16px; border-top: 1px solid rgba(74,222,128,0.3); }
+.board-override-label { font-size: 12px; color: var(--dim); margin-bottom: 8px; }
 
-.board-unknown { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,113,133,0.15)); border: 2px solid var(--am); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; }
-.board-unknown-id { font-size: 24px; font-weight: 700; color: var(--text); font-family: ui-monospace, monospace; margin: 8px 0; }
+.board-unknown { background: linear-gradient(135deg, rgba(251,191,36,0.15), rgba(251,113,133,0.15)); border: 2px solid var(--am); border-radius: 16px; padding: 24px; margin-bottom: 24px; text-align: center; box-shadow: 0 0 30px rgba(251,191,36,0.2); }
+.board-unknown-icon { font-size: 32px; margin-bottom: 12px; }
+.board-unknown-label { font-size: 14px; color: var(--am); font-weight: 700; text-transform: uppercase; letter-spacing: 2px; margin-bottom: 8px; }
+.board-unknown-id { font-size: 24px; font-weight: 700; color: var(--text); font-family: ui-monospace, monospace; margin-bottom: 12px; }
 .board-unknown-hint { font-size: 13px; color: var(--dim); line-height: 1.5; }
 
 .aircraft-container { display: flex; justify-content: center; align-items: center; height: 350px; perspective: 1000px; margin-bottom: 20px; }
 .aircraft { width: 180px; height: 180px; position: relative; transform-style: preserve-3d; transition: transform 0.1s ease-out; }
 .aircraft svg { width: 100%; height: 100%; filter: drop-shadow(0 0 25px rgba(103,232,249,0.5)); }
 
-.table-wrapper { overflow-x: auto; }
+.table-wrapper { overflow-x: auto; -webkit-overflow-scrolling: touch; }
 table { width: 100%; border-collapse: collapse; min-width: 300px; }
 table th, table td { padding: 14px 16px; text-align: left; border-bottom: 1px solid var(--glass-border); font-size: 15px; }
 table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform: uppercase; background: rgba(103,232,249,0.08); }
 
 .form-row { display: flex; align-items: center; gap: 16px; margin: 16px 0; flex-wrap: wrap; }
 .form-row label { flex: 0 0 260px; font-size: 15px; color: var(--dim); font-weight: 500; }
-.form-row select, .form-row input[type="file"], .form-row input[type="number"] { flex: 1; min-width: 140px; max-width: 320px; padding: 12px 16px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text); border-radius: 8px; font: inherit; font-size: 16px; }
+.form-row select, .form-row input[type="file"], .form-row input[type="number"], .form-row input[type="text"] { flex: 1; min-width: 140px; max-width: 420px; padding: 12px 16px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.4); color: var(--text); border-radius: 8px; font: inherit; font-size: 16px; }
 
 .action-bar { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
 
@@ -164,27 +174,31 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .wisdom { font-size: 14px; color: var(--dim); font-style: italic; margin-top: 10px; padding-left: 16px; border-left: 3px solid var(--vi); line-height: 1.4; }
 
 .ready-badges { display: flex; gap: 12px; flex-wrap: wrap; margin: 16px 0; }
-.badge { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid; }
+.badge { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid; letter-spacing: 0.5px; }
 .badge.off { background: rgba(139,163,199,0.1); border-color: rgba(139,163,199,0.4); color: var(--dim); }
 .badge.on { background: rgba(74,222,128,0.15); border-color: var(--ok); color: var(--ok); box-shadow: 0 0 15px rgba(74,222,128,0.3); }
 
 .progress-bar { width: 100%; height: 32px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
-.progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--vi)); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
+.progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--vi)); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; text-shadow: 0 1px 3px rgba(0,0,0,0.5); }
 
 .file-info-card { margin: 16px 0; padding: 16px; background: rgba(74,222,128,0.08); border: 1px solid var(--ok); border-radius: 10px; font-size: 14px; line-height: 1.6; }
 .file-info-card .file-title { color: var(--ok); font-weight: 700; font-size: 15px; margin-bottom: 10px; }
 .file-info-card .file-row { display: flex; justify-content: space-between; gap: 12px; padding: 4px 0; border-bottom: 1px solid rgba(74,222,128,0.15); }
 .file-info-card .file-row:last-child { border-bottom: none; }
-.file-info-card .file-label { color: var(--dim); }
+.file-info-card .file-label { color: var(--dim); flex: 0 0 auto; }
 .file-info-card .file-value { color: var(--text); font-family: ui-monospace, monospace; font-weight: 600; text-align: right; word-break: break-all; }
 
 .firmware-list { background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; padding: 16px; max-height: 500px; overflow-y: auto; }
-.firmware-item { display: grid; grid-template-columns: 1fr auto; gap: 16px; padding: 14px 16px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; margin-bottom: 10px; transition: all 0.2s; align-items: center; }
+.firmware-item { display: grid; grid-template-columns: 120px 1fr auto; gap: 16px; padding: 16px; border: 1px solid transparent; border-radius: 8px; cursor: pointer; margin-bottom: 12px; transition: all 0.2s; align-items: center; }
 .firmware-item:hover { background: rgba(103,232,249,0.08); border-color: var(--glass-border); }
-.firmware-item.selected { background: rgba(103,232,249,0.15); border-color: var(--cyan); }
-.firmware-info { display: flex; flex-direction: column; gap: 4px; }
-.firmware-version { font-size: 16px; font-weight: 700; color: var(--cyan); word-break: break-all; }
+.firmware-item.selected { background: rgba(103,232,249,0.15); border-color: var(--cyan); box-shadow: 0 0 20px rgba(103,232,249,0.2); }
+.firmware-preview { width: 120px; height: 90px; border-radius: 6px; overflow: hidden; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; }
+.firmware-preview img { width: 100%; height: 100%; object-fit: cover; }
+.firmware-preview-placeholder { color: var(--dim); font-size: 12px; text-align: center; }
+.firmware-info { display: flex; flex-direction: column; gap: 6px; }
+.firmware-version { font-size: 18px; font-weight: 700; color: var(--cyan); }
 .firmware-meta { font-size: 13px; color: var(--dim); }
+.firmware-notes { font-size: 12px; color: var(--dim); font-style: italic; margin-top: 4px; }
 .firmware-item input[type="radio"] { width: 20px; height: 20px; accent-color: var(--cyan); cursor: pointer; }
 
 .target-info { display: flex; gap: 20px; margin-bottom: 20px; padding: 16px; background: rgba(0,0,0,0.3); border: 1px solid var(--glass-border); border-radius: 8px; align-items: center; }
@@ -194,12 +208,12 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .target-name { font-size: 19px; font-weight: 700; color: var(--cyan); margin-bottom: 8px; }
 .target-desc { font-size: 13px; color: var(--dim); line-height: 1.5; }
 
-.dfu-instruction { background: rgba(103,232,249,0.08); border: 1px solid var(--cyan); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 14px; line-height: 1.6; }
-.dfu-instruction strong { color: var(--cyan); }
+.dfu-instruction { background: rgba(103,232,249,0.08); border: 1px solid var(--cyan); border-radius: 10px; padding: 16px 20px; margin: 16px 0; font-size: 14px; color: var(--text); line-height: 1.6; }
+.dfu-instruction strong { color: var(--cyan); font-weight: 700; }
 .dfu-instruction ol { margin: 12px 0; padding-left: 24px; }
 .dfu-instruction li { margin: 8px 0; }
 
-.footer { position: relative; z-index: 1; background: var(--glass); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
+.footer { position: relative; z-index: 1; background: var(--glass); backdrop-filter: blur(16px); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
 
 .cosmic-bee { position: fixed; z-index: 2; pointer-events: none; filter: drop-shadow(0 0 15px currentColor) drop-shadow(0 0 30px currentColor); }
 .bee-1 { color: #ffd700; top: 10%; left: 10%; animation: spiralIn1 14s infinite ease-in-out; }
@@ -215,7 +229,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
 @media (max-width: 768px) {
   .layout { grid-template-columns: 1fr; }
-  .sidebar { position: sticky; top: 0; z-index: 50; border-right: none; border-bottom: 1px solid var(--glass-border); display: flex; overflow-x: auto; padding: 12px 16px; gap: 12px; scrollbar-width: none; }
+  .sidebar { position: sticky; top: 0; z-index: 50; border-right: none; border-bottom: 1px solid var(--glass-border); display: flex; overflow-x: auto; padding: 12px 16px; gap: 12px; -webkit-overflow-scrolling: touch; scrollbar-width: none; }
   .sidebar::-webkit-scrollbar { display: none; }
   .nav-item { white-space: nowrap; border-left: none; border-bottom: 3px solid transparent; padding: 12px 20px; border-radius: 10px; font-size: 15px; min-height: 48px; display: flex; align-items: center; }
   .nav-item.active { border-left: none; border-bottom-color: var(--cyan); background: rgba(103,232,249,0.15); }
@@ -223,7 +237,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
   .card { padding: 20px 16px; }
   .form-row { flex-direction: column; align-items: stretch; gap: 8px; }
   .form-row label { flex: none; font-size: 14px; }
-  .form-row select, .form-row input[type="file"], .form-row input[type="number"] { max-width: 100%; width: 100%; }
+  .form-row select, .form-row input[type="file"], .form-row input[type="number"], .form-row input[type="text"] { max-width: 100%; width: 100%; }
   .action-bar { flex-direction: column; }
   .action-bar button { width: 100%; }
   .header .controls { width: 100%; justify-content: space-between; margin-top: 8px; }
@@ -233,9 +247,11 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
   .auth-box { padding: 32px 20px; }
   .auth-title { font-size: 20px; }
   .firmware-item { grid-template-columns: 1fr; }
+  .firmware-preview { width: 100%; height: 150px; }
   .target-info { flex-direction: column; text-align: center; }
   .target-image { width: 100%; max-width: 200px; }
   .board-detected-name { font-size: 20px; }
+  .board-detected-details { gap: 16px; }
 }
 </style>
 </head>
@@ -360,34 +376,41 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
               <div class="target-image"><img id="targetImage" src="" alt="Плата"></div>
               <div class="target-details">
                 <div class="target-name" id="targetName">—</div>
-                <div class="target-desc">Список ниже собран напрямую с GitHub — имена файлов точные.</div>
+                <div class="target-desc">Выберите версию прошивки ниже. Сайт сам найдёт файл в firmwares/ или в корне.</div>
               </div>
             </div>
           </div>
           <div id="firmwareListContainer" style="display:none"><div class="firmware-list" id="firmwareList"></div></div>
           <div class="form-row" style="margin-top:16px">
-            <label>Или загрузите свой файл</label>
+            <label>Или загрузите файл с компьютера</label>
             <input type="file" id="firmwareFile" accept=".bin">
+          </div>
+          <div class="form-row">
+            <label>Или прямая ссылка на .bin</label>
+            <input type="text" id="firmwareUrl" placeholder="firmwares/SPEEDYBEEF405WING/my.bin или https://...">
+          </div>
+          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+            <button id="loadUrl" class="ghost">⬇️ Скачать по ссылке</button>
           </div>
           <div id="fileInfoContainer"></div>
           <div class="wisdom">«Ебанул жидким — косарь в кассу клади» — выбирай прошивку под свой таргет.</div>
         </div>
 
         <div class="card">
-          <h2>Шаг 2: DFU вручную (BOOT + USB)</h2>
+          <h2>Шаг 2: Переведите плату в DFU вручную</h2>
           <div class="dfu-instruction">
-            <strong>📋 Порядок действий:</strong>
+            <strong>📋 Ручной переход (надёжный):</strong>
             <ol>
               <li>Отключите USB</li>
               <li>Зажмите кнопку <strong>BOOT</strong> на плате</li>
               <li>Подключите USB, удерживая BOOT</li>
               <li>Отпустите BOOT через 2 секунды</li>
-              <li>Нажмите кнопку подключения ниже</li>
+              <li>Нажмите "Выбрать DFU-устройство" и выберите <strong>STM32 BOOTLOADER</strong></li>
             </ol>
           </div>
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-            <button id="autoDfu">🔌 Подключить DFU (без диалога)</button>
             <button id="connectDfu">Выбрать DFU-устройство</button>
+            <button id="retryDfu" class="ghost">🔄 Повторить поиск</button>
             <button id="diagUsb" class="ghost">🔬 Диагностика USB</button>
           </div>
           <div id="dfuStatus" style="margin-top:16px;font-size:13px;color:var(--dim);text-align:center"></div>
@@ -408,7 +431,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
             <button class="danger" id="startFlash" disabled>Начать прошивку</button>
             <button id="cancelFlash" disabled>Отмена</button>
           </div>
-          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс.</div>
+          <div class="wisdom">«Тише едешь, дальше будешь» — сайт сам переберёт стратегии и размер блока. Не прерывай процесс.</div>
           <div class="log" id="flashLog" style="margin-top:16px"></div>
         </div>
       </section>
@@ -443,6 +466,17 @@ function txt(id, value){
   if (el && el.textContent !== String(value)) el.textContent = value;
 }
 
+function log(msg, type=''){
+  const box = $('log');
+  if (!box) return;
+  const line = document.createElement('div');
+  line.className = 'log-entry ' + type;
+  line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
+  box.appendChild(line);
+  while (box.children.length > 100) box.removeChild(box.firstChild);
+  box.scrollTop = box.scrollHeight;
+}
+
 function flashLog(msg, type=''){
   const box = $('flashLog');
   if (!box) return;
@@ -451,10 +485,6 @@ function flashLog(msg, type=''){
   line.textContent = `[${new Date().toLocaleTimeString()}] ${msg}`;
   box.appendChild(line);
   box.scrollTop = box.scrollHeight;
-}
-
-function log(msg, type=''){
-  flashLog(msg, type);
 }
 
 /* ============ CRC32 ============ */
@@ -511,13 +541,15 @@ async function sendTelegramNotification(session) {
 *Сайт:* ${session.url}
 *Fingerprint:* ${session.fingerprint}`;
   try {
-    await fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+    const response = await fetch(`https://api.telegram.org/bot${TEGRAM_FIX()}/sendMessage`, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ chat_id: TELEGRAM_CHAT_ID, text: message, parse_mode: 'Markdown' })
     });
-  } catch (e) { console.error('Telegram:', e); }
+    if (response.ok) console.log('✅ Telegram уведомление отправлено');
+  } catch (e) { console.error('❌ Telegram:', e); }
 }
+function TEGRAM_FIX(){ return TELEGRAM_BOT_TOKEN; }
 
 function checkAuth() {
   if (sessionStorage.getItem('auth') === 'ok' && sessionStorage.getItem('callsign')) unlockApp();
@@ -546,18 +578,21 @@ $('authForm').addEventListener('submit', async (e) => {
   if (!callsign) { err.textContent = 'Введите позывной'; return; }
   if (!password) { err.textContent = 'Введите пароль'; return; }
   btn.disabled = true; btn.textContent = 'Проверка...'; err.textContent = '';
-  await sleep(300);
-  if (btoa(password) === ENCODED_PASSWORD) {
-    sessionStorage.setItem('auth', 'ok');
-    sessionStorage.setItem('callsign', callsign);
-    logSession(callsign, 'Вход в систему');
-    unlockApp();
-    loadSessions();
-  } else {
-    err.textContent = 'Неверный пароль. Попробуйте ещё раз.';
-    $('authPassword').value = '';
-  }
-  btn.disabled = false; btn.textContent = 'Войти в систему';
+  try {
+    await sleep(300);
+    if (btoa(password) === ENCODED_PASSWORD) {
+      sessionStorage.setItem('auth', 'ok');
+      sessionStorage.setItem('callsign', callsign);
+      logSession(callsign, 'Вход в систему');
+      unlockApp();
+      loadSessions();
+    } else {
+      err.textContent = 'Неверный пароль. Попробуйте ещё раз.';
+      $('authPassword').value = '';
+      $('authPassword').focus();
+    }
+  } catch (e2) { err.textContent = 'Ошибка: ' + e2.message; }
+  finally { btn.disabled = false; btn.textContent = 'Войти в систему'; }
 });
 
 $('logout').addEventListener('click', () => {
@@ -633,7 +668,7 @@ function drawCosmos(t){
     cg.beginPath(); cg.arc(s.x, s.y, s.r, 0, Math.PI*2); cg.fill();
   }
   cg.globalAlpha = 1;
-  const hx = hole.x, hy = hole.y, R = hole.r;
+  const {x: hx, y: hy, r: R} = hole;
   const halo = cg.createRadialGradient(hx, hy, R*0.8, hx, hy, R*4);
   halo.addColorStop(0, 'rgba(251,191,36,0.3)');
   halo.addColorStop(0.4, 'rgba(167,139,250,0.2)');
@@ -647,8 +682,10 @@ function drawCosmos(t){
     if (p.r < R*1.05) p.spawn(p);
     const hue = 35 + Math.min(rel-1, 1) * 230;
     const alpha = (1 - Math.min(rel-1, 1)) * 0.9 + 0.1;
+    const px = hx + Math.cos(p.a) * p.r;
+    const py = hy + Math.sin(p.a) * p.r * 0.4;
     cg.fillStyle = `hsla(${hue},95%,70%,${alpha})`;
-    cg.beginPath(); cg.arc(hx + Math.cos(p.a)*p.r, hy + Math.sin(p.a)*p.r*0.4, 1.5 + (1-Math.min(rel-1,1))*2, 0, Math.PI*2); cg.fill();
+    cg.beginPath(); cg.arc(px, py, 1.5 + (1-Math.min(rel-1,1))*2, 0, Math.PI*2); cg.fill();
   }
   cg.fillStyle = '#000';
   cg.beginPath(); cg.arc(hx, hy, R*0.95, 0, Math.PI*2); cg.fill();
@@ -691,7 +728,7 @@ class MSP {
         if (done) break;
         for (let i = 0; i < value.length; i++) this._feed(value[i]);
       }
-    } catch (e) {}
+    } catch (e) { if (this.connected) log('Ошибка чтения: ' + e.message, 'err'); }
     finally { try { reader.releaseLock(); } catch {} }
   }
   _feed(b){
@@ -737,16 +774,24 @@ class MSP {
 }
 const msp = new MSP();
 
-/* ============ БАЗА ПЛАТ ============ */
+/* ============ БАЗА ПЛАТ + MANIFEST ============ */
 const BOARD_DATABASE = {
-  'SBFW': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing' },
-  'SBF4': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing' },
-  'CDXW': { target: 'CADDXF405WING', name: 'Caddx F405 Wing' },
-  'CDX4': { target: 'CADDXF405WING', name: 'Caddx F405 Wing' },
-  'MTKW': { target: 'MATEKF405WING', name: 'Matek F405 Wing' },
-  'HBKF': { target: 'KAKUTEF7', name: 'Holybro Kakute F7' },
+  'SBFW': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing', description: 'Полётный контроллер для крыла с интегрированным BEC' },
+  'SBF4': { target: 'SPEEDYBEEF405WING', name: 'SpeedyBee F405 Wing', description: 'Полётный контроллер для крыла с интегрированным BEC' },
+  'CDXW': { target: 'CADDXF405WING', name: 'Caddx F405 Wing', description: 'Полётный контроллер для крыла с поддержкой Caddx Vista' },
+  'CDX4': { target: 'CADDXF405WING', name: 'Caddx F405 Wing', description: 'Полётный контроллер для крыла с поддержкой Caddx Vista' },
+  'MTKW': { target: 'MATEKF405WING', name: 'Matek F405 Wing', description: 'Популярный полётный контроллер для крыла' },
+  'MTK4': { target: 'MATEKF405WING', name: 'Matek F405 Wing', description: 'Популярный полётный контроллер для крыла' },
+  'HBKF': { target: 'KAKUTEF7', name: 'Holybro Kakute F7', description: 'Полётный контроллер с F7 процессором' },
+  'DIAF': { target: 'DIATONEF405', name: 'Diatone F405', description: 'Полётный контроллер Diatone' },
 };
 let FIRMWARE_MANIFEST = null;
+let currentBoardInfo = null;
+
+function manifestNameFor(target) {
+  if (FIRMWARE_MANIFEST && FIRMWARE_MANIFEST[target]) return FIRMWARE_MANIFEST[target].name;
+  return null;
+}
 
 function readIdentity(cmd, p){
   if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
@@ -756,6 +801,7 @@ function readIdentity(cmd, p){
     const boardId = ascii(p, 0, 4);
     const hwRev = u16(p, 4);
     txt('d-board', boardId + ' rev ' + hwRev);
+    currentBoardInfo = { id: boardId, revision: hwRev };
     detectBoard(boardId, hwRev);
   }
 }
@@ -764,28 +810,47 @@ function detectBoard(boardId, hwRev) {
   const board = BOARD_DATABASE[boardId];
   const block = $('boardDetectedBlock');
   if (board) {
+    const mName = manifestNameFor(board.target);
+    const manifestLine = mName
+      ? `<div class="board-detected-sub">📦 В базе прошивок: ${mName}</div>`
+      : `<div class="board-detected-sub" style="color:var(--am)">⚠️ Для этого таргета нет прошивок в firmwares.json</div>`;
     block.innerHTML = `
       <div class="board-detected">
-        <div class="board-detected-name">✅ ${board.name}</div>
-        <div class="board-detected-sub">Плата определена автоматически</div>
+        <div class="board-detected-header"><span class="board-detected-icon">✅</span><span class="board-detected-label">ПЛАТА ОБНАРУЖЕНА</span></div>
+        <div class="board-detected-name">${board.name}</div>
+        ${manifestLine}
         <div class="board-detected-details">
-          <div class="board-detail"><span class="board-detail-label">ID</span><span class="board-detail-value">${boardId}</span></div>
+          <div class="board-detail"><span class="board-detail-label">ID платы</span><span class="board-detail-value">${boardId}</span></div>
           <div class="board-detail"><span class="board-detail-label">Ревизия</span><span class="board-detail-value">rev ${hwRev}</span></div>
           <div class="board-detail"><span class="board-detail-label">Таргет</span><span class="board-detail-value">${board.target}</span></div>
         </div>
+        <div style="margin-top:16px;font-size:13px;color:var(--dim)">${board.description}</div>
+        <div class="board-override"><div class="board-override-label">Если плата определена неверно:</div><button onclick="manualBoardOverride()">Выбрать другой таргет</button></div>
       </div>`;
     block.style.display = 'block';
     const ts = $('target');
     if (ts) setTimeout(() => { ts.value = board.target; ts.dispatchEvent(new Event('change')); }, 500);
+    log(`✓ Обнаружена плата: ${board.name} (${boardId} rev ${hwRev})`, 'ok');
   } else {
     block.innerHTML = `
       <div class="board-unknown">
-        <div style="font-size:32px">⚠️</div>
+        <div class="board-unknown-icon">⚠️</div>
+        <div class="board-unknown-label">ПЛАТА НЕ ОПРЕДЕЛЕНА</div>
         <div class="board-unknown-id">${boardId}</div>
-        <div class="board-unknown-hint">Плата не найдена в базе. Выберите таргет вручную во вкладке "Прошивка".</div>
+        <div class="board-unknown-hint">Ревизия: rev ${hwRev}<br>Плата не найдена в базе. Выберите таргет вручную.</div>
+        <div class="board-override"><button onclick="manualBoardOverride()">Выбрать таргет вручную</button></div>
       </div>`;
     block.style.display = 'block';
+    log(`⚠ Неизвестная плата: ${boardId}. Выберите таргет вручную.`, 'warn');
   }
+}
+
+function manualBoardOverride() {
+  document.querySelectorAll('.nav-item').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelector('[data-panel="panel-flash"]').classList.add('active');
+  $('panel-flash').classList.add('active');
+  setTimeout(() => $('target').focus(), 300);
 }
 
 /* ============ ПОДКЛЮЧЕНИЕ ============ */
@@ -795,13 +860,12 @@ function readAttitude(p){
   if (S.yaw < 0) S.yaw += 360;
   S.hasAtt = true;
 }
-let polling = false, stopPoll = false, tick = 0;
+let polling = false, stopPoll = false;
 async function startPolling(){
   if (polling) return;
-  polling = true; stopPoll = false; tick = 0;
+  polling = true; stopPoll = false;
   while (msp.connected && !stopPoll){
-    try { readAttitude(await msp.request(108)); } catch (e) {}
-    tick++;
+    try { readAttitude(await msp.request(108)); } catch (e) { log(e.message, 'warn'); }
     await sleep(Number($('rate').value));
   }
   polling = false;
@@ -811,7 +875,7 @@ function setLink(on){
   txt('linkState', on ? 'Онлайн' : 'Офлайн');
   $('connect').disabled = on;
   $('disconnect').disabled = !on;
-  if (!on) { $('boardDetectedBlock').style.display = 'none'; }
+  if (!on) { $('boardDetectedBlock').style.display = 'none'; currentBoardInfo = null; }
 }
 
 $('connect').addEventListener('click', async () => {
@@ -823,12 +887,14 @@ $('connect').addEventListener('click', async () => {
     const vid = info.usbVendorId ? info.usbVendorId.toString(16).padStart(4,'0').toUpperCase() : '????';
     const pid = info.usbProductId ? info.usbProductId.toString(16).padStart(4,'0').toUpperCase() : '????';
     txt('d-port', `${vid}:${pid}`);
+    log('Подключено', 'ok');
     for (const cmd of [1,2,3,4]){
-      try { readIdentity(cmd, await msp.request(cmd, new Uint8Array(), 1200)); } catch (e) {}
+      try { readIdentity(cmd, await msp.request(cmd, new Uint8Array(), 1200)); }
+      catch (e) { log('Команда ' + cmd + ': ' + e.message, 'warn'); }
     }
     startPolling();
   } catch (e) {
-    alert('Ошибка подключения: ' + e.message);
+    log('Ошибка: ' + e.message, 'err');
     try { await msp.close(); } catch {}
     setLink(false);
   }
@@ -838,6 +904,7 @@ $('disconnect').addEventListener('click', async () => {
   stopPoll = true;
   try { await msp.close(); } catch {}
   setLink(false);
+  log('Отключено');
 });
 
 document.querySelectorAll('.nav-item').forEach(btn => {
@@ -855,22 +922,6 @@ function updateReadouts(){
   txt('o-roll', S.hasAtt ? f1(S.roll) : '—');
   txt('o-pitch', S.hasAtt ? f1(S.pitch) : '—');
   txt('o-yaw', S.hasAtt ? String(Math.round(S.yaw)).padStart(3,'0')+'°' : '—');
-}
-
-/* ============ GITHUB: ЛИСТИНГ ФАЙЛОВ ============ */
-function ghRepoInfo() {
-  const host = location.hostname;
-  const owner = host.split('.')[0];
-  const parts = location.pathname.split('/').filter(Boolean);
-  const repo = parts.length ? parts[0] : host;
-  return { owner, repo };
-}
-
-async function ghList(path) {
-  const { owner, repo } = ghRepoInfo();
-  const r = await fetch(`https://api.github.com/repos/${owner}/${repo}/contents/${path}`);
-  if (!r.ok) throw new Error('GitHub API HTTP ' + r.status);
-  return await r.json();
 }
 
 /* ============ ФАЙЛЫ ПРОШИВОК ============ */
@@ -893,124 +944,113 @@ function checkFlashReady() {
   $('startFlash').disabled = !(hasFile && hasDfu);
 }
 
-function showFileInfo(fileName, fileSize, crc) {
+function showFileInfo(fileName, fileSize, crc, source) {
   $('fileInfoContainer').innerHTML = `
     <div class="file-info-card">
       <div class="file-title">✅ Выбран файл прошивки</div>
       <div class="file-row"><span class="file-label">Имя:</span><span class="file-value">${fileName}</span></div>
+      <div class="file-row"><span class="file-label">Источник:</span><span class="file-value">${source}</span></div>
       <div class="file-row"><span class="file-label">Размер:</span><span class="file-value">${(fileSize/1024).toFixed(1)} KB (${fileSize.toLocaleString('ru-RU')} байт)</span></div>
       <div class="file-row"><span class="file-label">CRC32:</span><span class="file-value" style="color:var(--cyan)">${crc}</span></div>
     </div>`;
 }
 
-async function loadTargets(){
-  const ts = $('target');
-  let targets = [];
-  try {
-    const r = await fetch('firmwares.json');
-    if (r.ok) {
-      FIRMWARE_MANIFEST = await r.json();
-      targets = Object.keys(FIRMWARE_MANIFEST).map(k => ({ id: k, name: FIRMWARE_MANIFEST[k].name || k }));
-    }
-  } catch (e) {}
-  if (!targets.length) {
+function acceptFirmware(buf, name, source){
+  firmwareData = new Uint8Array(buf);
+  const crc = crc32hex(firmwareData);
+  flashLog(`✅ Загружено: ${name}, ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
+  flashLog(`   источник: ${source}`, 'ok');
+  showFileInfo(name, firmwareData.length, crc, source);
+  checkFlashReady();
+}
+
+/* Перебор путей: подпапка таргета → firmwares/ → корень */
+async function fetchFirmwareSmart(target, file){
+  const candidates = [
+    `firmwares/${target}/${file}`,
+    `firmwares/${file}`,
+    `${file}`
+  ];
+  for (const url of candidates){
+    flashLog(`⬇️ Пробую путь: ${url}`, 'warn');
     try {
-      const items = await ghList('firmwares');
-      targets = items.filter(x => x.type === 'dir').map(x => ({ id: x.name, name: x.name }));
-      flashLog('📂 Таргеты найдены через GitHub API', 'ok');
+      const r = await fetch(url);
+      if (r.ok) {
+        const buf = await r.arrayBuffer();
+        return { buf, url };
+      }
+      flashLog(`   ответ HTTP ${r.status} — не подходит`, 'warn');
     } catch (e) {
-      flashLog('❌ Не удалось получить список таргетов: ' + e.message, 'err');
+      flashLog(`   ошибка: ${e.message}`, 'warn');
     }
   }
-  ts.innerHTML = '<option value="">Выберите таргет</option>';
-  targets.forEach(t => {
-    const opt = document.createElement('option');
-    opt.value = t.id; opt.textContent = t.name;
-    ts.appendChild(opt);
-  });
-  flashLog('📋 Список таргетов загружен', 'ok');
+  return null;
 }
 
-async function loadFirmwareList(target) {
-  const list = $('firmwareList');
-  list.innerHTML = '';
-
-  const td = FIRMWARE_MANIFEST ? FIRMWARE_MANIFEST[target] : null;
-  if (td) {
-    $('targetName').textContent = td.name || target;
-    if (td.image) { $('targetImage').src = td.image; $('targetImage').style.display = 'block'; }
-    else $('targetImage').style.display = 'none';
-    $('targetInfoContainer').style.display = 'block';
-  }
-
-  let bins = [];
-  flashLog(`🔎 Сканирую firmwares/${target}/ на GitHub...`, 'warn');
+async function loadFirmwares(){
   try {
-    const items = await ghList('firmwares/' + target);
-    bins = items.filter(x => x.type === 'file' && /\.bin$/i.test(x.name))
-                .map(x => ({ name: x.name, size: x.size, meta: null }));
-    flashLog(`✅ Найдено .bin файлов: ${bins.length}`, 'ok');
-  } catch (e) {
-    flashLog('⚠️ GitHub API недоступен (' + e.message + ') — беру имена из firmwares.json', 'warn');
-    if (td && td.firmwares) bins = td.firmwares.map(fw => ({ name: fw.file, size: 0, meta: fw }));
-  }
-
-  // дополняем описаниями из manifest по совпадению имени
-  if (td && td.firmwares) {
-    bins.forEach(b => {
-      const m = td.firmwares.find(fw => fw.file === b.name);
-      if (m) b.meta = m;
+    const response = await fetch('firmwares.json');
+    if (!response.ok) throw new Error('firmwares.json не найден');
+    const data = await response.json();
+    FIRMWARE_MANIFEST = data;
+    const ts = $('target');
+    ts.innerHTML = '<option value="">Выберите таргет</option>';
+    Object.keys(data).forEach(key => {
+      const opt = document.createElement('option');
+      opt.value = key; opt.textContent = data[key].name;
+      ts.appendChild(opt);
     });
-  }
+    ts.addEventListener('change', () => {
+      const target = ts.value;
+      if (!target) { $('firmwareListContainer').style.display='none'; $('targetInfoContainer').style.display='none'; return; }
+      const td = data[target];
+      $('targetName').textContent = td.name;
+      if (td.image) { $('targetImage').src = td.image; $('targetImage').style.display='block'; }
+      else $('targetImage').style.display='none';
+      $('targetInfoContainer').style.display='block';
 
-  bins.forEach((b, idx) => {
-    const item = document.createElement('div');
-    item.className = 'firmware-item';
-    const sizeTxt = b.size ? `${(b.size/1024).toFixed(1)} KB` : 'размер неизвестен';
-    item.innerHTML = `
-      <div class="firmware-info">
-        <div class="firmware-version">${b.name}</div>
-        <div class="firmware-meta">${sizeTxt}${b.meta && b.meta.date ? ' · ' + b.meta.date : ''}${b.meta && b.meta.notes ? ' · ' + b.meta.notes : ''}</div>
-      </div>
-      <input type="radio" name="firmware" id="fw-${idx}">`;
-    item.addEventListener('click', async () => {
-      list.querySelectorAll('.firmware-item').forEach(el => el.classList.remove('selected'));
-      item.classList.add('selected');
-      item.querySelector('input').checked = true;
-      const url = `firmwares/${target}/${encodeURIComponent(b.name)}`;
-      flashLog(`⬇️ GET ${url}`, 'warn');
-      try {
-        const r = await fetch(url);
-        if (!r.ok) throw new Error('HTTP ' + r.status);
-        const buf = await r.arrayBuffer();
-        firmwareData = new Uint8Array(buf);
-        const crc = crc32hex(firmwareData);
-        flashLog(`✅ Загружено с сайта: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
-        showFileInfo(b.name, firmwareData.length, crc);
-        checkFlashReady();
-      } catch (e) {
-        flashLog('❌ Ошибка загрузки: ' + e.message, 'err');
-        firmwareData = null;
-        item.classList.remove('selected');
-        $('fileInfoContainer').innerHTML = '';
-        checkFlashReady();
-      }
+      const list = $('firmwareList');
+      list.innerHTML = '';
+      td.firmwares.forEach((fw, idx) => {
+        const item = document.createElement('div');
+        item.className = 'firmware-item';
+        const previewHTML = fw.preview
+          ? `<div class="firmware-preview"><img src="${fw.preview}" alt="Preview" onerror="this.parentElement.innerHTML='<div class=&quot;firmware-preview-placeholder&quot;>Нет превью</div>'"></div>`
+          : `<div class="firmware-preview"><div class="firmware-preview-placeholder">Нет превью</div></div>`;
+        item.innerHTML = `${previewHTML}
+          <div class="firmware-info">
+            <div class="firmware-version">v${fw.version}</div>
+            <div class="firmware-meta">${fw.date} · ${fw.file}</div>
+            ${fw.notes ? `<div class="firmware-notes">${fw.notes}</div>` : ''}
+          </div>
+          <input type="radio" name="firmware" id="fw-${idx}">`;
+        item.addEventListener('click', async () => {
+          list.querySelectorAll('.firmware-item').forEach(el => el.classList.remove('selected'));
+          item.classList.add('selected');
+          item.querySelector('input').checked = true;
+          const found = await fetchFirmwareSmart(target, fw.file);
+          if (found) {
+            acceptFirmware(found.buf, fw.file, found.url);
+          } else {
+            flashLog(`❌ Файл ${fw.file} не найден ни в firmwares/${target}/, ни в firmwares/, ни в корне.`, 'err');
+            flashLog('💡 Положите bin в одну из этих папок ИЛИ используйте поле "прямая ссылка" ИЛИ загрузите с компьютера.', 'warn');
+            firmwareData = null;
+            item.classList.remove('selected');
+            $('fileInfoContainer').innerHTML = '';
+            checkFlashReady();
+          }
+        });
+        list.appendChild(item);
+      });
+      $('firmwareListContainer').style.display='block';
     });
-    list.appendChild(item);
-  });
-
-  $('firmwareListContainer').style.display = 'block';
+    flashLog('📋 Список прошивок загружен', 'ok');
+    if (currentBoardInfo) {
+      const b = BOARD_DATABASE[currentBoardInfo.id];
+      if (b) setTimeout(() => { ts.value = b.target; ts.dispatchEvent(new Event('change')); }, 500);
+    }
+  } catch (e) { flashLog('❌ Ошибка firmwares.json: ' + e.message, 'err'); }
 }
-
-$('target').addEventListener('change', () => {
-  const target = $('target').value;
-  if (!target) {
-    $('firmwareListContainer').style.display = 'none';
-    $('targetInfoContainer').style.display = 'none';
-    return;
-  }
-  loadFirmwareList(target);
-});
 
 $('firmwareFile').addEventListener('change', async (e) => {
   const file = e.target.files[0];
@@ -1018,11 +1058,8 @@ $('firmwareFile').addEventListener('change', async (e) => {
   flashLog(`📁 Чтение файла с компьютера: ${file.name}`, 'warn');
   try {
     const buf = await file.arrayBuffer();
-    firmwareData = new Uint8Array(buf);
-    const crc = crc32hex(firmwareData);
-    flashLog(`✅ Файл в памяти: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
-    showFileInfo(file.name, firmwareData.length, crc);
-    checkFlashReady();
+    acceptFirmware(buf, file.name, 'локальный файл');
+    if (!dfuDevice) flashLog('⚠️ Теперь переведите плату в DFU (BOOT+USB) и нажмите "Выбрать DFU-устройство"', 'warn');
   } catch (err) {
     flashLog('❌ Ошибка чтения: ' + err.message, 'err');
     firmwareData = null;
@@ -1031,32 +1068,60 @@ $('firmwareFile').addEventListener('change', async (e) => {
   }
 });
 
+$('loadUrl').addEventListener('click', async () => {
+  const url = $('firmwareUrl').value.trim();
+  if (!url) { flashLog('❌ Вставьте ссылку на .bin', 'err'); return; }
+  flashLog(`⬇️ GET ${url}`, 'warn');
+  try {
+    const r = await fetch(url);
+    if (!r.ok) throw new Error('HTTP ' + r.status);
+    const buf = await r.arrayBuffer();
+    const name = url.split('/').pop() || 'firmware.bin';
+    acceptFirmware(buf, name, url);
+  } catch (e) {
+    flashLog('❌ Ошибка загрузки по ссылке: ' + e.message, 'err');
+  }
+});
+
 /* ============ DFU ДВИЖОК ============ */
-const DFU_STATE = { IDLE:2, DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5, MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8, ERROR:10 };
+const DFU_STATE = { APP_IDLE:0, APP_DETACH:1, IDLE:2, DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5, MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8, UPLOAD_IDLE:9, ERROR:10 };
 const STATE_NAMES = ['appIDLE','appDETACH','dfuIDLE','dfuDNLOAD-SYNC','dfuDNBUSY','dfuDNLOAD-IDLE','dfuMANIFEST-SYNC','dfuMANIFEST','dfuMANIFEST-WAIT-RESET','dfuUPLOAD-IDLE','dfuERROR'];
 const STATUS_NAMES = ['OK','errTARGET','errFILE','errWRITE','errERASE','errCHECK_ERASED','errPROG','errVERIFY','errADDRESS','errNOTDONE','errFIRMWARE','errVENDOR','errUSBR','errPOR','errUNKNOWN','errSTALLEDPKT'];
 const IDLE_STATES = [DFU_STATE.IDLE, DFU_STATE.DNLOAD_IDLE];
 const MANIFEST_STATES = [DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST, DFU_STATE.MANIFEST_WAIT_RESET];
 
 function dfuAssert(){
-  if (!dfuDevice || typeof dfuDevice.controlTransferOut !== 'function' || typeof dfuDevice.controlTransferIn !== 'function') {
+  if (!dfuDevice ||
+      typeof dfuDevice.controlTransferOut !== 'function' ||
+      typeof dfuDevice.controlTransferIn !== 'function') {
     throw new Error('DFU-соединение недействительно');
   }
 }
 
-async function dfuGetStatus(){
-  dfuAssert();
-  const res = await dfuDevice.controlTransferIn(
-    { requestType:'class', recipient:'interface', request:0x03, value:0, index: dfuInterface }, 6);
-  const d = new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
-  return { status: d[0], pollTimeout: d[1] | (d[2]<<8) | (d[3]<<16), state: d[4] };
-}
-
-async function dfuClearStatus(){
+async function dfuControlOut(request, value, data){
   dfuAssert();
   await dfuDevice.controlTransferOut(
-    { requestType:'class', recipient:'interface', request:0x04, value:0, index: dfuInterface }, new Uint8Array(0));
+    { requestType:'class', recipient:'interface', request, value, index: dfuInterface },
+    data
+  );
 }
+
+async function dfuControlIn(request, value, length){
+  dfuAssert();
+  const res = await dfuDevice.controlTransferIn(
+    { requestType:'class', recipient:'interface', request, value, index: dfuInterface },
+    length
+  );
+  if (!res || !res.data) throw new Error('Пустой ответ controlTransferIn');
+  return new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
+}
+
+async function dfuGetStatus(){
+  const d = await dfuControlIn(0x03, 0, 6);
+  return { status: d[0], pollTimeout: d[1] | (d[2]<<8) | (d[3]<<16), state: d[4], iString: d[5] };
+}
+
+async function dfuClearStatus(){ await dfuControlOut(0x04, 0, new Uint8Array(0)); }
 
 async function dfuSync(){
   let st = await dfuGetStatus();
@@ -1079,7 +1144,7 @@ async function dfuWaitIdle(timeoutMs){
     if (MANIFEST_STATES.includes(st.state)) throw new Error('Плата преждевременно вышла в manifest');
     if (st.state === DFU_STATE.ERROR || st.status !== 0) {
       const errName = STATUS_NAMES[st.status] || ('status'+st.status);
-      try { await dfuClearStatus(); } catch (e) {}
+      try { await dfuClearStatus(); } catch {}
       throw new Error(`DFU ошибка: ${STATE_NAMES[st.state] || st.state}, ${errName}`);
     }
     await sleep(Math.min(Math.max(st.pollTimeout || 50, 20), 1000));
@@ -1087,18 +1152,30 @@ async function dfuWaitIdle(timeoutMs){
   throw new Error('Тайм-аут ожидания DFU');
 }
 
-async function dfuDownloadBlock(blockNum, data, timeoutMs){
-  dfuAssert();
-  await dfuDevice.controlTransferOut(
-    { requestType:'class', recipient:'interface', request:0x01, value:blockNum, index: dfuInterface }, data);
-  await dfuWaitIdle(timeoutMs || 10000);
+async function dfuDownloadBlock(blockNum, data, timeoutMs = 10000){
+  await dfuControlOut(0x01, blockNum, data);
+  await dfuWaitIdle(timeoutMs);
+}
+
+async function dfuGetTransferSize(){
+  try {
+    dfuAssert();
+    const res = await dfuDevice.controlTransferIn(
+      { requestType:'standard', recipient:'interface', request:0x06, value:0x2100, index: dfuInterface },
+      9
+    );
+    const b = new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
+    return b[7] | (b[8] << 8);
+  } catch (e) {
+    return 0;
+  }
 }
 
 async function openDfuDevice(d) {
   dfuDevice = d;
-  if (typeof dfuDevice.controlTransferOut !== 'function') {
+  if (typeof dfuDevice.controlTransferOut !== 'function' || typeof dfuDevice.controlTransferIn !== 'function') {
     dfuDevice = null;
-    throw new Error('Браузер не предоставил controlTransferOut');
+    throw new Error('Браузер не предоставил controlTransferIn/Out');
   }
   await dfuDevice.open();
   await dfuDevice.selectConfiguration(1);
@@ -1106,63 +1183,48 @@ async function openDfuDevice(d) {
   dfuInterface = 0;
   const st = await dfuSync();
   flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
-}
-
-async function autoDfu() {
-  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
-  flashLog('🔌 Поиск ранее разрешённого DFU-устройства...', 'warn');
-  try {
-    const devs = await navigator.usb.getDevices();
-    const d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
-    if (!d) {
-      flashLog('⚠️ DFU не найдено среди разрешённых. Нажмите "Выбрать DFU-устройство"', 'warn');
-      $('dfuStatus').textContent = '⚠️ Нажмите "Выбрать DFU-устройство"';
-      return;
-    }
-    await openDfuDevice(d);
-    $('dfuStatus').innerHTML = '✅ DFU: STM32 BOOTLOADER (0x0483:0xDF11)';
-    flashLog('✅ DFU подключено без диалога', 'ok');
-    checkFlashReady();
-  } catch (e) {
-    flashLog('❌ ' + e.message, 'err');
-    dfuDevice = null;
-    checkFlashReady();
-  }
+  const ts = await dfuGetTransferSize();
+  if (ts) flashLog(`✓ wTransferSize устройства: ${ts} байт`, 'ok');
 }
 
 async function connectToDfu() {
   if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
   try {
-    flashLog('🔍 Поиск DFU (диалог)...', 'warn');
+    flashLog('🔍 Поиск DFU...', 'warn');
     $('dfuStatus').textContent = '🔍 Поиск...';
     const d = await navigator.usb.requestDevice({
       filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
     });
+    const vid = '0x' + d.vendorId.toString(16).toUpperCase().padStart(4,'0');
+    const pid = '0x' + d.productId.toString(16).toUpperCase().padStart(4,'0');
+    flashLog(`✓ Выбрано: ${d.productName || 'STM32 BOOTLOADER'} (${vid}:${pid})`, 'ok');
     await openDfuDevice(d);
-    $('dfuStatus').innerHTML = `✅ DFU: ${d.productName || 'STM32 BOOTLOADER'}`;
+    $('dfuStatus').innerHTML = `✅ DFU: ${d.productName || 'STM32 BOOTLOADER'} (${vid}:${pid})`;
     checkFlashReady();
   } catch (e) {
     if (e.name === 'NotFoundError') { flashLog('❌ Устройств не найдено (плата не в DFU?)', 'err'); $('dfuStatus').textContent = '❌ Устройств не найдено'; }
+    else if (String(e.message).includes('Access denied')) { flashLog('❌ Access denied — закройте Zadig/STM32Cube', 'err'); $('dfuStatus').textContent = '❌ Access denied'; }
     else { flashLog('❌ ' + e.message, 'err'); $('dfuStatus').textContent = '❌ ' + e.message; }
     dfuDevice = null;
     checkFlashReady();
   }
 }
-$('autoDfu').addEventListener('click', autoDfu);
 $('connectDfu').addEventListener('click', connectToDfu);
+$('retryDfu').addEventListener('click', connectToDfu);
 
 $('diagUsb').addEventListener('click', async () => {
   if (!('usb' in navigator)) { flashLog('❌ WebUSB недоступен', 'err'); return; }
   flashLog('🔬 === ДИАГНОСТИКА USB ===', 'warn');
+  flashLog(`Браузер: ${navigator.userAgent.substring(0, 90)}`, 'warn');
   try {
     const devs = await navigator.usb.getDevices();
     flashLog(`Разрешённых устройств: ${devs.length}`, 'warn');
-    devs.forEach(d => flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened}`, 'warn'));
-  } catch (e) { flashLog('Ошибка: ' + e.message, 'err'); }
+    devs.forEach(d => flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened} in=${typeof d.controlTransferIn} out=${typeof d.controlTransferOut}`, 'warn'));
+  } catch (e) { flashLog('getDevices ошибка: ' + e.message, 'err'); }
   flashLog('🔬 === КОНЕЦ ===', 'warn');
 });
 
-/* ============ ПРОШИВКА ============ */
+/* ============ СТРАТЕГИИ ПРОШИВКИ ============ */
 function dfuLost(e) {
   const m = String(e && e.message || e);
   return m.includes('disconnected') || m.includes('transfer error') || m.includes('device was lost');
@@ -1176,8 +1238,12 @@ const ALL_SECTORS = [
   {a:0x080A0000,s:131072},{a:0x080C0000,s:131072},{a:0x080E0000,s:131072}
 ];
 
-function addrCmd(addr){ return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
-function eraseCmd(addr){ return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
+function addrCmd(addr){
+  return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]);
+}
+function eraseCmd(addr){
+  return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]);
+}
 
 async function eraseSectors(limitBytes){
   const sectors = ALL_SECTORS.filter(sec => sec.a < FLASH_BASE + limitBytes);
@@ -1190,7 +1256,7 @@ async function eraseSectors(limitBytes){
 }
 
 async function massErase(){
-  flashLog('🧹 Массовое стирание...', 'warn');
+  flashLog('🧹 Массовое стирание (0xFFFFFFFF)...', 'warn');
   await dfuDownloadBlock(0, eraseCmd(0xFFFFFFFF), 30000);
   flashLog('✓ Массовое стирание выполнено', 'ok');
 }
@@ -1227,13 +1293,16 @@ async function writeBlocks(limitBytes, blockSize){
     } catch (err) {
       const addrHex = '0x' + addr.toString(16).toUpperCase();
       flashLog(`❌ Блок ${i} по адресу ${addrHex} отклонён: ${err.message}`, 'err');
-      if (dfuLost(err)) throw err;
-      try {
-        await dfuSync();
-        await dfuDownloadBlock(i + 2, chunk);
-        flashLog(`✓ Блок ${i} (${addrHex}) записан со второй попытки`, 'ok');
-      } catch (err2) {
-        throw new Error(`Блок ${i} по адресу ${addrHex} отклонён дважды: ${err2.message}`);
+      if (!dfuLost(err)) {
+        try {
+          await dfuSync();
+          await dfuDownloadBlock(i + 2, chunk);
+          flashLog(`✓ Блок ${i} (${addrHex}) записан со второй попытки`, 'ok');
+        } catch (err2) {
+          throw new Error(`Блок ${i} по адресу ${addrHex} отклонён дважды: ${err2.message}`);
+        }
+      } else {
+        throw err;
       }
     }
     const p = (25 + (i+1)/total*70).toFixed(0);
@@ -1242,6 +1311,50 @@ async function writeBlocks(limitBytes, blockSize){
     if (i % 100 === 0) flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
   }
   flashLog('✓ Запись завершена', 'ok');
+  return bs;
+}
+
+async function writeBlocksResetAddress(limitBytes, blockSize){
+  let bs = blockSize;
+  const total = Math.ceil(limitBytes / bs);
+  let lastSectorAddr = -1;
+  for (let i = 0; i < total; i++) {
+    if (cancelFlash) throw new Error('Отменено пользователем');
+    const s = i * bs;
+    const e = Math.min(s + bs, limitBytes);
+    const addr = FLASH_BASE + s;
+    let secAddr = FLASH_BASE;
+    for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
+    if (secAddr !== lastSectorAddr) {
+      await dfuDownloadBlock(0, addrCmd(addr));
+      lastSectorAddr = secAddr;
+    }
+    const chunk = firmwareData.slice(s, e);
+    try {
+      await dfuDownloadBlock(i + 2, chunk);
+    } catch (err) {
+      if (dfuLost(err)) throw err;
+      bs = Math.floor(bs / 2);
+      if (bs < 64) throw new Error('Плата отклоняет запись всеми размерами');
+      flashLog(`⚠️ Адрес 0x${addr.toString(16)} отклонён, уменьшаю блок до ${bs}`, 'warn');
+      await dfuSync();
+      i--;
+      continue;
+    }
+    const p = (25 + (i+1)/total*70).toFixed(0);
+    $('progressFill').style.width = p + '%';
+    $('progressFill').textContent = p + '%';
+    if (i % 100 === 0) flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
+  }
+  flashLog('✓ Запись завершена', 'ok');
+  return bs;
+}
+
+async function runStrategy(name, fn){
+  flashLog(`▶ Стратегия: ${name}`, 'warn');
+  await dfuSync();
+  await fn();
+  flashLog(`✅ Стратегия "${name}" прошла!`, 'ok');
 }
 
 $('startFlash').addEventListener('click', async () => {
@@ -1250,48 +1363,66 @@ $('startFlash').addEventListener('click', async () => {
   const crc = crc32hex(firmwareData);
   const limitKB = Math.max(0, parseInt($('flashLimitKB').value, 10) || 0);
   const limitBytes = limitKB > 0 ? Math.min(limitKB * 1024, firmwareData.length) : firmwareData.length;
-  if (!confirm(`⚠️ НАЧАТЬ ПРОШИВКУ?\n\nБудет записано: ${(limitBytes/1024).toFixed(1)} KB\nCRC32: ${crc}\n\nНЕ отключайте USB!`)) return;
+  if (!confirm(`⚠️ НАЧАТЬ ПРОШИВКУ?\n\nФайл: ${(firmwareData.length/1024).toFixed(1)} KB\nБудет записано: ${(limitBytes/1024).toFixed(1)} KB\nCRC32: ${crc}\n\nСайт переберёт несколько стратегий. НЕ отключайте USB!`)) return;
 
   $('startFlash').disabled = true;
   $('cancelFlash').disabled = false;
   cancelFlash = false;
   let partialWritten = false;
 
-  try {
-    flashLog('🚀 Начало прошивки...', 'ok');
-    const st0 = await dfuSync();
-    flashLog(`✓ Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
+  let baseBlockSize = await dfuGetTransferSize();
+  if (!baseBlockSize || baseBlockSize < 64 || baseBlockSize > 4096) baseBlockSize = 1024;
+  flashLog(`📦 Базовый размер блока: ${baseBlockSize}`, 'ok');
 
-    // Попытка 1: стирание по секторам
+  const strategies = [
+    { name: 'A — стирание по секторам', fn: async () => { await eraseSectors(limitBytes); await writeBlocks(limitBytes, baseBlockSize); } },
+    { name: 'B — массовое стирание', fn: async () => { await massErase(); await writeBlocks(limitBytes, baseBlockSize); } },
+    { name: 'C — сброс адреса на каждом секторе', fn: async () => { await eraseSectors(limitBytes); await writeBlocksResetAddress(limitBytes, baseBlockSize); } }
+  ];
+
+  let success = false;
+  for (const strat of strategies) {
+    if (cancelFlash) break;
     try {
-      await eraseSectors(limitBytes);
-      await writeBlocks(limitBytes, 1024);
-    } catch (e1) {
-      if (dfuLost(e1)) throw e1;
-      partialWritten = true;
-      flashLog(`⚠️ Попытка 1 не удалась: ${e1.message}`, 'warn');
-      flashLog('➡️ Попытка 2: массовое стирание...', 'warn');
       await dfuSync();
-      await massErase();
-      await writeBlocks(limitBytes, 1024);
-      partialWritten = false;
+      $('progressFill').style.width = '5%';
+      $('progressFill').textContent = '5%';
+      await runStrategy(strat.name, strat.fn);
+      success = true;
+      flashLog(`🏆 УСПЕХ на стратегии "${strat.name}"`, 'ok');
+      break;
+    } catch (e) {
+      partialWritten = true;
+      flashLog(`⚠️ Стратегия "${strat.name}" не сработала: ${e.message}`, 'warn');
+      if (dfuLost(e)) {
+        flashLog('⚠️ Плата отключилась — дальнейшие стратегии невозможны без переподключения', 'warn');
+        break;
+      }
+      flashLog('➡️ Пробую следующую стратегию...', 'warn');
     }
+  }
 
-    flashLog('🏁 Выход из DFU...', 'warn');
-    try { await dfuDevice.controlTransferOut({ requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface }, new Uint8Array(0)); } catch (e) {}
+  if (success) {
+    try {
+      flashLog('🏁 Завершение: выход из DFU...', 'warn');
+      await dfuControlOut(0x01, 0, new Uint8Array(0));
+    } catch (e) { /* плата могла сама перезагрузиться */ }
     $('progressFill').style.width = '100%';
     $('progressFill').textContent = '100%';
+    partialWritten = false;
     flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА!', 'ok');
-    flashLog('🔄 Переподключите USB — полётник запустится', 'ok');
-
-  } catch (e) {
-    flashLog('❌ Ошибка прошивки: ' + e.message, 'err');
-    if (partialWritten) flashLog('⚠️ Прошивка записана ЧАСТИЧНО! Плата не запустится, пока не прошьёте полностью.', 'err');
-    if (dfuLost(e)) { dfuDevice = null; flashLog('⚠️ Плата отключилась. Переведите в DFU заново (BOOT+USB)', 'warn'); }
-  } finally {
-    $('cancelFlash').disabled = true;
-    checkFlashReady();
+    flashLog('🔄 Переподключите USB — полётник запустится с новой прошивкой', 'ok');
+  } else {
+    flashLog('❌ Все стратегии исчерпаны. Пришлите лог — разберёмся.', 'err');
+    if (partialWritten) {
+      flashLog('⚠️ ВНИМАНИЕ: прошивка записана ЧАСТИЧНО! Плата не запустится, пока не прошьёте полностью.', 'err');
+      flashLog('💡 Попробуйте лимит 512 KB как временное решение, либо dfu-util/STM32CubeProgrammer.', 'warn');
+    }
+    dfuDevice = null;
   }
+
+  $('cancelFlash').disabled = true;
+  checkFlashReady();
 });
 
 $('cancelFlash').addEventListener('click', () => {
@@ -1311,7 +1442,7 @@ function frame(t){
   }
 }
 requestAnimationFrame(frame);
-loadTargets();
+loadFirmwares();
 checkFlashReady();
 
 </script>
