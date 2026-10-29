@@ -425,7 +425,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
     </main>
   </div>
 
-  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и ☕</footer>
+  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и </footer>
 </div>
 
 <script>
@@ -1035,6 +1035,17 @@ const STATUS_NAMES = ['OK','errTARGET','errFILE','errWRITE','errERASE','errCHECK
 const IDLE_STATES = [DFU_STATE.IDLE, DFU_STATE.DNLOAD_IDLE];
 const MANIFEST_STATES = [DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST, DFU_STATE.MANIFEST_WAIT_RESET];
 
+const FLASH_BASE = 0x08000000;
+const ALL_SECTORS = [
+  {a:0x08000000,s:16384},{a:0x08004000,s:16384},{a:0x08008000,s:16384},{a:0x0800C000,s:16384},
+  {a:0x08010000,s:65536},
+  {a:0x08020000,s:131072},{a:0x08040000,s:131072},{a:0x08060000,s:131072},{a:0x08080000,s:131072},
+  {a:0x080A0000,s:131072},{a:0x080C0000,s:131072},{a:0x080E0000,s:131072}
+];
+
+function addrCmd(addr){ return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
+function eraseCmd(addr){ return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
+
 function dfuAssert(){
   if (!dfuDevice || typeof dfuDevice.controlTransferOut !== 'function' || typeof dfuDevice.controlTransferIn !== 'function') {
     throw new Error('DFU-соединение недействительно');
@@ -1091,7 +1102,6 @@ async function dfuDownloadBlock(blockNum, data, timeoutMs){
   await dfuWaitIdle(timeoutMs || 10000);
 }
 
-// Чтение памяти чипа (DFU_UPLOAD)
 async function dfuReadMemory(addr, len) {
   await dfuDownloadBlock(0, addrCmd(addr));
   const out = new Uint8Array(len);
@@ -1125,6 +1135,20 @@ async function readFlashSize() {
   }
 }
 
+async function readOptionBytes() {
+  try {
+    const optcr = await dfuReadMemory(0x1FFFC000, 4);
+    const optcr1 = await dfuReadMemory(0x1FFFC008, 4);
+    const hex1 = Array.from(optcr).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    const hex2 = Array.from(optcr1).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    flashLog(`🔒 Option bytes: OPTCR=[${hex1}] OPTCR1=[${hex2}]`, 'warn');
+    const sprmod = (optcr[1] & 0x80) !== 0;
+    flashLog(`   SPRMOD (защита секторов): ${sprmod ? 'АКТИВНА' : 'неактивна'}`, sprmod ? 'err' : 'ok');
+  } catch (e) {
+    flashLog('⚠️ Не удалось прочитать option bytes: ' + e.message, 'warn');
+  }
+}
+
 function trimTailFF(data) {
   let i = data.length - 1;
   while (i > 0 && data[i] === 0xFF) i--;
@@ -1144,6 +1168,7 @@ async function openDfuDevice(d) {
   const st = await dfuSync();
   flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
   await readFlashSize();
+  await readOptionBytes();
 }
 
 async function autoDfu() {
@@ -1200,22 +1225,11 @@ $('diagUsb').addEventListener('click', async () => {
   flashLog('🔬 === КОНЕЦ ===', 'warn');
 });
 
-/* ============ ПРОШИВКА (с логикой webdfu) ============ */
+/* ============ ПРОШИВКА ============ */
 function dfuLost(e) {
   const m = String(e && e.message || e);
   return m.includes('disconnected') || m.includes('transfer error') || m.includes('device was lost');
 }
-
-const FLASH_BASE = 0x08000000;
-const ALL_SECTORS = [
-  {a:0x08000000,s:16384},{a:0x08004000,s:16384},{a:0x08008000,s:16384},{a:0x0800C000,s:16384},
-  {a:0x08010000,s:65536},
-  {a:0x08020000,s:131072},{a:0x08040000,s:131072},{a:0x08060000,s:131072},{a:0x08080000,s:131072},
-  {a:0x080A0000,s:131072},{a:0x080C0000,s:131072},{a:0x080E0000,s:131072}
-];
-
-function addrCmd(addr){ return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
-function eraseCmd(addr){ return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
 
 async function eraseSectors(limitBytes){
   const sectors = ALL_SECTORS.filter(sec => sec.a < FLASH_BASE + limitBytes);
@@ -1255,6 +1269,8 @@ async function writeBlocks(limitBytes, blockSize){
 
   const total = Math.ceil(limitBytes / bs);
   let addrResets = 0;
+  let lastSectorAddr = -1;
+
   for (let i = 1; i < total; i++) {
     if (cancelFlash) throw new Error('Отменено пользователем');
     const s = i * bs;
@@ -1262,11 +1278,14 @@ async function writeBlocks(limitBytes, blockSize){
     const addr = FLASH_BASE + s;
     const chunk = firmwareData.slice(s, e);
 
-    // webdfu-стиль: переустанавливаем адрес каждые 100 блоков (защита от сбоя указателя)
-    if (i % 100 === 0) {
+    // Переустанавливаем адрес при переходе на новый сектор
+    let secAddr = FLASH_BASE;
+    for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
+    if (secAddr !== lastSectorAddr) {
       try {
         await dfuDownloadBlock(0, addrCmd(addr));
         addrResets++;
+        lastSectorAddr = secAddr;
       } catch (e2) {
         flashLog('⚠️ Не удалось переустановить адрес: ' + e2.message, 'warn');
       }
@@ -1279,14 +1298,14 @@ async function writeBlocks(limitBytes, blockSize){
       const addrHex = '0x' + addr.toString(16).toUpperCase();
       flashLog(`❌ Блок ${i} (${addrHex}) отклонён: ${err.message}`, 'err');
 
-      // Диагностика: что лежит в памяти?
       try {
         const mem = await dfuReadMemory(addr, 16);
         const hex = Array.from(mem).map(b => b.toString(16).padStart(2,'0')).join(' ');
         flashLog(`🔬 Содержимое по ${addrHex}: ${hex}`, 'warn');
-      } catch (e2) {}
+      } catch (e2) {
+        flashLog('🔬 Чтение памяти не удалось: ' + e2.message, 'warn');
+      }
 
-      // Лечение: синхронизация + переустановка адреса + повтор
       try {
         await dfuSync();
         await dfuDownloadBlock(0, addrCmd(addr));
@@ -1310,7 +1329,6 @@ $('startFlash').addEventListener('click', async () => {
   try { dfuAssert(); } catch (e) { flashLog('❌ ' + e.message, 'err'); return; }
   const crc = crc32hex(firmwareData);
 
-  // Обрезка паддинга 0xFF
   const trimmed = trimTailFF(firmwareData);
   if (trimmed !== firmwareData.length) {
     flashLog(`✂️ Обрезан хвостовой паддинг 0xFF: ${(firmwareData.length/1024).toFixed(1)} KB → ${(trimmed/1024).toFixed(1)} KB`, 'warn');
@@ -1340,18 +1358,20 @@ $('startFlash').addEventListener('click', async () => {
     const st0 = await dfuSync();
     flashLog(`✓ Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
 
-    // Попытка 1: стирание по секторам
+    // Попытка 1: массовое стирание ПЕРВЫМ (может снять защиту)
     try {
+      flashLog('➡️ Попытка 1: массовое стирание первым...', 'warn');
+      await massErase();
       await eraseSectors(limitBytes);
       await writeBlocks(limitBytes, 1024);
     } catch (e1) {
       if (dfuLost(e1)) throw e1;
       partialWritten = true;
       flashLog(`⚠️ Попытка 1 не удалась: ${e1.message}`, 'warn');
-      flashLog('➡️ Попытка 2: массовое стирание...', 'warn');
+      flashLog('➡️ Попытка 2: только секторное стирание...', 'warn');
       await dfuSync();
-      await massErase();
-      await writeBlocks(limitBytes, 1024);
+      await eraseSectors(limitBytes);
+      await writeBlocks(limitBytes, 512);
       partialWritten = false;
     }
 
