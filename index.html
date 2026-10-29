@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ЗАГЛУШКА v1</title>
+<style>
+  body {
+    background: #111;
+    color: #eee;
+    font-family: sans-serif;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 100vh;
+    margin: 0;
+  }
+  .box {
+    text-align: center;
+    border: 2px solid #4ade80;
+    border-radius: 12px;
+    padding: 40px;
+    max-width: 500px;
+  }
+  h1 { color: #4ade80; margin: 0 0 10px; }
+  p { margin: 8px 0; }
+  button {
+    margin-top: 16px;
+    padding: 12px 24px;
+    font-size: 16px;
+    cursor: pointer;
+  }
+</style>
+</head>
+<body>
+  <div class="box">
+    <h1>ЗАГЛУШКА РАБОТАЕТ</h1>
+    <p>Маркер версии: <b>2026-10-18-A</b></p>
+    <p>Если ты видишь эту надпись — GitHub Pages отдал файл.</p>
+    <p id="js">JS ещё не выполнился</p>
+    <button onclick="alert('Кнопка работает!')">Проверить кнопку</button>
+  </div>
+  <script>
+    document.getElementById('js').textContent =
+      'JS РАБОТАЕТ: ' + new Date().toLocaleTimeString();
+  </script>
+</body>
+</html>
