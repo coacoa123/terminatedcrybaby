@@ -199,6 +199,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .dfu-instruction li { margin: 8px 0; }
 
 .footer { position: relative; z-index: 1; background: var(--glass); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
+.footer-version { font-size: 13px; color: var(--cyan); margin-top: 8px; font-weight: 600; }
 
 .cosmic-bee { position: fixed; z-index: 2; pointer-events: none; filter: drop-shadow(0 0 15px currentColor) drop-shadow(0 0 30px currentColor); }
 .bee-1 { color: #ffd700; top: 10%; left: 10%; animation: spiralIn1 14s infinite ease-in-out; }
@@ -425,7 +426,10 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
     </main>
   </div>
 
-  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и ☕</footer>
+  <footer class="footer">
+    <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
+    <div class="footer-version">Версия: 2.2.0 | Обновлено: 2026-11-01</div>
+  </footer>
 </div>
 
 <script>
@@ -1035,7 +1039,7 @@ $('firmwareFile').addEventListener('change', async (e) => {
   }
 });
 
-/* ============ DFU ДВИЖОК (на основе webdfu) ============ */
+/* ============ DFU ДВИЖОК ============ */
 const DFU_STATE = { IDLE:2, DNLOAD_SYNC:3, DN_BUSY:4, DNLOAD_IDLE:5, MANIFEST_SYNC:6, MANIFEST:7, MANIFEST_WAIT_RESET:8, ERROR:10 };
 const STATE_NAMES = ['appIDLE','appDETACH','dfuIDLE','dfuDNLOAD-SYNC','dfuDNBUSY','dfuDNLOAD-IDLE','dfuMANIFEST-SYNC','dfuMANIFEST','dfuMANIFEST-WAIT-RESET','dfuUPLOAD-IDLE','dfuERROR'];
 const STATUS_NAMES = ['OK','errTARGET','errFILE','errWRITE','errERASE','errCHECK_ERASED','errPROG','errVERIFY','errADDRESS','errNOTDONE','errFIRMWARE','errVENDOR','errUSBR','errPOR','errUNKNOWN','errSTALLEDPKT'];
@@ -1129,6 +1133,7 @@ async function dfuReadMemory(addr, len) {
 
 async function readFlashSize() {
   try {
+    await dfuSync();
     const d = await dfuReadMemory(0x1FFF7A22, 2);
     const kb = d[0] | (d[1] << 8);
     if (kb > 0 && kb <= 2048) {
@@ -1143,8 +1148,8 @@ async function readFlashSize() {
 }
 
 async function readChipID() {
-  // DBGMCU_IDCODE
   try {
+    await dfuSync();
     const d = await dfuReadMemory(0xE0042000, 4);
     const id = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
     const hex = '0x' + (id >>> 0).toString(16).toUpperCase().padStart(8, '0');
@@ -1152,11 +1157,23 @@ async function readChipID() {
     const revId = (id >> 16) & 0xFFFF;
     flashLog(`🔬 IDCODE: ${hex} (DEV_ID=0x${devId.toString(16)}, REV_ID=0x${revId.toString(16)})`, 'ok');
     CHIP_IDCODE = id;
+    
+    const chipModels = {
+      0x413: 'STM32F405/407 или F415/417',
+      0x419: 'STM32F427/437',
+      0x434: 'STM32F469/479',
+      0x458: 'STM32F410',
+      0x463: 'STM32F413/423'
+    };
+    if (chipModels[devId]) {
+      flashLog(`   Модель: ${chipModels[devId]}`, 'ok');
+    }
   } catch (e) {
     flashLog('⚠️ IDCODE недоступен: ' + e.message, 'warn');
   }
-  // UID (96 bits = 12 bytes)
+  
   try {
+    await dfuSync();
     const d = await dfuReadMemory(0x1FFF7A10, 12);
     const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(':');
     flashLog(`🔬 UID: ${hex}`, 'ok');
@@ -1167,21 +1184,20 @@ async function readChipID() {
 
 async function readOptionBytes() {
   try {
+    await dfuSync();
     const optcr = await dfuReadMemory(0x1FFFC000, 4);
+    await dfuSync();
     const optcr1 = await dfuReadMemory(0x1FFFC008, 4);
     const hex1 = Array.from(optcr).map(b => b.toString(16).padStart(2,'0')).join(' ');
     const hex2 = Array.from(optcr1).map(b => b.toString(16).padStart(2,'0')).join(' ');
     flashLog(`🔒 OPTCR=[${hex1}] OPTCR1=[${hex2}]`, 'warn');
-    const sprmod = (optcr[1] & 0x80) !== 0;
     const rdp = optcr[0] & 0xFF;
-    flashLog(`   RDP (Readout Protection): 0x${rdp.toString(16)} ${rdp === 0xAA ? '(Level 0 — открыто)' : rdp === 0x00 ? '(Level 3 — полностью заблокировано!)' : '(Level 1/2)'}`, rdp === 0xAA ? 'ok' : 'err');
-    flashLog(`   SPRMOD: ${sprmod ? 'АКТИВНА (защита секторов)' : 'неактивна'}`, sprmod ? 'err' : 'ok');
-    // WRP (Write Protection) bits in OPTCR, bits 16..27
+    flashLog(`   RDP: 0x${rdp.toString(16)} ${rdp === 0xAA ? '(Level 0 — открыто)' : rdp === 0x00 ? '(Level 3 — заблокировано!)' : '(Level 1/2)'}`, rdp === 0xAA ? 'ok' : 'err');
     const wrpBits = ((optcr[2] | (optcr[3] << 8)) >> 0) & 0x0FFF;
     if (wrpBits !== 0) {
-      flashLog(`   ⚠️ WRP bits = 0x${wrpBits.toString(16)} — некоторые сектора ЗАЩИЩЕНЫ от записи!`, 'err');
+      flashLog(`   ⚠️ WRP bits = 0x${wrpBits.toString(16)} — сектора ЗАЩИЩЕНЫ!`, 'err');
     } else {
-      flashLog(`   WRP bits = 0 (все сектора открыты для записи)`, 'ok');
+      flashLog(`   WRP bits = 0 (все сектора открыты)`, 'ok');
     }
   } catch (e) {
     flashLog('⚠️ Option bytes недоступны: ' + e.message, 'warn');
@@ -1190,10 +1206,10 @@ async function readOptionBytes() {
 
 async function readFirstBytesOfFlash() {
   try {
+    await dfuSync();
     const d = await dfuReadMemory(FLASH_BASE, 16);
     const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(' ');
     flashLog(`📍 Первые 16 байт flash: ${hex}`, 'warn');
-    // Проверка вектора сброса — первые 4 байта это начальное значение SP (должно указывать на RAM)
     const spInit = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
     const resetVector = d[4] | (d[5] << 8) | (d[6] << 16) | (d[7] << 24);
     flashLog(`   SP_init=0x${(spInit>>>0).toString(16)}, Reset_Vector=0x${(resetVector>>>0).toString(16)}`, 'warn');
@@ -1336,7 +1352,6 @@ async function writeBlocks(limitBytes, blockSize, resetAddrEverySector){
     const addr = FLASH_BASE + s;
     const chunk = firmwareData.slice(s, e);
 
-    // Переустановка адреса
     if (resetAddrEverySector) {
       let secAddr = FLASH_BASE;
       for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
@@ -1418,7 +1433,6 @@ $('startFlash').addEventListener('click', async () => {
   cancelFlash = false;
   let partialWritten = false;
 
-  // Три стратегии: разные размеры блоков и порядок стирания
   const strategies = [
     {
       name: 'A: секторное стирание + блок 1024 + сброс адреса на каждом секторе',
@@ -1439,6 +1453,62 @@ $('startFlash').addEventListener('click', async () => {
       fn: async () => {
         await eraseSectors(limitBytes);
         await writeBlocks(limitBytes, 2048, true);
+      }
+    },
+    {
+      name: 'D: маленькие блоки (512) + паузы + сброс каждые 50 блоков',
+      fn: async () => {
+        await eraseSectors(limitBytes);
+        
+        await dfuDownloadBlock(0, addrCmd(FLASH_BASE));
+        const bs = 512;
+        const total = Math.ceil(limitBytes / bs);
+        
+        await dfuDownloadBlock(2, firmwareData.slice(0, bs));
+        flashLog(`✓ Первый блок записан (размер ${bs})`, 'ok');
+        
+        for (let i = 1; i < total; i++) {
+          if (cancelFlash) throw new Error('Отменено');
+          const s = i * bs;
+          const e = Math.min(s + bs, limitBytes);
+          const addr = FLASH_BASE + s;
+          const chunk = firmwareData.slice(s, e);
+          
+          if (i % 50 === 0) {
+            try {
+              await dfuSync();
+              await dfuDownloadBlock(0, addrCmd(addr));
+            } catch (e2) {
+              flashLog(`⚠️ Сброс на блоке ${i}: ${e2.message}`, 'warn');
+            }
+            flashLog(`  синхронизация на блоке ${i}/${total}`, 'warn');
+          }
+          
+          try {
+            await dfuDownloadBlock(i + 2, chunk, 15000);
+          } catch (err) {
+            const addrHex = '0x' + addr.toString(16).toUpperCase();
+            flashLog(`❌ Блок ${i} (${addrHex}): ${err.message}`, 'err');
+            
+            try {
+              await dfuSync();
+              await sleep(10);
+              await dfuDownloadBlock(0, addrCmd(addr));
+              await dfuDownloadBlock(i + 2, chunk, 15000);
+              flashLog(`✓ Блок ${i} записан со второй попытки`, 'ok');
+            } catch (err2) {
+              throw new Error(`Блок ${i} (${addrHex}) отклонён дважды`);
+            }
+          }
+          
+          await sleep(5);
+          
+          const p = (25 + (i+1)/total*70).toFixed(0);
+          $('progressFill').style.width = p + '%';
+          $('progressFill').textContent = p + '%';
+          if (i % 100 === 0) flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
+        }
+        flashLog('✓ Запись завершена', 'ok');
       }
     }
   ];
