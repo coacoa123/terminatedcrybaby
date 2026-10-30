@@ -428,7 +428,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
   <footer class="footer">
     <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
-    <div class="footer-version">Версия: 2.2.0 | Обновлено: 2026-11-01</div>
+    <div class="footer-version">Версия: 2.3.0 | Обновлено: 2026-11-01</div>
   </footer>
 </div>
 
@@ -1424,6 +1424,11 @@ $('startFlash').addEventListener('click', async () => {
   if (limitKB > 0) {
     limitBytes = Math.min(limitBytes, limitKB * 1024);
     flashLog(`📏 Ручной лимит: ${(limitBytes/1024).toFixed(1)} KB`, 'warn');
+  } else if (limitBytes > 256 * 1024) {
+    // АВТО-ЛИМИТ: временно ограничиваем 256 KB из-за защиты WRP
+    flashLog(`⚠️ АВТО-ЛИМИТ: прошивка ${(limitBytes/1024).toFixed(0)} KB > 256 KB — пишу только первые 256 KB (защита WRP)`, 'warn');
+    flashLog(`💡 После снятия защиты через STM32CubeProgrammer лимит можно убрать`, 'warn');
+    limitBytes = 256 * 1024;
   }
 
   if (!confirm(`⚠️ НАЧАТЬ ПРОШИВКУ?\n\nБудет записано: ${(limitBytes/1024).toFixed(1)} KB\nCRC32: ${crc}\n\nНЕ отключайте USB!`)) return;
@@ -1558,6 +1563,102 @@ $('cancelFlash').addEventListener('click', () => {
   cancelFlash = true;
   flashLog('⏹ Отмена запрошена...', 'warn');
 });
+
+/* ============ АВТООБНАРУЖЕНИЕ УСТРОЙСТВ ============ */
+function showDeviceNotification(msg, type) {
+  const notif = document.createElement('div');
+  notif.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--glass);
+    border: 2px solid ${type === 'ok' ? 'var(--ok)' : 'var(--am)'};
+    border-radius: 12px;
+    padding: 16px 24px;
+    z-index: 9999;
+    box-shadow: 0 0 30px ${type === 'ok' ? 'rgba(74,222,128,0.3)' : 'rgba(251,191,36,0.3)'};
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  `;
+  notif.innerHTML = `
+    <div style="font-size:16px;font-weight:700;color:${type === 'ok' ? 'var(--ok)' : 'var(--am)'};margin-bottom:8px">
+      ${type === 'ok' ? '🔌 Обнаружено устройство' : '🔌 Устройство отключено'}
+    </div>
+    <div style="font-size:14px;color:var(--text)">${msg}</div>
+    <button onclick="this.parentElement.remove()" style="margin-top:12px;padding:8px 16px;font-size:13px;cursor:pointer;background:var(--glass);border:1px solid var(--glass-border);border-radius:6px;color:var(--text)">Закрыть</button>
+  `;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 8000);
+}
+
+// CSS-анимация для уведомления
+const notifStyle = document.createElement('style');
+notifStyle.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+document.head.appendChild(notifStyle);
+
+// Слушатели событий подключения/отключения
+if ('serial' in navigator) {
+  navigator.serial.addEventListener('connect', (e) => {
+    const port = e.target;
+    const info = port.getInfo();
+    let msg = 'Новое USB-устройство доступно';
+    if (info.usbVendorId && info.usbProductId) {
+      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
+      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
+      msg = `VID:${vid} PID:${pid}`;
+      
+      if (info.usbVendorId === 0x0483 && info.usbProductId === 0xDF11) {
+        msg += ' (DFU режим)';
+      } else {
+        msg += ' (обычный режим)';
+      }
+    }
+    flashLog(`🔌 Устройство подключено: ${msg}`, 'ok');
+    showDeviceNotification(msg, 'ok');
+  });
+
+  navigator.serial.addEventListener('disconnect', (e) => {
+    flashLog('🔌 Устройство отключено', 'warn');
+    showDeviceNotification('USB-устройство отключено', 'warn');
+  });
+}
+
+// Кнопка "Найти устройства" в шапке
+const scanBtn = document.createElement('button');
+scanBtn.className = 'ghost';
+scanBtn.textContent = '🔍 Найти устройства';
+scanBtn.addEventListener('click', async () => {
+  if (!('serial' in navigator)) {
+    flashLog('❌ Web Serial API недоступен', 'err');
+    return;
+  }
+  flashLog('🔍 Сканирование доступных портов...', 'warn');
+  try {
+    const port = await navigator.serial.requestPort();
+    const info = port.getInfo();
+    if (info.usbVendorId && info.usbProductId) {
+      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
+      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
+      flashLog(`✅ Выбран порт: VID:${vid} PID:${pid}`, 'ok');
+      showDeviceNotification(`Порт выбран: VID:${vid} PID:${pid}`, 'ok');
+    } else {
+      flashLog('✅ Порт выбран (без USB-идентификаторов)', 'ok');
+    }
+  } catch (e) {
+    flashLog('⚠️ Порт не выбран: ' + e.message, 'warn');
+  }
+});
+
+// Вставляем кнопку в шапку после кнопки "Отключить"
+const disconnectBtn = $('disconnect');
+if (disconnectBtn && disconnectBtn.parentElement) {
+  disconnectBtn.parentElement.insertBefore(scanBtn, disconnectBtn.nextSibling);
+}
 
 /* ============ MAIN LOOP ============ */
 let lastFrame = 0;
