@@ -152,7 +152,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
 .action-bar { display: flex; gap: 12px; margin-top: 20px; padding-top: 20px; border-top: 1px solid var(--glass-border); flex-wrap: wrap; }
 
-.log { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 8px; padding: 16px; height: 300px; overflow-y: auto; font: 14px/1.7 ui-monospace, monospace; }
+.log { background: rgba(0,0,0,0.5); border: 1px solid var(--glass-border); border-radius: 8px; padding: 16px; height: 400px; overflow-y: auto; font: 14px/1.7 ui-monospace, monospace; }
 .log-entry { padding: 4px 0 4px 12px; border-left: 3px solid var(--vi); margin-bottom: 4px; }
 .log-entry.ok { border-color: var(--ok); color: var(--ok); }
 .log-entry.err { border-color: var(--red); color: var(--red); }
@@ -407,7 +407,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
             <button class="danger" id="startFlash" disabled>Начать прошивку</button>
             <button id="cancelFlash" disabled>Отмена</button>
           </div>
-          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс.</div>
+          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс. Сайт перебирает стратегии автоматически.</div>
           <div class="log" id="flashLog" style="margin-top:16px"></div>
         </div>
       </section>
@@ -425,7 +425,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
     </main>
   </div>
 
-  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и </footer>
+  <footer class="footer">© 2026 iNav Configurator · Сделано с 🐝 и ☕</footer>
 </div>
 
 <script>
@@ -745,6 +745,7 @@ const BOARD_DATABASE = {
 };
 let FIRMWARE_MANIFEST = null;
 let FLASH_SIZE_BYTES = 0;
+let CHIP_IDCODE = null;
 
 function readIdentity(cmd, p){
   if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
@@ -983,6 +984,9 @@ async function loadFirmwareList(target) {
         firmwareData = new Uint8Array(buf);
         const crc = crc32hex(firmwareData);
         flashLog(`✅ Загружено с сайта: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
+        if (firmwareData.length === 1048576) {
+          flashLog(`⚠️ ВНИМАНИЕ: файл ровно 1024 KB — это полный образ flash. Обычные прошивки iNav весят 400-800 KB.`, 'warn');
+        }
         showFileInfo(b.name, firmwareData.length, crc);
         checkFlashReady();
       } catch (e) {
@@ -1018,6 +1022,9 @@ $('firmwareFile').addEventListener('change', async (e) => {
     firmwareData = new Uint8Array(buf);
     const crc = crc32hex(firmwareData);
     flashLog(`✅ Файл в памяти: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
+    if (firmwareData.length === 1048576) {
+      flashLog(`⚠️ ВНИМАНИЕ: файл ровно 1024 KB — это полный образ flash. Обычные прошивки iNav весят 400-800 KB.`, 'warn');
+    }
     showFileInfo(file.name, firmwareData.length, crc);
     checkFlashReady();
   } catch (err) {
@@ -1034,6 +1041,17 @@ const STATE_NAMES = ['appIDLE','appDETACH','dfuIDLE','dfuDNLOAD-SYNC','dfuDNBUSY
 const STATUS_NAMES = ['OK','errTARGET','errFILE','errWRITE','errERASE','errCHECK_ERASED','errPROG','errVERIFY','errADDRESS','errNOTDONE','errFIRMWARE','errVENDOR','errUSBR','errPOR','errUNKNOWN','errSTALLEDPKT'];
 const IDLE_STATES = [DFU_STATE.IDLE, DFU_STATE.DNLOAD_IDLE];
 const MANIFEST_STATES = [DFU_STATE.MANIFEST_SYNC, DFU_STATE.MANIFEST, DFU_STATE.MANIFEST_WAIT_RESET];
+
+const FLASH_BASE = 0x08000000;
+const ALL_SECTORS = [
+  {a:0x08000000,s:16384},{a:0x08004000,s:16384},{a:0x08008000,s:16384},{a:0x0800C000,s:16384},
+  {a:0x08010000,s:65536},
+  {a:0x08020000,s:131072},{a:0x08040000,s:131072},{a:0x08060000,s:131072},{a:0x08080000,s:131072},
+  {a:0x080A0000,s:131072},{a:0x080C0000,s:131072},{a:0x080E0000,s:131072}
+];
+
+function addrCmd(addr){ return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
+function eraseCmd(addr){ return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
 
 function dfuAssert(){
   if (!dfuDevice || typeof dfuDevice.controlTransferOut !== 'function' || typeof dfuDevice.controlTransferIn !== 'function') {
@@ -1091,7 +1109,6 @@ async function dfuDownloadBlock(blockNum, data, timeoutMs){
   await dfuWaitIdle(timeoutMs || 10000);
 }
 
-// Чтение памяти чипа (DFU_UPLOAD)
 async function dfuReadMemory(addr, len) {
   await dfuDownloadBlock(0, addrCmd(addr));
   const out = new Uint8Array(len);
@@ -1116,12 +1133,35 @@ async function readFlashSize() {
     const kb = d[0] | (d[1] << 8);
     if (kb > 0 && kb <= 2048) {
       FLASH_SIZE_BYTES = kb * 1024;
-      flashLog(`🔬 ФИЗИКА: реальный размер flash чипа = ${kb} KB`, 'ok');
+      flashLog(`🔬 РЕГИСТР: flash чипа = ${kb} KB`, 'ok');
       return;
     }
     flashLog(`⚠️ Регистр размера flash вернул странное значение: ${kb}`, 'warn');
   } catch (e) {
-    flashLog('⚠️ Не удалось прочитать размер flash: ' + e.message, 'warn');
+    flashLog('⚠️ Регистр размера недоступен (защита?): ' + e.message, 'warn');
+  }
+}
+
+async function readChipID() {
+  // DBGMCU_IDCODE
+  try {
+    const d = await dfuReadMemory(0xE0042000, 4);
+    const id = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
+    const hex = '0x' + (id >>> 0).toString(16).toUpperCase().padStart(8, '0');
+    const devId = id & 0xFFF;
+    const revId = (id >> 16) & 0xFFFF;
+    flashLog(`🔬 IDCODE: ${hex} (DEV_ID=0x${devId.toString(16)}, REV_ID=0x${revId.toString(16)})`, 'ok');
+    CHIP_IDCODE = id;
+  } catch (e) {
+    flashLog('⚠️ IDCODE недоступен: ' + e.message, 'warn');
+  }
+  // UID (96 bits = 12 bytes)
+  try {
+    const d = await dfuReadMemory(0x1FFF7A10, 12);
+    const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(':');
+    flashLog(`🔬 UID: ${hex}`, 'ok');
+  } catch (e) {
+    flashLog('⚠️ UID недоступен: ' + e.message, 'warn');
   }
 }
 
@@ -1131,11 +1171,37 @@ async function readOptionBytes() {
     const optcr1 = await dfuReadMemory(0x1FFFC008, 4);
     const hex1 = Array.from(optcr).map(b => b.toString(16).padStart(2,'0')).join(' ');
     const hex2 = Array.from(optcr1).map(b => b.toString(16).padStart(2,'0')).join(' ');
-    flashLog(`🔒 Option bytes: OPTCR=[${hex1}] OPTCR1=[${hex2}]`, 'warn');
+    flashLog(`🔒 OPTCR=[${hex1}] OPTCR1=[${hex2}]`, 'warn');
     const sprmod = (optcr[1] & 0x80) !== 0;
-    flashLog(`   SPRMOD (защита секторов): ${sprmod ? 'АКТИВНА' : 'неактивна'}`, sprmod ? 'err' : 'ok');
+    const rdp = optcr[0] & 0xFF;
+    flashLog(`   RDP (Readout Protection): 0x${rdp.toString(16)} ${rdp === 0xAA ? '(Level 0 — открыто)' : rdp === 0x00 ? '(Level 3 — полностью заблокировано!)' : '(Level 1/2)'}`, rdp === 0xAA ? 'ok' : 'err');
+    flashLog(`   SPRMOD: ${sprmod ? 'АКТИВНА (защита секторов)' : 'неактивна'}`, sprmod ? 'err' : 'ok');
+    // WRP (Write Protection) bits in OPTCR, bits 16..27
+    const wrpBits = ((optcr[2] | (optcr[3] << 8)) >> 0) & 0x0FFF;
+    if (wrpBits !== 0) {
+      flashLog(`   ⚠️ WRP bits = 0x${wrpBits.toString(16)} — некоторые сектора ЗАЩИЩЕНЫ от записи!`, 'err');
+    } else {
+      flashLog(`   WRP bits = 0 (все сектора открыты для записи)`, 'ok');
+    }
   } catch (e) {
-    flashLog('⚠️ Не удалось прочитать option bytes: ' + e.message, 'warn');
+    flashLog('⚠️ Option bytes недоступны: ' + e.message, 'warn');
+  }
+}
+
+async function readFirstBytesOfFlash() {
+  try {
+    const d = await dfuReadMemory(FLASH_BASE, 16);
+    const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(' ');
+    flashLog(`📍 Первые 16 байт flash: ${hex}`, 'warn');
+    // Проверка вектора сброса — первые 4 байта это начальное значение SP (должно указывать на RAM)
+    const spInit = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
+    const resetVector = d[4] | (d[5] << 8) | (d[6] << 16) | (d[7] << 24);
+    flashLog(`   SP_init=0x${(spInit>>>0).toString(16)}, Reset_Vector=0x${(resetVector>>>0).toString(16)}`, 'warn');
+    if (resetVector === 0xFFFFFFFF) {
+      flashLog(`   ⚠️ Flash пустая (0xFF) — предыдущая прошивка стёрта`, 'warn');
+    }
+  } catch (e) {
+    flashLog('⚠️ Чтение первых байт flash: ' + e.message, 'warn');
   }
 }
 
@@ -1157,8 +1223,10 @@ async function openDfuDevice(d) {
   dfuInterface = 0;
   const st = await dfuSync();
   flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
+  await readChipID();
   await readFlashSize();
   await readOptionBytes();
+  await readFirstBytesOfFlash();
 }
 
 async function autoDfu() {
@@ -1215,22 +1283,11 @@ $('diagUsb').addEventListener('click', async () => {
   flashLog('🔬 === КОНЕЦ ===', 'warn');
 });
 
-/* ============ ПРОШИВКА (с логикой webdfu) ============ */
+/* ============ ПРОШИВКА ============ */
 function dfuLost(e) {
   const m = String(e && e.message || e);
   return m.includes('disconnected') || m.includes('transfer error') || m.includes('device was lost');
 }
-
-const FLASH_BASE = 0x08000000;
-const ALL_SECTORS = [
-  {a:0x08000000,s:16384},{a:0x08004000,s:16384},{a:0x08008000,s:16384},{a:0x0800C000,s:16384},
-  {a:0x08010000,s:65536},
-  {a:0x08020000,s:131072},{a:0x08040000,s:131072},{a:0x08060000,s:131072},{a:0x08080000,s:131072},
-  {a:0x080A0000,s:131072},{a:0x080C0000,s:131072},{a:0x080E0000,s:131072}
-];
-
-function addrCmd(addr){ return new Uint8Array([0x21, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
-function eraseCmd(addr){ return new Uint8Array([0x41, addr & 0xFF, (addr>>8)&0xFF, (addr>>16)&0xFF, (addr>>24)&0xFF]); }
 
 async function eraseSectors(limitBytes){
   const sectors = ALL_SECTORS.filter(sec => sec.a < FLASH_BASE + limitBytes);
@@ -1248,7 +1305,7 @@ async function massErase(){
   flashLog('✓ Массовое стирание выполнено', 'ok');
 }
 
-async function writeBlocks(limitBytes, blockSize){
+async function writeBlocks(limitBytes, blockSize, resetAddrEverySector){
   await dfuDownloadBlock(0, addrCmd(FLASH_BASE));
   let bs = blockSize;
   let firstOk = false;
@@ -1279,17 +1336,24 @@ async function writeBlocks(limitBytes, blockSize){
     const addr = FLASH_BASE + s;
     const chunk = firmwareData.slice(s, e);
 
-    // Переустанавливаем адрес при переходе на новый сектор
-    let secAddr = FLASH_BASE;
-    for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
-    if (secAddr !== lastSectorAddr) {
+    // Переустановка адреса
+    if (resetAddrEverySector) {
+      let secAddr = FLASH_BASE;
+      for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
+      if (secAddr !== lastSectorAddr) {
+        try {
+          await dfuDownloadBlock(0, addrCmd(addr));
+          addrResets++;
+          lastSectorAddr = secAddr;
+        } catch (e2) {
+          flashLog('⚠️ Не удалось переустановить адрес: ' + e2.message, 'warn');
+        }
+      }
+    } else if (i % 100 === 0) {
       try {
         await dfuDownloadBlock(0, addrCmd(addr));
         addrResets++;
-        lastSectorAddr = secAddr;
-      } catch (e2) {
-        flashLog('⚠️ Не удалось переустановить адрес: ' + e2.message, 'warn');
-      }
+      } catch (e2) {}
     }
 
     try {
@@ -1299,7 +1363,6 @@ async function writeBlocks(limitBytes, blockSize){
       const addrHex = '0x' + addr.toString(16).toUpperCase();
       flashLog(`❌ Блок ${i} (${addrHex}) отклонён: ${err.message}`, 'err');
 
-      // Диагностика
       try {
         const mem = await dfuReadMemory(addr, 16);
         const hex = Array.from(mem).map(b => b.toString(16).padStart(2,'0')).join(' ');
@@ -1308,7 +1371,6 @@ async function writeBlocks(limitBytes, blockSize){
         flashLog('🔬 Чтение памяти не удалось: ' + e2.message, 'warn');
       }
 
-      // Лечение
       try {
         await dfuSync();
         await dfuDownloadBlock(0, addrCmd(addr));
@@ -1356,43 +1418,70 @@ $('startFlash').addEventListener('click', async () => {
   cancelFlash = false;
   let partialWritten = false;
 
-  try {
-    flashLog('🚀 Начало прошивки...', 'ok');
-    const st0 = await dfuSync();
-    flashLog(`✓ Состояние: ${STATE_NAMES[st0.state] || st0.state}`, 'ok');
-
-    // Попытка 1: массовое стирание ПЕРВЫМ (может снять защиту)
-    try {
-      flashLog('➡️ Попытка 1: массовое стирание первым...', 'warn');
-      await massErase();
-      await eraseSectors(limitBytes);
-      await writeBlocks(limitBytes, 1024);
-    } catch (e1) {
-      if (dfuLost(e1)) throw e1;
-      partialWritten = true;
-      flashLog(`⚠️ Попытка 1 не удалась: ${e1.message}`, 'warn');
-      flashLog('➡️ Попытка 2: только секторное стирание...', 'warn');
-      await dfuSync();
-      await eraseSectors(limitBytes);
-      await writeBlocks(limitBytes, 512);
-      partialWritten = false;
+  // Три стратегии: разные размеры блоков и порядок стирания
+  const strategies = [
+    {
+      name: 'A: секторное стирание + блок 1024 + сброс адреса на каждом секторе',
+      fn: async () => {
+        await eraseSectors(limitBytes);
+        await writeBlocks(limitBytes, 1024, true);
+      }
+    },
+    {
+      name: 'B: массовое стирание + блок 2048 (как STM32CubeProgrammer)',
+      fn: async () => {
+        await massErase();
+        await writeBlocks(limitBytes, 2048, false);
+      }
+    },
+    {
+      name: 'C: секторное стирание + блок 2048 + сброс адреса',
+      fn: async () => {
+        await eraseSectors(limitBytes);
+        await writeBlocks(limitBytes, 2048, true);
+      }
     }
+  ];
 
+  let success = false;
+  for (const strat of strategies) {
+    if (cancelFlash) break;
+    try {
+      flashLog(`➡️ Стратегия: ${strat.name}`, 'warn');
+      await dfuSync();
+      await strat.fn();
+      success = true;
+      flashLog(`🏆 УСПЕХ: ${strat.name}`, 'ok');
+      break;
+    } catch (e) {
+      if (dfuLost(e)) {
+        flashLog(`⚠️ Плата отключилась во время стратегии "${strat.name}"`, 'warn');
+        partialWritten = true;
+        break;
+      }
+      partialWritten = true;
+      flashLog(`⚠️ Стратегия "${strat.name}" не удалась: ${e.message}`, 'warn');
+      flashLog('➡️ Следующая стратегия...', 'warn');
+    }
+  }
+
+  if (success) {
     flashLog('🏁 Выход из DFU...', 'warn');
     try { await dfuDevice.controlTransferOut({ requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface }, new Uint8Array(0)); } catch (e) {}
     $('progressFill').style.width = '100%';
     $('progressFill').textContent = '100%';
+    partialWritten = false;
     flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА!', 'ok');
     flashLog('🔄 Переподключите USB — полётник запустится', 'ok');
-
-  } catch (e) {
-    flashLog('❌ Ошибка прошивки: ' + e.message, 'err');
+  } else {
+    flashLog('❌ Все стратегии исчерпаны.', 'err');
     if (partialWritten) flashLog('⚠️ Прошивка записана ЧАСТИЧНО! Плата не запустится, пока не прошьёте полностью.', 'err');
-    if (dfuLost(e)) { dfuDevice = null; flashLog('⚠️ Плата отключилась. Переведите в DFU заново (BOOT+USB)', 'warn'); }
-  } finally {
-    $('cancelFlash').disabled = true;
-    checkFlashReady();
+    flashLog('💡 СЛЕДУЮЩИЙ ШАГ: скачайте STM32CubeProgrammer (https://www.st.com/en/development-tools/stm32cubeprog.html), снимите защиту WRP/RDP и попробуйте снова.', 'warn');
+    if (dfuLost(null) || !dfuDevice) { dfuDevice = null; flashLog('⚠️ Переведите плату в DFU заново (BOOT+USB)', 'warn'); }
   }
+
+  $('cancelFlash').disabled = true;
+  checkFlashReady();
 });
 
 $('cancelFlash').addEventListener('click', () => {
