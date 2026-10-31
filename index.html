@@ -111,6 +111,7 @@ button:disabled { opacity: 0.4; cursor: not-allowed; }
 button.primary { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba(167,139,250,0.2)); border-color: var(--cyan); color: var(--cyan); }
 button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.3)); border-color: var(--red); color: var(--red); }
 button.ghost { background: transparent; border-color: var(--glass-border); color: var(--dim); padding: 10px 16px; font-size: 13px; }
+button.warning { background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.3)); border-color: var(--am); color: var(--am); }
 
 .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
 .sidebar { background: var(--glass); border-right: 1px solid var(--glass-border); padding: 20px 0; }
@@ -166,6 +167,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .badge { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid; }
 .badge.off { background: rgba(139,163,199,0.1); border-color: rgba(139,163,199,0.4); color: var(--dim); }
 .badge.on { background: rgba(74,222,128,0.15); border-color: var(--ok); color: var(--ok); box-shadow: 0 0 15px rgba(74,222,128,0.3); }
+.badge.warn { background: rgba(251,191,36,0.15); border-color: var(--am); color: var(--am); }
 
 .progress-bar { width: 100%; height: 32px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--vi)); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
@@ -197,6 +199,10 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .dfu-instruction strong { color: var(--cyan); }
 .dfu-instruction ol { margin: 12px 0; padding-left: 24px; }
 .dfu-instruction li { margin: 8px 0; }
+
+.unprotect-box { background: rgba(251,191,36,0.1); border: 2px solid var(--am); border-radius: 12px; padding: 20px; margin: 16px 0; }
+.unprotect-box h3 { color: var(--am); font-size: 16px; margin-bottom: 12px; }
+.unprotect-box p { color: var(--text); font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
 
 .footer { position: relative; z-index: 1; background: var(--glass); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
 .footer-version { font-size: 13px; color: var(--cyan); margin-top: 8px; font-weight: 600; }
@@ -388,9 +394,11 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
           <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
             <button id="autoDfu">🔌 Подключить DFU (без диалога)</button>
             <button id="connectDfu">Выбрать DFU-устройство</button>
+            <button id="unprotectMemory" class="warning">🔓 Снять защиту памяти</button>
             <button id="diagUsb" class="ghost">🔬 Диагностика USB</button>
           </div>
           <div id="dfuStatus" style="margin-top:16px;font-size:13px;color:var(--dim);text-align:center"></div>
+          <div id="unprotectInfo" style="display:none"></div>
         </div>
 
         <div class="card">
@@ -428,7 +436,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
   <footer class="footer">
     <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
-    <div class="footer-version">Версия: 2.3.0 | Обновлено: 2026-11-01</div>
+    <div class="footer-version">Версия: 2.4.0 | Обновлено: 2026-11-01</div>
   </footer>
 </div>
 
@@ -1113,6 +1121,13 @@ async function dfuDownloadBlock(blockNum, data, timeoutMs){
   await dfuWaitIdle(timeoutMs || 10000);
 }
 
+async function dfuUploadBlock(blockNum, length, timeoutMs){
+  dfuAssert();
+  const res = await dfuDevice.controlTransferIn(
+    { requestType:'class', recipient:'interface', request:0x02, value:blockNum, index: dfuInterface }, length);
+  return new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
+}
+
 async function dfuReadMemory(addr, len) {
   await dfuDownloadBlock(0, addrCmd(addr));
   const out = new Uint8Array(len);
@@ -1121,9 +1136,7 @@ async function dfuReadMemory(addr, len) {
   while (off < len) {
     const n = Math.min(1024, len - off);
     dfuAssert();
-    const res = await dfuDevice.controlTransferIn(
-      { requestType:'class', recipient:'interface', request:0x02, value:block, index: dfuInterface }, n);
-    const d = new Uint8Array(res.data.buffer, res.data.byteOffset, res.data.byteLength);
+    const d = await dfuUploadBlock(block, n);
     out.set(d, off);
     off += d.length;
     block++;
@@ -1285,8 +1298,115 @@ async function connectToDfu() {
     checkFlashReady();
   }
 }
+
+/* ============ СНЯТИЕ ЗАЩИТЫ ПАМЯТИ ============ */
+async function checkReadProtection() {
+  try {
+    await dfuSync();
+    // Пробуем прочитать option bytes через UPLOAD
+    await dfuDownloadBlock(0, addrCmd(0x1FFFC000));
+    const ob_data = await dfuUploadBlock(2, 16);
+    
+    if (ob_data.length === 16) {
+      flashLog('✅ Option bytes прочитаны — защита НЕ активна', 'ok');
+      $('unprotectInfo').style.display = 'none';
+      return false;
+    } else {
+      flashLog('⚠️ Не удалось прочитать option bytes — возможно, защита активна', 'warn');
+      return true;
+    }
+  } catch (e) {
+    flashLog('⚠️ Ошибка чтения option bytes: ' + e.message, 'warn');
+    return true;
+  }
+}
+
+async function unprotectMemory() {
+  if (!dfuDevice) {
+    flashLog('❌ DFU не подключено', 'err');
+    return;
+  }
+  
+  flashLog('🔓 Инициация снятия защиты памяти...', 'warn');
+  
+  try {
+    await dfuSync();
+    
+    // Посылаем команду 0x92 (read unprotect)
+    flashLog('   Посылаю команду unprotect (0x92)...', 'warn');
+    await dfuDevice.controlTransferOut(
+      { requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface },
+      new Uint8Array([0x92])
+    );
+    
+    // Ждём статус
+    const st = await dfuGetStatus();
+    if (st.state === DFU_STATE.DN_BUSY) {
+      flashLog('   Команда принята, плата выполняет стирание...', 'ok');
+      
+      // Ждём 20 секунд (стирание занимает время)
+      flashLog('   ⏱ Жду 20 секунд (плата стирает память)...', 'warn');
+      $('unprotectInfo').innerHTML = `
+        <div class="unprotect-box">
+          <h3>⏳ Выполняется снятие защиты</h3>
+          <p>Плата стирает всю память и перезагружается.</p>
+          <p><strong>НЕ отключайте USB!</strong></p>
+          <p>Подождите 20 секунд, затем:</p>
+          <ol>
+            <li>Отключите USB</li>
+            <li>Зажмите BOOT</li>
+            <li>Подключите USB</li>
+            <li>Отпустите BOOT</li>
+            <li>Нажмите "Подключить DFU" снова</li>
+            <li>Попробуйте прошивку — теперь она пойдёт полностью!</li>
+          </ol>
+        </div>
+      `;
+      $('unprotectInfo').style.display = 'block';
+      
+      await sleep(20000);
+      
+      flashLog('✅ Команда unprotect выполнена!', 'ok');
+      flashLog('🔄 Плата должна перезагрузиться. Переподключите USB и снова войдите в DFU.', 'ok');
+      
+    } else {
+      flashLog('❌ Неожиданное состояние после unprotect: ' + (STATE_NAMES[st.state] || st.state), 'err');
+    }
+    
+  } catch (e) {
+    // Если плата отключилась — это нормально, она перезагружается
+    if (String(e.message).includes('disconnected') || String(e.message).includes('transfer error')) {
+      flashLog('✅ Плата отключилась — это нормально, она перезагружается после стирания', 'ok');
+      flashLog('🔄 Переподключите USB, зажмите BOOT, снова войдите в DFU и попробуйте прошивку', 'ok');
+      
+      $('unprotectInfo').innerHTML = `
+        <div class="unprotect-box">
+          <h3>✅ Снятие защиты завершено!</h3>
+          <p>Плата перезагрузилась после полного стирания памяти.</p>
+          <p><strong>Теперь выполните:</strong></p>
+          <ol>
+            <li>Отключите USB (если ещё подключено)</li>
+            <li>Зажмите кнопку <strong>BOOT</strong></li>
+            <li>Подключите USB, удерживая BOOT</li>
+            <li>Отпустите BOOT через 2 секунды</li>
+            <li>Нажмите "🔌 Подключить DFU (без диалога)"</li>
+            <li>Попробуйте прошивку — теперь она пойдёт до 100%!</li>
+          </ol>
+        </div>
+      `;
+      $('unprotectInfo').style.display = 'block';
+      
+      dfuDevice = null;
+      checkFlashReady();
+    } else {
+      flashLog('❌ Ошибка unprotect: ' + e.message, 'err');
+    }
+  }
+}
+
 $('autoDfu').addEventListener('click', autoDfu);
 $('connectDfu').addEventListener('click', connectToDfu);
+$('unprotectMemory').addEventListener('click', unprotectMemory);
 
 $('diagUsb').addEventListener('click', async () => {
   if (!('usb' in navigator)) { flashLog('❌ WebUSB недоступен', 'err'); return; }
@@ -1425,9 +1545,8 @@ $('startFlash').addEventListener('click', async () => {
     limitBytes = Math.min(limitBytes, limitKB * 1024);
     flashLog(`📏 Ручной лимит: ${(limitBytes/1024).toFixed(1)} KB`, 'warn');
   } else if (limitBytes > 256 * 1024) {
-    // АВТО-ЛИМИТ: временно ограничиваем 256 KB из-за защиты WRP
     flashLog(`⚠️ АВТО-ЛИМИТ: прошивка ${(limitBytes/1024).toFixed(0)} KB > 256 KB — пишу только первые 256 KB (защита WRP)`, 'warn');
-    flashLog(`💡 После снятия защиты через STM32CubeProgrammer лимит можно убрать`, 'warn');
+    flashLog(`💡 После снятия защиты через кнопку "🔓 Снять защиту памяти" лимит можно убрать`, 'warn');
     limitBytes = 256 * 1024;
   }
 
@@ -1551,7 +1670,7 @@ $('startFlash').addEventListener('click', async () => {
   } else {
     flashLog('❌ Все стратегии исчерпаны.', 'err');
     if (partialWritten) flashLog('⚠️ Прошивка записана ЧАСТИЧНО! Плата не запустится, пока не прошьёте полностью.', 'err');
-    flashLog('💡 СЛЕДУЮЩИЙ ШАГ: скачайте STM32CubeProgrammer (https://www.st.com/en/development-tools/stm32cubeprog.html), снимите защиту WRP/RDP и попробуйте снова.', 'warn');
+    flashLog('💡 РЕШЕНИЕ: нажмите "🔓 Снять защиту памяти", переподключите USB и попробуйте снова', 'warn');
     if (dfuLost(null) || !dfuDevice) { dfuDevice = null; flashLog('⚠️ Переведите плату в DFU заново (BOOT+USB)', 'warn'); }
   }
 
@@ -1591,7 +1710,6 @@ function showDeviceNotification(msg, type) {
   setTimeout(() => notif.remove(), 8000);
 }
 
-// CSS-анимация для уведомления
 const notifStyle = document.createElement('style');
 notifStyle.textContent = `
   @keyframes slideIn {
@@ -1601,7 +1719,6 @@ notifStyle.textContent = `
 `;
 document.head.appendChild(notifStyle);
 
-// Слушатели событий подключения/отключения
 if ('serial' in navigator) {
   navigator.serial.addEventListener('connect', (e) => {
     const port = e.target;
@@ -1628,7 +1745,6 @@ if ('serial' in navigator) {
   });
 }
 
-// Кнопка "Найти устройства" в шапке
 const scanBtn = document.createElement('button');
 scanBtn.className = 'ghost';
 scanBtn.textContent = '🔍 Найти устройства';
@@ -1654,7 +1770,6 @@ scanBtn.addEventListener('click', async () => {
   }
 });
 
-// Вставляем кнопку в шапку после кнопки "Отключить"
 const disconnectBtn = $('disconnect');
 if (disconnectBtn && disconnectBtn.parentElement) {
   disconnectBtn.parentElement.insertBefore(scanBtn, disconnectBtn.nextSibling);
