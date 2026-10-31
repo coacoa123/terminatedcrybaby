@@ -112,6 +112,7 @@ button.primary { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba
 button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.3)); border-color: var(--red); color: var(--red); }
 button.ghost { background: transparent; border-color: var(--glass-border); color: var(--dim); padding: 10px 16px; font-size: 13px; }
 button.warning { background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.3)); border-color: var(--am); color: var(--am); }
+button.success { background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.3)); border-color: var(--ok); color: var(--ok); }
 
 .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
 .sidebar { background: var(--glass); border-right: 1px solid var(--glass-border); padding: 20px 0; }
@@ -200,9 +201,31 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .dfu-instruction ol { margin: 12px 0; padding-left: 24px; }
 .dfu-instruction li { margin: 8px 0; }
 
-.unprotect-box { background: rgba(251,191,36,0.1); border: 2px solid var(--am); border-radius: 12px; padding: 20px; margin: 16px 0; }
-.unprotect-box h3 { color: var(--am); font-size: 16px; margin-bottom: 12px; }
-.unprotect-box p { color: var(--text); font-size: 14px; line-height: 1.6; margin-bottom: 8px; }
+.flash-button-container { text-align: center; margin: 24px 0; }
+.flash-button {
+  padding: 20px 60px;
+  font-size: 20px;
+  font-weight: 700;
+  background: linear-gradient(135deg, rgba(74,222,128,0.3), rgba(103,232,249,0.3));
+  border: 2px solid var(--ok);
+  border-radius: 16px;
+  color: var(--ok);
+  cursor: pointer;
+  transition: all 0.3s;
+  box-shadow: 0 0 30px rgba(74,222,128,0.3);
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+.flash-button:hover:not(:disabled) {
+  background: linear-gradient(135deg, rgba(74,222,128,0.4), rgba(103,232,249,0.4));
+  box-shadow: 0 0 40px rgba(74,222,128,0.5);
+  transform: translateY(-2px);
+}
+.flash-button:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+  transform: none;
+}
 
 .footer { position: relative; z-index: 1; background: var(--glass); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
 .footer-version { font-size: 13px; color: var(--cyan); margin-top: 8px; font-weight: 600; }
@@ -242,6 +265,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
   .target-info { flex-direction: column; text-align: center; }
   .target-image { width: 100%; max-width: 200px; }
   .board-detected-name { font-size: 20px; }
+  .flash-button { padding: 16px 40px; font-size: 18px; }
 }
 </style>
 </head>
@@ -380,43 +404,31 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
         </div>
 
         <div class="card">
-          <h2>Шаг 2: DFU вручную (BOOT + USB)</h2>
+          <h2>Шаг 2: Прошивка</h2>
           <div class="dfu-instruction">
             <strong>📋 Порядок действий:</strong>
             <ol>
+              <li>Выберите прошивку выше</li>
               <li>Отключите USB</li>
               <li>Зажмите кнопку <strong>BOOT</strong> на плате</li>
               <li>Подключите USB, удерживая BOOT</li>
               <li>Отпустите BOOT через 2 секунды</li>
-              <li>Нажмите кнопку подключения ниже</li>
+              <li>Нажмите кнопку "🚀 ПРОШИТЬ СЕЙЧАС" ниже</li>
             </ol>
+            <p style="margin-top:12px;color:var(--ok)"><strong>✅ Безопасность:</strong> Сайт автоматически проверит файл, запишет прошивку, верифицирует её и перезагрузит плату. Если что-то пойдёт не так — плата останется в DFU-режиме для повторной попытки.</p>
           </div>
-          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-            <button id="autoDfu">🔌 Подключить DFU (без диалога)</button>
-            <button id="connectDfu">Выбрать DFU-устройство</button>
-            <button id="unprotectMemory" class="warning">🔓 Снять защиту памяти</button>
-            <button id="diagUsb" class="ghost">🔬 Диагностика USB</button>
+          
+          <div class="flash-button-container">
+            <button id="flashNow" class="flash-button" disabled>🚀 ПРОШИТЬ СЕЙЧАС</button>
           </div>
-          <div id="dfuStatus" style="margin-top:16px;font-size:13px;color:var(--dim);text-align:center"></div>
-          <div id="unprotectInfo" style="display:none"></div>
-        </div>
-
-        <div class="card">
-          <h2>Шаг 3: Прошивка</h2>
+          
           <div class="ready-badges">
             <span id="badgeFile" class="badge off">📄 Файл: не выбран</span>
             <span id="badgeDfu" class="badge off">🔌 DFU: не подключено</span>
           </div>
-          <div class="form-row">
-            <label>Лимит записи KB (0 = автоматически)</label>
-            <input type="number" id="flashLimitKB" value="0" min="0" step="64">
-          </div>
+          
           <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%">0%</div></div>
-          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
-            <button class="danger" id="startFlash" disabled>Начать прошивку</button>
-            <button id="cancelFlash" disabled>Отмена</button>
-          </div>
-          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс. Сайт перебирает стратегии автоматически.</div>
+          
           <div class="log" id="flashLog" style="margin-top:16px"></div>
         </div>
       </section>
@@ -436,7 +448,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
   <footer class="footer">
     <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
-    <div class="footer-version">Версия: 2.4.0 | Обновлено: 2026-11-01</div>
+    <div class="footer-version">Версия: 2.5.0 | Обновлено: 2026-11-01</div>
   </footer>
 </div>
 
@@ -888,7 +900,6 @@ async function ghList(path) {
 let firmwareData = null;
 let dfuDevice = null;
 let dfuInterface = 0;
-let cancelFlash = false;
 
 function setBadge(id, on, textOn, textOff) {
   const el = $(id);
@@ -898,10 +909,9 @@ function setBadge(id, on, textOn, textOff) {
 
 function checkFlashReady() {
   const hasFile = !!(firmwareData && firmwareData.length > 0);
-  const hasDfu = !!(dfuDevice && typeof dfuDevice.controlTransferOut === 'function' && dfuDevice.opened);
+  $('flashNow').disabled = !hasFile;
   setBadge('badgeFile', hasFile, '📄 Файл: готов', '📄 Файл: не выбран');
-  setBadge('badgeDfu', hasDfu, '🔌 DFU: подключено', '🔌 DFU: не подключено');
-  $('startFlash').disabled = !(hasFile && hasDfu);
+  setBadge('badgeDfu', !!dfuDevice, '🔌 DFU: подключено', '🔌 DFU: не подключено');
 }
 
 function showFileInfo(fileName, fileSize, crc) {
@@ -1144,636 +1154,255 @@ async function dfuReadMemory(addr, len) {
   return out;
 }
 
-async function readFlashSize() {
-  try {
-    await dfuSync();
-    const d = await dfuReadMemory(0x1FFF7A22, 2);
-    const kb = d[0] | (d[1] << 8);
-    if (kb > 0 && kb <= 2048) {
-      FLASH_SIZE_BYTES = kb * 1024;
-      flashLog(`🔬 РЕГИСТР: flash чипа = ${kb} KB`, 'ok');
-      return;
-    }
-    flashLog(`⚠️ Регистр размера flash вернул странное значение: ${kb}`, 'warn');
-  } catch (e) {
-    flashLog('⚠️ Регистр размера недоступен (защита?): ' + e.message, 'warn');
-  }
-}
-
-async function readChipID() {
-  try {
-    await dfuSync();
-    const d = await dfuReadMemory(0xE0042000, 4);
-    const id = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
-    const hex = '0x' + (id >>> 0).toString(16).toUpperCase().padStart(8, '0');
-    const devId = id & 0xFFF;
-    const revId = (id >> 16) & 0xFFFF;
-    flashLog(`🔬 IDCODE: ${hex} (DEV_ID=0x${devId.toString(16)}, REV_ID=0x${revId.toString(16)})`, 'ok');
-    CHIP_IDCODE = id;
-    
-    const chipModels = {
-      0x413: 'STM32F405/407 или F415/417',
-      0x419: 'STM32F427/437',
-      0x434: 'STM32F469/479',
-      0x458: 'STM32F410',
-      0x463: 'STM32F413/423'
-    };
-    if (chipModels[devId]) {
-      flashLog(`   Модель: ${chipModels[devId]}`, 'ok');
-    }
-  } catch (e) {
-    flashLog('⚠️ IDCODE недоступен: ' + e.message, 'warn');
-  }
-  
-  try {
-    await dfuSync();
-    const d = await dfuReadMemory(0x1FFF7A10, 12);
-    const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(':');
-    flashLog(`🔬 UID: ${hex}`, 'ok');
-  } catch (e) {
-    flashLog('⚠️ UID недоступен: ' + e.message, 'warn');
-  }
-}
-
-async function readOptionBytes() {
-  try {
-    await dfuSync();
-    const optcr = await dfuReadMemory(0x1FFFC000, 4);
-    await dfuSync();
-    const optcr1 = await dfuReadMemory(0x1FFFC008, 4);
-    const hex1 = Array.from(optcr).map(b => b.toString(16).padStart(2,'0')).join(' ');
-    const hex2 = Array.from(optcr1).map(b => b.toString(16).padStart(2,'0')).join(' ');
-    flashLog(`🔒 OPTCR=[${hex1}] OPTCR1=[${hex2}]`, 'warn');
-    const rdp = optcr[0] & 0xFF;
-    flashLog(`   RDP: 0x${rdp.toString(16)} ${rdp === 0xAA ? '(Level 0 — открыто)' : rdp === 0x00 ? '(Level 3 — заблокировано!)' : '(Level 1/2)'}`, rdp === 0xAA ? 'ok' : 'err');
-    const wrpBits = ((optcr[2] | (optcr[3] << 8)) >> 0) & 0x0FFF;
-    if (wrpBits !== 0) {
-      flashLog(`   ⚠️ WRP bits = 0x${wrpBits.toString(16)} — сектора ЗАЩИЩЕНЫ!`, 'err');
-    } else {
-      flashLog(`   WRP bits = 0 (все сектора открыты)`, 'ok');
-    }
-  } catch (e) {
-    flashLog('⚠️ Option bytes недоступны: ' + e.message, 'warn');
-  }
-}
-
-async function readFirstBytesOfFlash() {
-  try {
-    await dfuSync();
-    const d = await dfuReadMemory(FLASH_BASE, 16);
-    const hex = Array.from(d).map(b => b.toString(16).padStart(2,'0')).join(' ');
-    flashLog(`📍 Первые 16 байт flash: ${hex}`, 'warn');
-    const spInit = d[0] | (d[1] << 8) | (d[2] << 16) | (d[3] << 24);
-    const resetVector = d[4] | (d[5] << 8) | (d[6] << 16) | (d[7] << 24);
-    flashLog(`   SP_init=0x${(spInit>>>0).toString(16)}, Reset_Vector=0x${(resetVector>>>0).toString(16)}`, 'warn');
-    if (resetVector === 0xFFFFFFFF) {
-      flashLog(`   ⚠️ Flash пустая (0xFF) — предыдущая прошивка стёрта`, 'warn');
-    }
-  } catch (e) {
-    flashLog('⚠️ Чтение первых байт flash: ' + e.message, 'warn');
-  }
-}
-
 function trimTailFF(data) {
   let i = data.length - 1;
   while (i > 0 && data[i] === 0xFF) i--;
   return Math.ceil((i + 1) / 4) * 4;
 }
 
-async function openDfuDevice(d) {
-  dfuDevice = d;
-  if (typeof dfuDevice.controlTransferOut !== 'function') {
-    dfuDevice = null;
-    throw new Error('Браузер не предоставил controlTransferOut');
+function validateFirmware() {
+  if (firmwareData.length < 8) {
+    flashLog('❌ Файл слишком мал', 'err');
+    return false;
   }
-  await dfuDevice.open();
-  await dfuDevice.selectConfiguration(1);
-  await dfuDevice.claimInterface(0);
-  dfuInterface = 0;
-  const st = await dfuSync();
-  flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
-  await readChipID();
-  await readFlashSize();
-  await readOptionBytes();
-  await readFirstBytesOfFlash();
+  
+  const spInit = firmwareData[0] | (firmwareData[1] << 8) | (firmwareData[2] << 16) | (firmwareData[3] << 24);
+  const resetVector = firmwareData[4] | (firmwareData[5] << 8) | (firmwareData[6] << 16) | (firmwareData[7] << 24);
+  
+  flashLog(`🔍 Проверка валидности файла...`, 'warn');
+  flashLog(`   SP_init = 0x${(spInit>>>0).toString(16).toUpperCase()}`, 'warn');
+  flashLog(`   Reset_Vector = 0x${(resetVector>>>0).toString(16).toUpperCase()}`, 'warn');
+  
+  if ((spInit & 0xFFF00000) !== 0x20000000) {
+    flashLog(`❌ Невалидный SP_init: должен указывать на RAM (0x20xxxxxx)`, 'err');
+    return false;
+  }
+  
+  if ((resetVector & 0xFFF00000) !== 0x08000000) {
+    flashLog(`❌ Невалидный Reset_Vector: должен указывать на Flash (0x08xxxxxx)`, 'err');
+    return false;
+  }
+  
+  flashLog(`✅ Файл валиден`, 'ok');
+  return true;
 }
 
-async function autoDfu() {
-  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
-  flashLog('🔌 Поиск ранее разрешённого DFU-устройства...', 'warn');
+async function verifyFirmware(limitBytes) {
+  flashLog(`🔍 Верификация записи (${(limitBytes/1024).toFixed(0)} KB)...`, 'warn');
+  
+  const verifySize = Math.min(limitBytes, 256 * 1024);
+  
   try {
-    const devs = await navigator.usb.getDevices();
-    const d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
-    if (!d) {
-      flashLog('⚠️ DFU не найдено. Нажмите "Выбрать DFU-устройство"', 'warn');
-      $('dfuStatus').textContent = '⚠️ Нажмите "Выбрать DFU-устройство"';
-      return;
+    const readBack = await dfuReadMemory(FLASH_BASE, verifySize);
+    
+    let mismatches = 0;
+    for (let i = 0; i < verifySize; i++) {
+      if (readBack[i] !== firmwareData[i]) {
+        mismatches++;
+        if (mismatches <= 5) {
+          flashLog(`   ⚠️ Несовпадение на байте ${i}: ожидалось 0x${firmwareData[i].toString(16)}, получено 0x${readBack[i].toString(16)}`, 'warn');
+        }
+      }
     }
-    await openDfuDevice(d);
-    $('dfuStatus').innerHTML = '✅ DFU: STM32 BOOTLOADER (0x0483:0xDF11)';
-    flashLog('✅ DFU подключено без диалога', 'ok');
+    
+    if (mismatches > 0) {
+      flashLog(`❌ Верификация не удалась: ${mismatches} несовпадений`, 'err');
+      return false;
+    }
+    
+    flashLog(`✅ Верификация успешна`, 'ok');
+    return true;
+  } catch (e) {
+    flashLog(`❌ Ошибка верификации: ${e.message}`, 'err');
+    return false;
+  }
+}
+
+async function exitDfu() {
+  flashLog(`🏁 Выход из DFU...`, 'warn');
+  
+  try {
+    await dfuDevice.controlTransferOut(
+      { requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface },
+      new Uint8Array(0)
+    );
+    
+    await sleep(500);
+    await dfuDevice.close();
+    dfuDevice = null;
+    
+    flashLog(`🔄 Плата перезагружается и запускает прошивку...`, 'ok');
     checkFlashReady();
   } catch (e) {
-    flashLog('❌ ' + e.message, 'err');
-    dfuDevice = null;
-    checkFlashReady();
+    if (String(e.message).includes('disconnected') || String(e.message).includes('transfer error')) {
+      flashLog(`✅ Плата отключилась — это нормально, она перезагружается`, 'ok');
+      dfuDevice = null;
+      checkFlashReady();
+    } else {
+      flashLog(`⚠️ Ошибка выхода из DFU: ${e.message}`, 'warn');
+    }
   }
 }
 
 async function connectToDfu() {
-  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
+  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return false; }
+  
   try {
-    flashLog('🔍 Поиск DFU (диалог)...', 'warn');
-    $('dfuStatus').textContent = '🔍 Поиск...';
-    const d = await navigator.usb.requestDevice({
-      filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
-    });
-    await openDfuDevice(d);
-    $('dfuStatus').innerHTML = `✅ DFU: ${d.productName || 'STM32 BOOTLOADER'}`;
+    flashLog('🔍 Поиск DFU-устройства...', 'warn');
+    const devs = await navigator.usb.getDevices();
+    let d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
+    
+    if (!d) {
+      flashLog('⚠️ DFU не найдено среди разрешённых. Открываю диалог выбора...', 'warn');
+      d = await navigator.usb.requestDevice({
+        filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
+      });
+    }
+    
+    if (!d) {
+      flashLog('❌ Устройство не выбрано', 'err');
+      return false;
+    }
+    
+    dfuDevice = d;
+    await dfuDevice.open();
+    await dfuDevice.selectConfiguration(1);
+    await dfuDevice.claimInterface(0);
+    dfuInterface = 0;
+    
+    await dfuSync();
+    flashLog(`✅ DFU подключено: ${d.productName || 'STM32 BOOTLOADER'}`, 'ok');
     checkFlashReady();
+    return true;
+    
   } catch (e) {
-    if (e.name === 'NotFoundError') { flashLog('❌ Устройств не найдено (плата не в DFU?)', 'err'); $('dfuStatus').textContent = '❌ Устройств не найдено'; }
-    else { flashLog('❌ ' + e.message, 'err'); $('dfuStatus').textContent = '❌ ' + e.message; }
+    if (e.name === 'NotFoundError') {
+      flashLog('❌ DFU не найдено. Убедитесь, что плата в режиме BOOT+USB', 'err');
+    } else {
+      flashLog('❌ Ошибка подключения: ' + e.message, 'err');
+    }
     dfuDevice = null;
     checkFlashReady();
+    return false;
   }
-}
-
-/* ============ СНЯТИЕ ЗАЩИТЫ ПАМЯТИ ============ */
-async function checkReadProtection() {
-  try {
-    await dfuSync();
-    // Пробуем прочитать option bytes через UPLOAD
-    await dfuDownloadBlock(0, addrCmd(0x1FFFC000));
-    const ob_data = await dfuUploadBlock(2, 16);
-    
-    if (ob_data.length === 16) {
-      flashLog('✅ Option bytes прочитаны — защита НЕ активна', 'ok');
-      $('unprotectInfo').style.display = 'none';
-      return false;
-    } else {
-      flashLog('⚠️ Не удалось прочитать option bytes — возможно, защита активна', 'warn');
-      return true;
-    }
-  } catch (e) {
-    flashLog('⚠️ Ошибка чтения option bytes: ' + e.message, 'warn');
-    return true;
-  }
-}
-
-async function unprotectMemory() {
-  if (!dfuDevice) {
-    flashLog('❌ DFU не подключено', 'err');
-    return;
-  }
-  
-  flashLog('🔓 Инициация снятия защиты памяти...', 'warn');
-  
-  try {
-    await dfuSync();
-    
-    // Посылаем команду 0x92 (read unprotect)
-    flashLog('   Посылаю команду unprotect (0x92)...', 'warn');
-    await dfuDevice.controlTransferOut(
-      { requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface },
-      new Uint8Array([0x92])
-    );
-    
-    // Ждём статус
-    const st = await dfuGetStatus();
-    if (st.state === DFU_STATE.DN_BUSY) {
-      flashLog('   Команда принята, плата выполняет стирание...', 'ok');
-      
-      // Ждём 20 секунд (стирание занимает время)
-      flashLog('   ⏱ Жду 20 секунд (плата стирает память)...', 'warn');
-      $('unprotectInfo').innerHTML = `
-        <div class="unprotect-box">
-          <h3>⏳ Выполняется снятие защиты</h3>
-          <p>Плата стирает всю память и перезагружается.</p>
-          <p><strong>НЕ отключайте USB!</strong></p>
-          <p>Подождите 20 секунд, затем:</p>
-          <ol>
-            <li>Отключите USB</li>
-            <li>Зажмите BOOT</li>
-            <li>Подключите USB</li>
-            <li>Отпустите BOOT</li>
-            <li>Нажмите "Подключить DFU" снова</li>
-            <li>Попробуйте прошивку — теперь она пойдёт полностью!</li>
-          </ol>
-        </div>
-      `;
-      $('unprotectInfo').style.display = 'block';
-      
-      await sleep(20000);
-      
-      flashLog('✅ Команда unprotect выполнена!', 'ok');
-      flashLog('🔄 Плата должна перезагрузиться. Переподключите USB и снова войдите в DFU.', 'ok');
-      
-    } else {
-      flashLog('❌ Неожиданное состояние после unprotect: ' + (STATE_NAMES[st.state] || st.state), 'err');
-    }
-    
-  } catch (e) {
-    // Если плата отключилась — это нормально, она перезагружается
-    if (String(e.message).includes('disconnected') || String(e.message).includes('transfer error')) {
-      flashLog('✅ Плата отключилась — это нормально, она перезагружается после стирания', 'ok');
-      flashLog('🔄 Переподключите USB, зажмите BOOT, снова войдите в DFU и попробуйте прошивку', 'ok');
-      
-      $('unprotectInfo').innerHTML = `
-        <div class="unprotect-box">
-          <h3>✅ Снятие защиты завершено!</h3>
-          <p>Плата перезагрузилась после полного стирания памяти.</p>
-          <p><strong>Теперь выполните:</strong></p>
-          <ol>
-            <li>Отключите USB (если ещё подключено)</li>
-            <li>Зажмите кнопку <strong>BOOT</strong></li>
-            <li>Подключите USB, удерживая BOOT</li>
-            <li>Отпустите BOOT через 2 секунды</li>
-            <li>Нажмите "🔌 Подключить DFU (без диалога)"</li>
-            <li>Попробуйте прошивку — теперь она пойдёт до 100%!</li>
-          </ol>
-        </div>
-      `;
-      $('unprotectInfo').style.display = 'block';
-      
-      dfuDevice = null;
-      checkFlashReady();
-    } else {
-      flashLog('❌ Ошибка unprotect: ' + e.message, 'err');
-    }
-  }
-}
-
-$('autoDfu').addEventListener('click', autoDfu);
-$('connectDfu').addEventListener('click', connectToDfu);
-$('unprotectMemory').addEventListener('click', unprotectMemory);
-
-$('diagUsb').addEventListener('click', async () => {
-  if (!('usb' in navigator)) { flashLog('❌ WebUSB недоступен', 'err'); return; }
-  flashLog('🔬 === ДИАГНОСТИКА USB ===', 'warn');
-  try {
-    const devs = await navigator.usb.getDevices();
-    flashLog(`Разрешённых устройств: ${devs.length}`, 'warn');
-    devs.forEach(d => flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened}`, 'warn'));
-  } catch (e) { flashLog('Ошибка: ' + e.message, 'err'); }
-  flashLog('🔬 === КОНЕЦ ===', 'warn');
-});
-
-/* ============ ПРОШИВКА ============ */
-function dfuLost(e) {
-  const m = String(e && e.message || e);
-  return m.includes('disconnected') || m.includes('transfer error') || m.includes('device was lost');
 }
 
 async function eraseSectors(limitBytes){
   const sectors = ALL_SECTORS.filter(sec => sec.a < FLASH_BASE + limitBytes);
   flashLog(`🧹 Стирание ${sectors.length} секторов...`, 'warn');
   for (let i = 0; i < sectors.length; i++) {
-    if (cancelFlash) throw new Error('Отменено пользователем');
     await dfuDownloadBlock(0, eraseCmd(sectors[i].a), 20000);
   }
   flashLog('✓ Секторы стёрты', 'ok');
 }
 
-async function massErase(){
-  flashLog('🧹 Массовое стирание...', 'warn');
-  await dfuDownloadBlock(0, eraseCmd(0xFFFFFFFF), 30000);
-  flashLog('✓ Массовое стирание выполнено', 'ok');
-}
-
-async function writeBlocks(limitBytes, blockSize, resetAddrEverySector){
+async function writeBlocks(limitBytes){
+  const bs = 1024;
   await dfuDownloadBlock(0, addrCmd(FLASH_BASE));
-  let bs = blockSize;
-  let firstOk = false;
-  while (!firstOk) {
-    try {
-      await dfuDownloadBlock(2, firmwareData.slice(0, bs));
-      firstOk = true;
-    } catch (e) {
-      if (dfuLost(e)) throw e;
-      flashLog(`⚠️ Блок ${bs} отклонён: ${e.message}`, 'warn');
-      bs = Math.floor(bs / 2);
-      if (bs < 64) throw new Error('Плата отклоняет запись всеми размерами блоков');
-      await dfuSync();
-      await dfuDownloadBlock(0, addrCmd(FLASH_BASE));
-      flashLog(`📦 Пробую размер блока: ${bs}`, 'warn');
-    }
-  }
-  flashLog(`✓ Первый блок записан (размер ${bs})`, 'ok');
-
+  
   const total = Math.ceil(limitBytes / bs);
-  let addrResets = 0;
-  let lastSectorAddr = -1;
-
-  for (let i = 1; i < total; i++) {
-    if (cancelFlash) throw new Error('Отменено пользователем');
+  flashLog(`📝 Запись ${total} блоков по ${bs} байт...`, 'warn');
+  
+  for (let i = 0; i < total; i++) {
     const s = i * bs;
     const e = Math.min(s + bs, limitBytes);
     const addr = FLASH_BASE + s;
     const chunk = firmwareData.slice(s, e);
-
-    if (resetAddrEverySector) {
-      let secAddr = FLASH_BASE;
-      for (const sec of ALL_SECTORS) { if (addr >= sec.a) secAddr = sec.a; }
-      if (secAddr !== lastSectorAddr) {
-        try {
-          await dfuDownloadBlock(0, addrCmd(addr));
-          addrResets++;
-          lastSectorAddr = secAddr;
-        } catch (e2) {
-          flashLog('⚠️ Не удалось переустановить адрес: ' + e2.message, 'warn');
-        }
-      }
-    } else if (i % 100 === 0) {
-      try {
-        await dfuDownloadBlock(0, addrCmd(addr));
-        addrResets++;
-      } catch (e2) {}
-    }
-
-    try {
-      await dfuDownloadBlock(i + 2, chunk);
-    } catch (err) {
-      if (dfuLost(err)) throw err;
-      const addrHex = '0x' + addr.toString(16).toUpperCase();
-      flashLog(`❌ Блок ${i} (${addrHex}) отклонён: ${err.message}`, 'err');
-
-      try {
-        const mem = await dfuReadMemory(addr, 16);
-        const hex = Array.from(mem).map(b => b.toString(16).padStart(2,'0')).join(' ');
-        flashLog(`🔬 Содержимое по ${addrHex}: ${hex}`, 'warn');
-      } catch (e2) {
-        flashLog('🔬 Чтение памяти не удалось: ' + e2.message, 'warn');
-      }
-
-      try {
-        await dfuSync();
-        await dfuDownloadBlock(0, addrCmd(addr));
-        await dfuDownloadBlock(i + 2, chunk);
-        addrResets++;
-        flashLog(`✓ Блок ${i} записан после переустановки адреса`, 'ok');
-      } catch (err2) {
-        throw new Error(`Блок ${i} (${addrHex}) отклонён дважды: ${err2.message}`);
-      }
-    }
+    
+    await dfuDownloadBlock(i + 2, chunk);
+    
     const p = (25 + (i+1)/total*70).toFixed(0);
     $('progressFill').style.width = p + '%';
     $('progressFill').textContent = p + '%';
-    if (i % 100 === 0) flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
-  }
-  flashLog(`✓ Запись завершена (переустановок адреса: ${addrResets})`, 'ok');
-}
-
-$('startFlash').addEventListener('click', async () => {
-  if (!firmwareData || !firmwareData.length) { flashLog('❌ Нет файла прошивки', 'err'); return; }
-  try { dfuAssert(); } catch (e) { flashLog('❌ ' + e.message, 'err'); return; }
-  const crc = crc32hex(firmwareData);
-
-  const trimmed = trimTailFF(firmwareData);
-  if (trimmed !== firmwareData.length) {
-    flashLog(`✂️ Обрезан хвостовой паддинг 0xFF: ${(firmwareData.length/1024).toFixed(1)} KB → ${(trimmed/1024).toFixed(1)} KB`, 'warn');
-  }
-
-  let limitBytes = trimmed;
-  if (FLASH_SIZE_BYTES > 0 && trimmed > FLASH_SIZE_BYTES) {
-    flashLog(`⚠️ Прошивка (${(trimmed/1024).toFixed(0)} KB) БОЛЬШЕ реальной flash (${FLASH_SIZE_BYTES/1024} KB) — пишу только по границу памяти`, 'err');
-    limitBytes = FLASH_SIZE_BYTES;
-  }
-
-  const limitKB = Math.max(0, parseInt($('flashLimitKB').value, 10) || 0);
-  if (limitKB > 0) {
-    limitBytes = Math.min(limitBytes, limitKB * 1024);
-    flashLog(`📏 Ручной лимит: ${(limitBytes/1024).toFixed(1)} KB`, 'warn');
-  } else if (limitBytes > 256 * 1024) {
-    flashLog(`⚠️ АВТО-ЛИМИТ: прошивка ${(limitBytes/1024).toFixed(0)} KB > 256 KB — пишу только первые 256 KB (защита WRP)`, 'warn');
-    flashLog(`💡 После снятия защиты через кнопку "🔓 Снять защиту памяти" лимит можно убрать`, 'warn');
-    limitBytes = 256 * 1024;
-  }
-
-  if (!confirm(`⚠️ НАЧАТЬ ПРОШИВКУ?\n\nБудет записано: ${(limitBytes/1024).toFixed(1)} KB\nCRC32: ${crc}\n\nНЕ отключайте USB!`)) return;
-
-  $('startFlash').disabled = true;
-  $('cancelFlash').disabled = false;
-  cancelFlash = false;
-  let partialWritten = false;
-
-  const strategies = [
-    {
-      name: 'A: секторное стирание + блок 1024 + сброс адреса на каждом секторе',
-      fn: async () => {
-        await eraseSectors(limitBytes);
-        await writeBlocks(limitBytes, 1024, true);
-      }
-    },
-    {
-      name: 'B: массовое стирание + блок 2048 (как STM32CubeProgrammer)',
-      fn: async () => {
-        await massErase();
-        await writeBlocks(limitBytes, 2048, false);
-      }
-    },
-    {
-      name: 'C: секторное стирание + блок 2048 + сброс адреса',
-      fn: async () => {
-        await eraseSectors(limitBytes);
-        await writeBlocks(limitBytes, 2048, true);
-      }
-    },
-    {
-      name: 'D: маленькие блоки (512) + паузы + сброс каждые 50 блоков',
-      fn: async () => {
-        await eraseSectors(limitBytes);
-        
-        await dfuDownloadBlock(0, addrCmd(FLASH_BASE));
-        const bs = 512;
-        const total = Math.ceil(limitBytes / bs);
-        
-        await dfuDownloadBlock(2, firmwareData.slice(0, bs));
-        flashLog(`✓ Первый блок записан (размер ${bs})`, 'ok');
-        
-        for (let i = 1; i < total; i++) {
-          if (cancelFlash) throw new Error('Отменено');
-          const s = i * bs;
-          const e = Math.min(s + bs, limitBytes);
-          const addr = FLASH_BASE + s;
-          const chunk = firmwareData.slice(s, e);
-          
-          if (i % 50 === 0) {
-            try {
-              await dfuSync();
-              await dfuDownloadBlock(0, addrCmd(addr));
-            } catch (e2) {
-              flashLog(`⚠️ Сброс на блоке ${i}: ${e2.message}`, 'warn');
-            }
-            flashLog(`  синхронизация на блоке ${i}/${total}`, 'warn');
-          }
-          
-          try {
-            await dfuDownloadBlock(i + 2, chunk, 15000);
-          } catch (err) {
-            const addrHex = '0x' + addr.toString(16).toUpperCase();
-            flashLog(`❌ Блок ${i} (${addrHex}): ${err.message}`, 'err');
-            
-            try {
-              await dfuSync();
-              await sleep(10);
-              await dfuDownloadBlock(0, addrCmd(addr));
-              await dfuDownloadBlock(i + 2, chunk, 15000);
-              flashLog(`✓ Блок ${i} записан со второй попытки`, 'ok');
-            } catch (err2) {
-              throw new Error(`Блок ${i} (${addrHex}) отклонён дважды`);
-            }
-          }
-          
-          await sleep(5);
-          
-          const p = (25 + (i+1)/total*70).toFixed(0);
-          $('progressFill').style.width = p + '%';
-          $('progressFill').textContent = p + '%';
-          if (i % 100 === 0) flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
-        }
-        flashLog('✓ Запись завершена', 'ok');
-      }
-    }
-  ];
-
-  let success = false;
-  for (const strat of strategies) {
-    if (cancelFlash) break;
-    try {
-      flashLog(`➡️ Стратегия: ${strat.name}`, 'warn');
-      await dfuSync();
-      await strat.fn();
-      success = true;
-      flashLog(`🏆 УСПЕХ: ${strat.name}`, 'ok');
-      break;
-    } catch (e) {
-      if (dfuLost(e)) {
-        flashLog(`⚠️ Плата отключилась во время стратегии "${strat.name}"`, 'warn');
-        partialWritten = true;
-        break;
-      }
-      partialWritten = true;
-      flashLog(`⚠️ Стратегия "${strat.name}" не удалась: ${e.message}`, 'warn');
-      flashLog('➡️ Следующая стратегия...', 'warn');
+    
+    if (i % 100 === 0 && i > 0) {
+      flashLog(`  блок ${i}/${total} (адрес 0x${addr.toString(16)})`, 'warn');
     }
   }
-
-  if (success) {
-    flashLog('🏁 Выход из DFU...', 'warn');
-    try { await dfuDevice.controlTransferOut({ requestType:'class', recipient:'interface', request:0x01, value:0, index: dfuInterface }, new Uint8Array(0)); } catch (e) {}
-    $('progressFill').style.width = '100%';
-    $('progressFill').textContent = '100%';
-    partialWritten = false;
-    flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА!', 'ok');
-    flashLog('🔄 Переподключите USB — полётник запустится', 'ok');
-  } else {
-    flashLog('❌ Все стратегии исчерпаны.', 'err');
-    if (partialWritten) flashLog('⚠️ Прошивка записана ЧАСТИЧНО! Плата не запустится, пока не прошьёте полностью.', 'err');
-    flashLog('💡 РЕШЕНИЕ: нажмите "🔓 Снять защиту памяти", переподключите USB и попробуйте снова', 'warn');
-    if (dfuLost(null) || !dfuDevice) { dfuDevice = null; flashLog('⚠️ Переведите плату в DFU заново (BOOT+USB)', 'warn'); }
-  }
-
-  $('cancelFlash').disabled = true;
-  checkFlashReady();
-});
-
-$('cancelFlash').addEventListener('click', () => {
-  cancelFlash = true;
-  flashLog('⏹ Отмена запрошена...', 'warn');
-});
-
-/* ============ АВТООБНАРУЖЕНИЕ УСТРОЙСТВ ============ */
-function showDeviceNotification(msg, type) {
-  const notif = document.createElement('div');
-  notif.style.cssText = `
-    position: fixed;
-    top: 80px;
-    right: 20px;
-    background: var(--glass);
-    border: 2px solid ${type === 'ok' ? 'var(--ok)' : 'var(--am)'};
-    border-radius: 12px;
-    padding: 16px 24px;
-    z-index: 9999;
-    box-shadow: 0 0 30px ${type === 'ok' ? 'rgba(74,222,128,0.3)' : 'rgba(251,191,36,0.3)'};
-    animation: slideIn 0.3s ease;
-    max-width: 320px;
-  `;
-  notif.innerHTML = `
-    <div style="font-size:16px;font-weight:700;color:${type === 'ok' ? 'var(--ok)' : 'var(--am)'};margin-bottom:8px">
-      ${type === 'ok' ? '🔌 Обнаружено устройство' : '🔌 Устройство отключено'}
-    </div>
-    <div style="font-size:14px;color:var(--text)">${msg}</div>
-    <button onclick="this.parentElement.remove()" style="margin-top:12px;padding:8px 16px;font-size:13px;cursor:pointer;background:var(--glass);border:1px solid var(--glass-border);border-radius:6px;color:var(--text)">Закрыть</button>
-  `;
-  document.body.appendChild(notif);
-  setTimeout(() => notif.remove(), 8000);
+  flashLog('✓ Запись завершена', 'ok');
 }
 
-const notifStyle = document.createElement('style');
-notifStyle.textContent = `
-  @keyframes slideIn {
-    from { transform: translateX(100%); opacity: 0; }
-    to { transform: translateX(0); opacity: 1; }
-  }
-`;
-document.head.appendChild(notifStyle);
-
-if ('serial' in navigator) {
-  navigator.serial.addEventListener('connect', (e) => {
-    const port = e.target;
-    const info = port.getInfo();
-    let msg = 'Новое USB-устройство доступно';
-    if (info.usbVendorId && info.usbProductId) {
-      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
-      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
-      msg = `VID:${vid} PID:${pid}`;
-      
-      if (info.usbVendorId === 0x0483 && info.usbProductId === 0xDF11) {
-        msg += ' (DFU режим)';
-      } else {
-        msg += ' (обычный режим)';
-      }
-    }
-    flashLog(`🔌 Устройство подключено: ${msg}`, 'ok');
-    showDeviceNotification(msg, 'ok');
-  });
-
-  navigator.serial.addEventListener('disconnect', (e) => {
-    flashLog('🔌 Устройство отключено', 'warn');
-    showDeviceNotification('USB-устройство отключено', 'warn');
-  });
-}
-
-const scanBtn = document.createElement('button');
-scanBtn.className = 'ghost';
-scanBtn.textContent = '🔍 Найти устройства';
-scanBtn.addEventListener('click', async () => {
-  if (!('serial' in navigator)) {
-    flashLog('❌ Web Serial API недоступен', 'err');
+/* ============ ОДИН КЛИК: ПРОШИТЬ СЕЙЧАС ============ */
+$('flashNow').addEventListener('click', async () => {
+  if (!firmwareData || !firmwareData.length) {
+    flashLog('❌ Нет файла прошивки', 'err');
     return;
   }
-  flashLog('🔍 Сканирование доступных портов...', 'warn');
+  
+  $('flashNow').disabled = true;
+  $('progressFill').style.width = '0%';
+  $('progressFill').textContent = '0%';
+  
   try {
-    const port = await navigator.serial.requestPort();
-    const info = port.getInfo();
-    if (info.usbVendorId && info.usbProductId) {
-      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
-      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
-      flashLog(`✅ Выбран порт: VID:${vid} PID:${pid}`, 'ok');
-      showDeviceNotification(`Порт выбран: VID:${vid} PID:${pid}`, 'ok');
-    } else {
-      flashLog('✅ Порт выбран (без USB-идентификаторов)', 'ok');
+    // 1. Проверка валидности файла
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warn');
+    flashLog('🚀 НАЧАЛО ПРОШИВКИ', 'ok');
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warn');
+    
+    if (!validateFirmware()) {
+      throw new Error('Файл не прошёл проверку валидности');
     }
+    
+    const trimmed = trimTailFF(firmwareData);
+    if (trimmed !== firmwareData.length) {
+      flashLog(`✂️ Обрезан хвостовой паддинг: ${(firmwareData.length/1024).toFixed(1)} KB → ${(trimmed/1024).toFixed(1)} KB`, 'warn');
+    }
+    
+    const limitBytes = trimmed;
+    const crc = crc32hex(firmwareData);
+    flashLog(`📊 Итого: ${(limitBytes/1024).toFixed(1)} KB, CRC32: ${crc}`, 'warn');
+    
+    // 2. Подключение DFU
+    flashLog('', '');
+    flashLog('📡 Шаг 1/5: Подключение к плате...', 'warn');
+    if (!await connectToDfu()) {
+      throw new Error('Не удалось подключиться к DFU');
+    }
+    
+    // 3. Стирание
+    flashLog('', '');
+    flashLog('🧹 Шаг 2/5: Стирание памяти...', 'warn');
+    await eraseSectors(limitBytes);
+    
+    // 4. Запись
+    flashLog('', '');
+    flashLog('📝 Шаг 3/5: Запись прошивки...', 'warn');
+    await writeBlocks(limitBytes);
+    
+    // 5. Верификация
+    flashLog('', '');
+    flashLog('🔍 Шаг 4/5: Верификация...', 'warn');
+    if (!await verifyFirmware(limitBytes)) {
+      throw new Error('Верификация не удалась — плата остаётся в DFU для повторной попытки');
+    }
+    
+    // 6. Выход из DFU
+    flashLog('', '');
+    flashLog('🏁 Шаг 5/5: Выход из DFU...', 'warn');
+    await exitDfu();
+    
+    flashLog('', '');
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'ok');
+    flashLog('✅ ПРОШИВКА ЗАВЕРШЕНА УСПЕШНО!', 'ok');
+    flashLog('🎉 Плата перезагружается и запускает новую прошивку', 'ok');
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'ok');
+    
+    $('progressFill').style.width = '100%';
+    $('progressFill').textContent = '100%';
+    
   } catch (e) {
-    flashLog('⚠️ Порт не выбран: ' + e.message, 'warn');
+    flashLog('', '');
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'err');
+    flashLog(`❌ ОШИБКА: ${e.message}`, 'err');
+    flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'err');
+    
+    if (dfuDevice) {
+      flashLog('⚠️ Плата остаётся в DFU-режиме. Попробуйте прошить снова.', 'warn');
+    }
+    
+    $('flashNow').disabled = false;
   }
 });
-
-const disconnectBtn = $('disconnect');
-if (disconnectBtn && disconnectBtn.parentElement) {
-  disconnectBtn.parentElement.insertBefore(scanBtn, disconnectBtn.nextSibling);
-}
 
 /* ============ MAIN LOOP ============ */
 let lastFrame = 0;
