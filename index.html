@@ -112,7 +112,6 @@ button.primary { background: linear-gradient(135deg, rgba(103,232,249,0.2), rgba
 button.danger { background: linear-gradient(135deg, rgba(251,113,133,0.2), rgba(251,113,133,0.3)); border-color: var(--red); color: var(--red); }
 button.ghost { background: transparent; border-color: var(--glass-border); color: var(--dim); padding: 10px 16px; font-size: 13px; }
 button.warning { background: linear-gradient(135deg, rgba(251,191,36,0.2), rgba(251,191,36,0.3)); border-color: var(--am); color: var(--am); }
-button.success { background: linear-gradient(135deg, rgba(74,222,128,0.2), rgba(74,222,128,0.3)); border-color: var(--ok); color: var(--ok); }
 
 .layout { display: grid; grid-template-columns: 220px 1fr; flex: 1; }
 .sidebar { background: var(--glass); border-right: 1px solid var(--glass-border); padding: 20px 0; }
@@ -168,7 +167,6 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 .badge { padding: 10px 18px; border-radius: 10px; font-size: 14px; font-weight: 700; border: 2px solid; }
 .badge.off { background: rgba(139,163,199,0.1); border-color: rgba(139,163,199,0.4); color: var(--dim); }
 .badge.on { background: rgba(74,222,128,0.15); border-color: var(--ok); color: var(--ok); box-shadow: 0 0 15px rgba(74,222,128,0.3); }
-.badge.warn { background: rgba(251,191,36,0.15); border-color: var(--am); color: var(--am); }
 
 .progress-bar { width: 100%; height: 32px; background: rgba(0,0,0,0.4); border: 1px solid var(--glass-border); border-radius: 8px; overflow: hidden; margin: 16px 0; }
 .progress-fill { height: 100%; background: linear-gradient(90deg, var(--cyan), var(--vi)); transition: width 0.3s; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 14px; font-weight: 700; }
@@ -221,11 +219,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
   box-shadow: 0 0 40px rgba(74,222,128,0.5);
   transform: translateY(-2px);
 }
-.flash-button:disabled {
-  opacity: 0.4;
-  cursor: not-allowed;
-  transform: none;
-}
+.flash-button:disabled { opacity: 0.4; cursor: not-allowed; transform: none; }
 
 .footer { position: relative; z-index: 1; background: var(--glass); border-top: 1px solid var(--glass-border); padding: 16px 24px; text-align: center; font-size: 12px; color: var(--dim); letter-spacing: 1px; }
 .footer-version { font-size: 13px; color: var(--cyan); margin-top: 8px; font-weight: 600; }
@@ -436,7 +430,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
           
           <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%">0%</div></div>
           
-          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс. Сайт проверит файл, запишет, верифицирует и перезагрузит плату автоматически.</div>
+          <div class="wisdom">«Тише едешь, дальше будешь» — сайт проверит файл, запишет, верифицирует и перезагрузит плату автоматически.</div>
           <div class="log" id="flashLog" style="margin-top:16px"></div>
         </div>
       </section>
@@ -456,7 +450,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
   <footer class="footer">
     <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
-    <div class="footer-version">Версия: 2.5.1 | Обновлено: 2026-11-01</div>
+    <div class="footer-version">Версия: 2.5.2 | Обновлено: 2026-11-01</div>
   </footer>
 </div>
 
@@ -776,8 +770,6 @@ const BOARD_DATABASE = {
   'HBKF': { target: 'KAKUTEF7', name: 'Holybro Kakute F7' },
 };
 let FIRMWARE_MANIFEST = null;
-let FLASH_SIZE_BYTES = 0;
-let CHIP_IDCODE = null;
 
 function readIdentity(cmd, p){
   if (cmd === 1 && p.length >= 3) txt('d-api', `${p[1]}.${p[2]} (MSP ${p[0]})`);
@@ -1015,9 +1007,6 @@ async function loadFirmwareList(target) {
         firmwareData = new Uint8Array(buf);
         const crc = crc32hex(firmwareData);
         flashLog(`✅ Загружено с сайта: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
-        if (firmwareData.length === 1048576) {
-          flashLog(`⚠️ ВНИМАНИЕ: файл ровно 1024 KB — это полный образ flash. Обычные прошивки iNav весят 400-800 KB.`, 'warn');
-        }
         showFileInfo(b.name, firmwareData.length, crc);
         checkFlashReady();
       } catch (e) {
@@ -1053,9 +1042,6 @@ $('firmwareFile').addEventListener('change', async (e) => {
     firmwareData = new Uint8Array(buf);
     const crc = crc32hex(firmwareData);
     flashLog(`✅ Файл в памяти: ${(firmwareData.length/1024).toFixed(1)} KB, CRC32: ${crc}`, 'ok');
-    if (firmwareData.length === 1048576) {
-      flashLog(`⚠️ ВНИМАНИЕ: файл ровно 1024 KB — это полный образ flash. Обычные прошивки iNav весят 400-800 KB.`, 'warn');
-    }
     showFileInfo(file.name, firmwareData.length, crc);
     checkFlashReady();
   } catch (err) {
@@ -1140,7 +1126,7 @@ async function dfuDownloadBlock(blockNum, data, timeoutMs){
   await dfuWaitIdle(timeoutMs || 10000);
 }
 
-async function dfuUploadBlock(blockNum, length, timeoutMs){
+async function dfuUploadBlock(blockNum, length){
   dfuAssert();
   const res = await dfuDevice.controlTransferIn(
     { requestType:'class', recipient:'interface', request:0x02, value:blockNum, index: dfuInterface }, length);
@@ -1154,7 +1140,6 @@ async function dfuReadMemory(addr, len) {
   let block = 2;
   while (off < len) {
     const n = Math.min(1024, len - off);
-    dfuAssert();
     const d = await dfuUploadBlock(block, n);
     out.set(d, off);
     off += d.length;
@@ -1169,6 +1154,7 @@ function trimTailFF(data) {
   return Math.ceil((i + 1) / 4) * 4;
 }
 
+/* ============ ПРОВЕРКА ВАЛИДНОСТИ (МЯГКИЙ РЕЖИМ) ============ */
 function validateFirmware() {
   if (firmwareData.length < 8) {
     flashLog('❌ Файл слишком мал', 'err');
@@ -1182,14 +1168,37 @@ function validateFirmware() {
   flashLog(`   SP_init = 0x${(spInit>>>0).toString(16).toUpperCase()}`, 'warn');
   flashLog(`   Reset_Vector = 0x${(resetVector>>>0).toString(16).toUpperCase()}`, 'warn');
   
-  if ((spInit & 0xFFF00000) !== 0x20000000) {
-    flashLog(`❌ Невалидный SP_init: должен указывать на RAM (0x20xxxxxx)`, 'err');
+  // КРИТИЧЕСКАЯ ошибка: Reset_Vector не во Flash — точно битый файл
+  if ((resetVector & 0xFFF00000) !== 0x08000000) {
+    flashLog(`❌ Невалидный Reset_Vector: должен указывать на Flash (0x08xxxxxx)`, 'err');
+    flashLog(`💡 Этот файл точно повреждён. Прошивка заблокирована.`, 'err');
     return false;
   }
   
-  if ((resetVector & 0xFFF00000) !== 0x08000000) {
-    flashLog(`❌ Невалидный Reset_Vector: должен указывать на Flash (0x08xxxxxx)`, 'err');
-    return false;
+  // ПРЕДУПРЕЖДЕНИЕ: SP не в основной RAM — странно, но разрешаем с подтверждением
+  if ((spInit & 0xFFF00000) !== 0x20000000) {
+    flashLog(`⚠️ ВНИМАНИЕ: SP_init = 0x${(spInit>>>0).toString(16).toUpperCase()} не указывает на основную RAM (0x20xxxxxx)`, 'warn');
+    flashLog(`   Это может быть кастомная сборка или файл с заголовком.`, 'warn');
+    
+    const proceed = confirm(
+      '⚠️ ВНИМАНИЕ: Нестандартный вектор стека!\n\n' +
+      'SP_init = 0x' + (spInit>>>0).toString(16).toUpperCase() + '\n' +
+      '(ожидалось 0x20xxxxxx — основная RAM)\n\n' +
+      'Это может быть:\n' +
+      '• Кастомная сборка iNav (нормально)\n' +
+      '• Файл с лишним заголовком (опасно — плата не запустится)\n' +
+      '• Повреждённый файл\n\n' +
+      'Вы уверены, что хотите прошить этот файл?\n\n' +
+      'Если плата не запустится — переведите её в DFU (BOOT+USB) и прошейте заново.'
+    );
+    
+    if (!proceed) {
+      flashLog(`❌ Прошивка отменена пользователем`, 'err');
+      return false;
+    }
+    
+    flashLog(`✅ Пользователь подтвердил прошивку несмотря на предупреждение`, 'ok');
+    return true;
   }
   
   flashLog(`✅ Файл валиден`, 'ok');
@@ -1253,6 +1262,20 @@ async function exitDfu() {
   }
 }
 
+async function openDfuDevice(d) {
+  dfuDevice = d;
+  if (typeof dfuDevice.controlTransferOut !== 'function') {
+    dfuDevice = null;
+    throw new Error('Браузер не предоставил controlTransferOut');
+  }
+  await dfuDevice.open();
+  await dfuDevice.selectConfiguration(1);
+  await dfuDevice.claimInterface(0);
+  dfuInterface = 0;
+  const st = await dfuSync();
+  flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
+}
+
 async function autoDfu() {
   if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
   flashLog('🔌 Поиск ранее разрешённого DFU-устройства...', 'warn');
@@ -1292,20 +1315,6 @@ async function connectToDfu() {
     dfuDevice = null;
     checkFlashReady();
   }
-}
-
-async function openDfuDevice(d) {
-  dfuDevice = d;
-  if (typeof dfuDevice.controlTransferOut !== 'function') {
-    dfuDevice = null;
-    throw new Error('Браузер не предоставил controlTransferOut');
-  }
-  await dfuDevice.open();
-  await dfuDevice.selectConfiguration(1);
-  await dfuDevice.claimInterface(0);
-  dfuInterface = 0;
-  const st = await dfuSync();
-  flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
 }
 
 $('autoDfu').addEventListener('click', autoDfu);
@@ -1431,6 +1440,97 @@ $('flashNow').addEventListener('click', async () => {
     $('flashNow').disabled = false;
   }
 });
+
+/* ============ АВТООБНАРУЖЕНИЕ УСТРОЙСТВ ============ */
+function showDeviceNotification(msg, type) {
+  const notif = document.createElement('div');
+  notif.style.cssText = `
+    position: fixed;
+    top: 80px;
+    right: 20px;
+    background: var(--glass);
+    border: 2px solid ${type === 'ok' ? 'var(--ok)' : 'var(--am)'};
+    border-radius: 12px;
+    padding: 16px 24px;
+    z-index: 9999;
+    box-shadow: 0 0 30px ${type === 'ok' ? 'rgba(74,222,128,0.3)' : 'rgba(251,191,36,0.3)'};
+    animation: slideIn 0.3s ease;
+    max-width: 320px;
+  `;
+  notif.innerHTML = `
+    <div style="font-size:16px;font-weight:700;color:${type === 'ok' ? 'var(--ok)' : 'var(--am)'};margin-bottom:8px">
+      ${type === 'ok' ? '🔌 Обнаружено устройство' : '🔌 Устройство отключено'}
+    </div>
+    <div style="font-size:14px;color:var(--text)">${msg}</div>
+    <button onclick="this.parentElement.remove()" style="margin-top:12px;padding:8px 16px;font-size:13px;cursor:pointer;background:var(--glass);border:1px solid var(--glass-border);border-radius:6px;color:var(--text)">Закрыть</button>
+  `;
+  document.body.appendChild(notif);
+  setTimeout(() => notif.remove(), 8000);
+}
+
+const notifStyle = document.createElement('style');
+notifStyle.textContent = `
+  @keyframes slideIn {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+  }
+`;
+document.head.appendChild(notifStyle);
+
+if ('serial' in navigator) {
+  navigator.serial.addEventListener('connect', (e) => {
+    const port = e.target;
+    const info = port.getInfo();
+    let msg = 'Новое USB-устройство доступно';
+    if (info.usbVendorId && info.usbProductId) {
+      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
+      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
+      msg = `VID:${vid} PID:${pid}`;
+      if (info.usbVendorId === 0x0483 && info.usbProductId === 0xDF11) {
+        msg += ' (DFU режим)';
+      } else {
+        msg += ' (обычный режим)';
+      }
+    }
+    flashLog(`🔌 Устройство подключено: ${msg}`, 'ok');
+    showDeviceNotification(msg, 'ok');
+  });
+
+  navigator.serial.addEventListener('disconnect', (e) => {
+    flashLog('🔌 Устройство отключено', 'warn');
+    showDeviceNotification('USB-устройство отключено', 'warn');
+  });
+}
+
+const scanBtn = document.createElement('button');
+scanBtn.className = 'ghost';
+scanBtn.textContent = '🔍 Найти устройства';
+scanBtn.addEventListener('click', async () => {
+  if (!('serial' in navigator)) {
+    flashLog('❌ Web Serial API недоступен', 'err');
+    return;
+  }
+  flashLog('🔍 Сканирование доступных портов...', 'warn');
+  try {
+    const port = await navigator.serial.requestPort();
+    const info = port.getInfo();
+    if (info.usbVendorId && info.usbProductId) {
+      const vid = info.usbVendorId.toString(16).padStart(4, '0').toUpperCase();
+      const pid = info.usbProductId.toString(16).padStart(4, '0').toUpperCase();
+      flashLog(`✅ Выбран порт: VID:${vid} PID:${pid}`, 'ok');
+      showDeviceNotification(`Порт выбран: VID:${vid} PID:${pid}`, 'ok');
+    } else {
+      flashLog('✅ Порт выбран (без USB-идентификаторов)', 'ok');
+    }
+  } catch (e) {
+    flashLog('⚠️ Порт не выбран: ' + e.message, 'warn');
+  }
+});
+
+const disconnectBtn = $('disconnect');
+if (disconnectBtn && disconnectBtn.parentElement) {
+  disconnectBtn.parentElement.insertBefore(scanBtn, disconnectBtn.nextSibling);
+}
 
 /* ============ MAIN LOOP ============ */
 let lastFrame = 0;
