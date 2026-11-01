@@ -404,31 +404,39 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
         </div>
 
         <div class="card">
-          <h2>Шаг 2: Прошивка</h2>
+          <h2>Шаг 2: Подключение к DFU</h2>
           <div class="dfu-instruction">
             <strong>📋 Порядок действий:</strong>
             <ol>
-              <li>Выберите прошивку выше</li>
               <li>Отключите USB</li>
               <li>Зажмите кнопку <strong>BOOT</strong> на плате</li>
               <li>Подключите USB, удерживая BOOT</li>
               <li>Отпустите BOOT через 2 секунды</li>
-              <li>Нажмите кнопку "🚀 ПРОШИТЬ СЕЙЧАС" ниже</li>
+              <li>Нажмите кнопку подключения ниже</li>
             </ol>
-            <p style="margin-top:12px;color:var(--ok)"><strong>✅ Безопасность:</strong> Сайт автоматически проверит файл, запишет прошивку, верифицирует её и перезагрузит плату. Если что-то пойдёт не так — плата останется в DFU-режиме для повторной попытки.</p>
+          </div>
+          <div class="action-bar" style="border:none;padding-top:0;margin-top:0">
+            <button id="autoDfu">🔌 Подключить DFU (без диалога)</button>
+            <button id="connectDfu">Выбрать DFU-устройство</button>
+            <button id="diagUsb" class="ghost">🔬 Диагностика USB</button>
+          </div>
+          <div id="dfuStatus" style="margin-top:16px;font-size:13px;color:var(--dim);text-align:center"></div>
+        </div>
+
+        <div class="card">
+          <h2>Шаг 3: Прошивка</h2>
+          <div class="ready-badges">
+            <span id="badgeFile" class="badge off">📄 Файл: не выбран</span>
+            <span id="badgeDfu" class="badge off">🔌 DFU: не подключено</span>
           </div>
           
           <div class="flash-button-container">
             <button id="flashNow" class="flash-button" disabled>🚀 ПРОШИТЬ СЕЙЧАС</button>
           </div>
           
-          <div class="ready-badges">
-            <span id="badgeFile" class="badge off">📄 Файл: не выбран</span>
-            <span id="badgeDfu" class="badge off">🔌 DFU: не подключено</span>
-          </div>
-          
           <div class="progress-bar"><div class="progress-fill" id="progressFill" style="width:0%">0%</div></div>
           
+          <div class="wisdom">«Тише едешь, дальше будешь» — не прерывай процесс. Сайт проверит файл, запишет, верифицирует и перезагрузит плату автоматически.</div>
           <div class="log" id="flashLog" style="margin-top:16px"></div>
         </div>
       </section>
@@ -448,7 +456,7 @@ table th { font-size: 13px; font-weight: 700; color: var(--dim); text-transform:
 
   <footer class="footer">
     <div>© 2026 iNav Configurator · Сделано с 🐝 и ☕</div>
-    <div class="footer-version">Версия: 2.5.0 | Обновлено: 2026-11-01</div>
+    <div class="footer-version">Версия: 2.5.1 | Обновлено: 2026-11-01</div>
   </footer>
 </div>
 
@@ -909,9 +917,10 @@ function setBadge(id, on, textOn, textOff) {
 
 function checkFlashReady() {
   const hasFile = !!(firmwareData && firmwareData.length > 0);
-  $('flashNow').disabled = !hasFile;
+  const hasDfu = !!(dfuDevice && dfuDevice.opened);
+  $('flashNow').disabled = !(hasFile && hasDfu);
   setBadge('badgeFile', hasFile, '📄 Файл: готов', '📄 Файл: не выбран');
-  setBadge('badgeDfu', !!dfuDevice, '🔌 DFU: подключено', '🔌 DFU: не подключено');
+  setBadge('badgeDfu', hasDfu, '🔌 DFU: подключено', '🔌 DFU: не подключено');
 }
 
 function showFileInfo(fileName, fileSize, crc) {
@@ -1244,49 +1253,76 @@ async function exitDfu() {
   }
 }
 
-async function connectToDfu() {
-  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return false; }
-  
+async function autoDfu() {
+  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
+  flashLog('🔌 Поиск ранее разрешённого DFU-устройства...', 'warn');
   try {
-    flashLog('🔍 Поиск DFU-устройства...', 'warn');
     const devs = await navigator.usb.getDevices();
-    let d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
-    
+    const d = devs.find(x => x.vendorId === 0x0483 && x.productId === 0xDF11);
     if (!d) {
-      flashLog('⚠️ DFU не найдено среди разрешённых. Открываю диалог выбора...', 'warn');
-      d = await navigator.usb.requestDevice({
-        filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
-      });
+      flashLog('⚠️ DFU не найдено среди разрешённых. Нажмите "Выбрать DFU-устройство"', 'warn');
+      $('dfuStatus').textContent = '⚠️ Нажмите "Выбрать DFU-устройство"';
+      return;
     }
-    
-    if (!d) {
-      flashLog('❌ Устройство не выбрано', 'err');
-      return false;
-    }
-    
-    dfuDevice = d;
-    await dfuDevice.open();
-    await dfuDevice.selectConfiguration(1);
-    await dfuDevice.claimInterface(0);
-    dfuInterface = 0;
-    
-    await dfuSync();
-    flashLog(`✅ DFU подключено: ${d.productName || 'STM32 BOOTLOADER'}`, 'ok');
+    await openDfuDevice(d);
+    $('dfuStatus').innerHTML = '✅ DFU: STM32 BOOTLOADER (0x0483:0xDF11)';
+    flashLog('✅ DFU подключено без диалога', 'ok');
     checkFlashReady();
-    return true;
-    
   } catch (e) {
-    if (e.name === 'NotFoundError') {
-      flashLog('❌ DFU не найдено. Убедитесь, что плата в режиме BOOT+USB', 'err');
-    } else {
-      flashLog('❌ Ошибка подключения: ' + e.message, 'err');
-    }
+    flashLog('❌ ' + e.message, 'err');
     dfuDevice = null;
     checkFlashReady();
-    return false;
   }
 }
 
+async function connectToDfu() {
+  if (!('usb' in navigator)) { flashLog('❌ WebUSB не поддерживается', 'err'); return; }
+  try {
+    flashLog('🔍 Поиск DFU (диалог)...', 'warn');
+    $('dfuStatus').textContent = '🔍 Поиск...';
+    const d = await navigator.usb.requestDevice({
+      filters: [ { vendorId: 0x0483, productId: 0xDF11 }, { vendorId: 0x0483 } ]
+    });
+    await openDfuDevice(d);
+    $('dfuStatus').innerHTML = `✅ DFU: ${d.productName || 'STM32 BOOTLOADER'}`;
+    checkFlashReady();
+  } catch (e) {
+    if (e.name === 'NotFoundError') { flashLog('❌ Устройств не найдено (плата не в DFU?)', 'err'); $('dfuStatus').textContent = '❌ Устройств не найдено'; }
+    else { flashLog('❌ ' + e.message, 'err'); $('dfuStatus').textContent = '❌ ' + e.message; }
+    dfuDevice = null;
+    checkFlashReady();
+  }
+}
+
+async function openDfuDevice(d) {
+  dfuDevice = d;
+  if (typeof dfuDevice.controlTransferOut !== 'function') {
+    dfuDevice = null;
+    throw new Error('Браузер не предоставил controlTransferOut');
+  }
+  await dfuDevice.open();
+  await dfuDevice.selectConfiguration(1);
+  await dfuDevice.claimInterface(0);
+  dfuInterface = 0;
+  const st = await dfuSync();
+  flashLog(`✓ DFU синхронизировано: ${STATE_NAMES[st.state] || st.state}`, 'ok');
+}
+
+$('autoDfu').addEventListener('click', autoDfu);
+$('connectDfu').addEventListener('click', connectToDfu);
+
+$('diagUsb').addEventListener('click', async () => {
+  if (!('usb' in navigator)) { flashLog('❌ WebUSB недоступен', 'err'); return; }
+  flashLog('🔬 === ДИАГНОСТИКА USB ===', 'warn');
+  try {
+    const devs = await navigator.usb.getDevices();
+    flashLog(`Разрешённых устройств: ${devs.length}`, 'warn');
+    devs.forEach(d => flashLog(`  • ${d.productName || '?'} VID:0x${d.vendorId.toString(16)} PID:0x${d.productId.toString(16)} opened=${d.opened}`, 'warn'));
+  } catch (e) { flashLog('Ошибка: ' + e.message, 'err'); }
+  flashLog('🔬 === КОНЕЦ ===', 'warn');
+});
+
+/* ============ ПРОШИВКА ============ */
 async function eraseSectors(limitBytes){
   const sectors = ALL_SECTORS.filter(sec => sec.a < FLASH_BASE + limitBytes);
   flashLog(`🧹 Стирание ${sectors.length} секторов...`, 'warn');
@@ -1322,10 +1358,14 @@ async function writeBlocks(limitBytes){
   flashLog('✓ Запись завершена', 'ok');
 }
 
-/* ============ ОДИН КЛИК: ПРОШИТЬ СЕЙЧАС ============ */
 $('flashNow').addEventListener('click', async () => {
   if (!firmwareData || !firmwareData.length) {
     flashLog('❌ Нет файла прошивки', 'err');
+    return;
+  }
+  
+  if (!dfuDevice || !dfuDevice.opened) {
+    flashLog('❌ DFU не подключено. Сначала нажмите "Подключить DFU"', 'err');
     return;
   }
   
@@ -1334,7 +1374,6 @@ $('flashNow').addEventListener('click', async () => {
   $('progressFill').textContent = '0%';
   
   try {
-    // 1. Проверка валидности файла
     flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warn');
     flashLog('🚀 НАЧАЛО ПРОШИВКИ', 'ok');
     flashLog('━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━', 'warn');
@@ -1352,33 +1391,22 @@ $('flashNow').addEventListener('click', async () => {
     const crc = crc32hex(firmwareData);
     flashLog(`📊 Итого: ${(limitBytes/1024).toFixed(1)} KB, CRC32: ${crc}`, 'warn');
     
-    // 2. Подключение DFU
     flashLog('', '');
-    flashLog('📡 Шаг 1/5: Подключение к плате...', 'warn');
-    if (!await connectToDfu()) {
-      throw new Error('Не удалось подключиться к DFU');
-    }
-    
-    // 3. Стирание
-    flashLog('', '');
-    flashLog('🧹 Шаг 2/5: Стирание памяти...', 'warn');
+    flashLog('🧹 Шаг 1/4: Стирание памяти...', 'warn');
     await eraseSectors(limitBytes);
     
-    // 4. Запись
     flashLog('', '');
-    flashLog('📝 Шаг 3/5: Запись прошивки...', 'warn');
+    flashLog('📝 Шаг 2/4: Запись прошивки...', 'warn');
     await writeBlocks(limitBytes);
     
-    // 5. Верификация
     flashLog('', '');
-    flashLog('🔍 Шаг 4/5: Верификация...', 'warn');
+    flashLog('🔍 Шаг 3/4: Верификация...', 'warn');
     if (!await verifyFirmware(limitBytes)) {
       throw new Error('Верификация не удалась — плата остаётся в DFU для повторной попытки');
     }
     
-    // 6. Выход из DFU
     flashLog('', '');
-    flashLog('🏁 Шаг 5/5: Выход из DFU...', 'warn');
+    flashLog('🏁 Шаг 4/4: Выход из DFU...', 'warn');
     await exitDfu();
     
     flashLog('', '');
